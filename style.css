@@ -1,0 +1,343 @@
+.level-btn[data-level="advanced"] {
+  font-weight: 900;
+  font-family: 'Courier New', Courier, monospace;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background: linear-gradient(90deg, #4cff79 0%, #1e90ff 100%);
+  border: 2px solid #1e90ff;
+  text-shadow: 0 2px 8px #0006;
+  box-shadow: 0 2px 12px #4cff7933;
+}
+/* Advanced Attacks Section */
+.advanced-attacks-section {
+  margin: 48px auto 0 auto;
+  max-width: 900px;
+  padding: 0 16px 32px 16px;
+  display: block;
+}
+.advanced-attacks-section h2 {
+  color: #4cff79;
+  font-size: 2rem;
+  margin-bottom: 18px;
+  text-align: center;
+}
+.advanced-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+.advanced-card {
+  background: #181f24;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px #0002;
+  padding: 20px 18px 16px 18px;
+  color: #e6f1fa;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 120px;
+  transition: box-shadow 0.2s;
+}
+.advanced-card:hover {
+  box-shadow: 0 4px 24px #0004;
+}
+.advanced-card .action-title {
+  font-size: 1.15rem;
+  font-weight: bold;
+  color: #4cff79;
+  margin-bottom: 8px;
+}
+.advanced-card .controls-row {
+  font-size: 1rem;
+  margin-bottom: 2px;
+}
+.advanced-card .controls-label {
+  color: #8ecae6;
+  font-size: 0.95em;
+  margin-right: 6px;
+}
+/* Tooltip for L3 (PlayStation only) */
+.l3-tooltip {
+  position: relative;
+  cursor: pointer;
+}
+.l3-tooltip .tooltip-text {
+  visibility: hidden;
+  width: 110px;
+  background: #222;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 4px 0;
+  position: absolute;
+  z-index: 10;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -55px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  font-size: 0.9em;
+  pointer-events: none;
+}
+.l3-tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+/* Tooltip for R3 (PlayStation only) */
+.r3-tooltip {
+  position: relative;
+  cursor: pointer;
+}
+.r3-tooltip .tooltip-text {
+  visibility: hidden;
+  width: 110px;
+  background: #222;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 4px 0;
+  position: absolute;
+  z-index: 10;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -55px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  font-size: 0.9em;
+  pointer-events: none;
+}
+.r3-tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+/* Hide R3 tooltip if not PlayStation */
+[data-platform="xbox"] .r3-tooltip {
+  display: none;
+}
+/* FC25 Tricks Manual — style.css
+   Dark football theme with green/gold highlights.
+   Simple, kid-friendly layout and big buttons.
+*/
+
+/* Color variables */
+:root{
+  --bg:#071018;           /* deep dark */
+  --card:#0f1720;         /* card background */
+  --muted:#a9b1b8;        /* muted text */
+  --accent:#6bd64b;       /* fresh green */
+  --accent2:#e1b95b;      /* gold */
+  --glow: rgba(107,214,75,0.18);
+  --big: 1.2rem;
+  --rounded:14px;
+  --gap:16px;
+  --max-width:1100px;
+}
+
+* { box-sizing: border-box; }
+html,body{ height:100%; margin:0; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background: radial-gradient(ellipse at 10% 0%, #05101a 0%, var(--bg) 60%); color: #e6eef3; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+
+.site-header{
+  padding: 28px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.header-inner{
+  max-width:var(--max-width);
+  margin:0 auto;
+  display:flex;
+  gap:var(--gap);
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+}
+
+.site-title{ font-size:2.4rem; margin:0; letter-spacing:0.4px; color:var(--accent); }
+.site-sub{ margin:6px 0 10px 0; color:var(--muted); font-size:1rem; }
+
+.controls{ display:flex; gap:18px; align-items:center; flex-wrap:wrap; }
+
+.platform-toggle { display:flex; gap:10px; align-items:center; }
+.platform-btn{
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  color:var(--accent2); border:2px solid rgba(255,255,255,0.03);
+  padding:12px 18px; font-size:1.05rem; border-radius:10px; cursor:pointer;
+  transition:transform .18s ease, box-shadow .18s ease;
+  display:inline-flex; gap:8px; align-items:center;
+}
+.platform-btn.active{
+  box-shadow: 0 8px 20px var(--glow); transform:translateY(-4px);
+  border-color: rgba(107,214,75,0.7); color: #eafaf0; background: linear-gradient(180deg, rgba(107,214,75,0.06), rgba(255,255,255,0.01));
+}
+.platform-btn .emoji{ font-size:0.9rem; opacity:0.9; }
+
+.level-select .small-label{ margin:0 0 6px 0; font-size:0.85rem; color:var(--muted); }
+.level-buttons{ display:flex; gap:10px; }
+
+.level-btn{
+  background:transparent; border:1px solid rgba(255,255,255,0.03);
+  color:var(--muted); padding:10px 14px; border-radius:10px; cursor:pointer; font-size:1rem;
+  transition:all .16s ease;
+}
+.level-btn.active{
+  color:#072; background:linear-gradient(90deg, rgba(107,214,75,0.06), rgba(226,185,91,0.03));
+  border-color: rgba(107,214,75,0.25); transform:translateY(-3px);
+}
+
+/* Featured */
+.featured{ max-width:var(--max-width); margin:24px auto; padding:18px; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); border:1px solid rgba(255,255,255,0.03); box-shadow:0 6px 18px rgba(0,0,0,0.6); }
+.featured h2{ margin:0 0 12px 0; color:var(--accent2); font-size:1.2rem; }
+.featured-card{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.practice-challenge{ margin-top:10px; color:var(--muted); font-size:0.95rem; }
+
+/* Cards grid */
+.tricks-section{ max-width:var(--max-width); margin:18px auto; padding:0 12px 48px; }
+.cards-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap:18px;
+  margin-top:10px;
+   /* Make rows evenly sized so cards in the same row have equal height */
+   grid-auto-rows: 1fr;
+   align-items: stretch; /* ensure child items stretch to fill row height */
+}
+
+.controller-image{
+  display:block;
+  width:100%;
+  max-width:520px;
+  height:auto;
+  margin-top:10px;
+  margin-bottom: var(--gap);
+  border-radius:var(--rounded);
+  border:1px solid rgba(255,255,255,0.06);
+}
+
+/* Space between star sections (prevents headings sticking to previous content) */
+.stars-container .star-section + .star-section{ margin-top: var(--gap); }
+
+/* Platform-only visibility (fallback + works with JS) */
+body[data-platform="xbox"] [data-platform-only="ps"]{ display:none !important; }
+body[data-platform="ps"] [data-platform-only="xbox"]{ display:none !important; }
+
+.star-heading{ margin:0 0 8px 0; color:var(--accent2); font-size:1.05rem; font-weight:700; }
+
+/* Small note under a section heading (used for 1 Star note) */
+.section-note{ margin:6px 0 10px; color:var(--muted); font-size:0.95rem; background: rgba(255,255,255,0.01); padding:6px 10px; border-radius:8px; display:inline-block; }
+
+/* Team-management tip under the main Skill Moves heading */
+.team-note{ margin:6px 0 12px; color:var(--muted); font-size:0.95rem; background: rgba(255,255,255,0.01); padding:6px 10px; border-radius:8px; display:inline-block; font-weight:600; }
+
+/* Fundamentals section */
+.fundamentals{ max-width:var(--max-width); margin:18px auto; padding:12px; }
+.fund-note{ color:var(--muted); margin:0 0 8px; }
+.fund-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:18px; }
+.fund-card{
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.007));
+  border-radius:var(--rounded); padding:16px; border:1px solid rgba(255,255,255,0.03);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.45);
+}
+.fund-card .card-title{ color:var(--accent); }
+.fund-card .desc, .fund-card .tip{ color:var(--muted); font-size:0.95rem; }
+
+/* Watch button for certain tricks */
+.watch-btn{
+  display:inline-block;
+  /* push button to the bottom of the card when card is a vertical flex container */
+  margin-top: auto;
+  align-self: flex-start;
+  /* Use site accent green for button background */
+  background: linear-gradient(180deg, var(--accent), rgba(107,214,75,0.88));
+  color: #fff; /* white text for better contrast */
+  padding:10px 14px; border-radius:10px; font-weight:800; text-decoration:none; 
+  border:2px solid rgba(7,98,35,0.14);
+  transition:transform .12s ease, box-shadow .12s ease, filter .12s ease; 
+  box-shadow: 0 8px 18px rgba(6,60,16,0.25);
+}
+.watch-btn:hover, .watch-btn:focus{ transform:translateY(-3px); box-shadow: 0 16px 30px rgba(6,60,16,0.35); filter:brightness(1.03); outline:none; }
+
+/* Card with video should look clickable */
+.card.has-video{ cursor:pointer; }
+.card.has-video:focus{ outline: 3px solid rgba(107,214,75,0.14); outline-offset:6px; }
+
+
+
+/* Hide a whole star section when it's not active */
+.star-section.hide-section{ display:none; }
+
+/* small spacing for featured practice text */
+.featured-practice{ margin-top:12px; color:var(--muted); font-weight:600; }
+
+
+/* Card style */
+.card{
+  display:flex;
+  flex-direction:column;
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.007));
+  border-radius:var(--rounded); padding:16px; border:1px solid rgba(255,255,255,0.03);
+  /* Let grid control heights; make card fill its grid cell so all buttons align */
+  min-height: 0;
+  height: 100%;
+  /* lighter shadow and hardware-accelerated transform only */
+  box-shadow: 0 6px 12px rgba(0,0,0,0.45);
+  transition: transform .22s ease, opacity .22s ease;
+  transform-origin: center; cursor:default;
+  will-change: transform, opacity;
+  -webkit-backface-visibility: hidden; /* improve rendering */
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+.card:hover{ transform: translateY(-4px); box-shadow: 0 10px 18px rgba(0,0,0,0.5); }
+
+.card-title{ margin:0 0 6px 0; font-size:1.05rem; color:var(--accent); }
+.stars{ margin:0 0 8px 0; color: var(--accent2); font-weight:600; }
+.controller{ background: rgba(255,255,255,0.02); padding:8px 10px; border-radius:8px; display:inline-block; font-weight:600; color:#dff2dc; margin-bottom:8px; }
+.desc, .when, .tip{ margin:6px 0; color:var(--muted); font-size:0.95rem; }
+.when{ font-weight:600; color:#fff; }
+.tip{ font-style:italic; color:#cfe9c8; }
+
+/* Staggered pop-in animation (uses CSS variables for per-card delay) */
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(8px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.card.animate-in {
+  animation: popIn .36s cubic-bezier(.2,.9,.2,1) both;
+  animation-delay: var(--delay, 0ms);
+}
+
+/* Animation: show/hide — keep layout stable (do not collapse height) */
+.card.hide{ opacity:0; transform:scale(.98) translateY(8px); pointer-events:none; visibility:hidden; transition: opacity .22s ease, transform .22s ease; }
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .card.animate-in, .card:hover { animation: none !important; transition: none !important; }
+}
+
+/* Featured card style smaller version of card */
+.featured-card .card{ width:100%; }
+
+/* Responsive tweaks */
+@media (max-width:640px){
+  .site-title{ font-size:1.6rem; }
+  .platform-btn, .level-btn{ padding:10px 12px; font-size:0.95rem; }
+  .card{ padding:12px; }
+}
+
+/* Footer: place small note bottom-right and slightly higher than bottom edge */
+.site-footer{
+  position:fixed;
+  right:18px;
+  bottom:28px; /* nudged up slightly */
+  z-index:50;
+  pointer-events:none; /* non-interactive */
+}
+.site-footer p{
+  margin:0; color:var(--muted); font-size:0.95rem; text-align:right; pointer-events:auto; background:transparent; padding:6px 8px; border-radius:8px;
+}
+
+@media (max-width:480px){
+  .site-footer{ right:10px; bottom:18px; }
+  .site-footer p{ font-size:0.85rem; }
+}
+
+/* Tiny accessibility focus styles */
+.platform-btn:focus, .level-btn:focus, .card:focus { outline: 3px solid rgba(107,214,75,0.18); outline-offset:3px; border-radius:10px; }
