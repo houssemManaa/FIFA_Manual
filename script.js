@@ -28,22 +28,999 @@ function renderAdvancedAttacks() {
   advancedAttacks.forEach(item => {
     const card = document.createElement('div');
     card.className = 'advanced-card';
+    
+    // Translate the action name
+    const translatedAction = getAdvancedAttackTranslation(item.action);
+    
+    // Translate the D-Pad instructions
+    const translatedPs = translateControlsString(item.ps);
+    const translatedXbox = translateControlsString(item.xbox);
+    
     card.innerHTML = `
-      <div class="action-title">${item.action}</div>
-      <div class="controls-row"><span class="controls-label">PlayStation:</span> ${item.ps}</div>
-      <div class="controls-row"><span class="controls-label">Xbox:</span> ${item.xbox}</div>
+      <div class="action-title">${translatedAction}</div>
+      <div class="controls-row"><span class="controls-label">PlayStation:</span> ${translatedPs}</div>
+      <div class="controls-row"><span class="controls-label">Xbox:</span> ${translatedXbox}</div>
     `;
     grid.appendChild(card);
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  renderAdvancedAttacks();
-});
 /* FC25 Tricks Manual — script.js
    Renders tricks by star rating and handles platform toggling.
    Clean and simple so kids can read the code.
 */
+
+// Language system
+let currentLanguage = 'en';
+
+// Load saved language from localStorage
+function loadLanguage() {
+  const saved = localStorage.getItem('fc25_lang');
+  if (saved && ['en', 'fr', 'es', 'ar'].includes(saved)) {
+    currentLanguage = saved;
+  }
+}
+
+// Save language to localStorage
+function saveLanguage(lang) {
+  localStorage.setItem('fc25_lang', lang);
+}
+
+// UI translations for labels, headings, buttons
+const I18N = {
+  en: {
+    watchTutorial: '▶ Watch Tutorial',
+    advancedAttacks: 'Advanced Attacks'
+  },
+  fr: {
+    watchTutorial: '▶ Voir le tuto',
+    advancedAttacks: 'Attaques avancées'
+  },
+  es: {
+    watchTutorial: '▶ Ver tutorial',
+    advancedAttacks: 'Ataques avanzados'
+  },
+  ar: {
+    watchTutorial: '▶ شاهد الفيديو',
+    advancedAttacks: 'هجمات متقدمة'
+  }
+};
+
+// Helper function to get translation
+function t(key) {
+  const lang = I18N[currentLanguage] ? currentLanguage : 'en';
+  return I18N[lang][key] ?? I18N.en[key] ?? key;
+}
+
+// Trick content translations (names, descriptions, tips)
+// IMPORTANT: Keys must match exact English trick names for video tutorials to work
+const TRICK_TRANSLATIONS = {
+  fr: {
+    'Directional Nutmeg': {
+      name: 'Petit pont directionnel',
+      desc: 'Petit pont rapide pour surprendre un défenseur.',
+      tip: 'Essaie lentement d\'abord.'
+    },
+    'Ball Juggle (While standing)': {
+      name: 'Jonglage (Debout)',
+      desc: 'Garde le ballon en l\'air en restant debout.',
+      tip: 'Compte tes touches.'
+    },
+    'Open Up Fake Shot': {
+      name: 'Feinte de tir ouverte',
+      desc: 'Fais semblant de tirer pour créer de l\'espace.',
+      tip: 'Fais semblant de tirer d\'abord.'
+    },
+    'Flick Up': {
+      name: 'Petit lob',
+      desc: 'Soulève le ballon légèrement.',
+      tip: 'Utilise doucement.'
+    },
+    'First Time Feint Turn': {
+      name: 'Feinte et tour en une touche',
+      desc: 'Tour rapide après une touche pour échapper.',
+      tip: 'Tourne par petits mouvements.'
+    },
+    'Feint Forward and Turn': {
+      name: 'Feinte avant et tour',
+      desc: 'Fais semblant d\'aller devant puis tourne vite.',
+      tip: 'Penche ton corps comme un vrai joueur.'
+    },
+    'Body Feint Left/Right': {
+      name: 'Feinte de corps gauche/droite',
+      desc: 'Utilise ton corps pour tromper les défenseurs.',
+      tip: 'Bouge tes hanches.'
+    },
+    'Stepover Left/Right': {
+      name: 'Passement de jambe gauche/droite',
+      desc: 'Passe au-dessus du ballon pour confondre.',
+      tip: 'Les pieds rapides aident.'
+    },
+    'Reverse Stepover Left/Right': {
+      name: 'Passement inversé gauche/droite',
+      desc: 'Les passements inversés surprennent les défenseurs.',
+      tip: 'Pratique dans les deux sens.'
+    },
+    'Ball Roll Left/Right': {
+      name: 'Roulette gauche/droite',
+      desc: 'Roule le ballon pour changer de direction.',
+      tip: 'Garde-le stable.'
+    },
+    'Drag Back': {
+      name: 'Talonnade arrière',
+      desc: 'Ramène le ballon pour arrêter le jeu.',
+      tip: 'Utilise près de la ligne de touche.'
+    },
+    'Heel Flick': {
+      name: 'Coup de talon',
+      desc: 'Utilise le talon pour faire avancer le ballon.',
+      tip: 'Essaie de petits coups.'
+    },
+    'Roulette': {
+      name: 'Roulette',
+      desc: 'Tourne avec le ballon pour échapper.',
+      tip: 'Garde l\'équilibre.'
+    },
+    'Heel Chop (While running)': {
+      name: 'Tacle talon (En courant)',
+      desc: 'Coupe le ballon en arrière en courant.',
+      tip: 'Utilise une petite touche.'
+    },
+    'Stutter Feint': {
+      name: 'Feinte hésitante',
+      desc: 'Petit arrêt et départ pour tromper les défenseurs.',
+      tip: 'Utilise de courtes pauses.'
+    },
+    'Ball Hop (While standing)': {
+      name: 'Saut de ballon (Debout)',
+      desc: 'Saute par-dessus le ballon en restant debout.',
+      tip: 'Reste léger sur tes pieds.'
+    },
+    'Ball Roll Drag': {
+      name: 'Roulette et tirage',
+      desc: 'Roule et tire pour t\'éloigner.',
+      tip: 'Combine avec un sprint.'
+    },
+    'Drag Back Turn': {
+      name: 'Talonnade et tour',
+      desc: 'Talonnade puis tour pour changer de direction.',
+      tip: 'Tourne en douceur.'
+    },
+    'Flair Nutmegs': {
+      name: 'Petits ponts avec style',
+      desc: 'Petits ponts fantaisie pour le style et l\'espace.',
+      tip: 'Essaie lentement d\'abord.'
+    },
+    'Heel to Heel': {
+      name: 'Talon à talon',
+      desc: 'Utilise les talons pour faire avancer et passer.',
+      tip: 'Sois rapide.'
+    },
+    'Simple Rainbow': {
+      name: 'Arc-en-ciel simple',
+      desc: 'Un petit arc-en-ciel pour soulever le ballon.',
+      tip: 'Utilise près d\'un défenseur.'
+    },
+    'Stop and Turn': {
+      name: 'Arrêt et tour',
+      desc: 'Arrête puis tourne pour perdre un marqueur.',
+      tip: 'Fais-le avec confiance.'
+    },
+    'Ball Roll Cut Left/Right': {
+      name: 'Roulette coupée gauche/droite',
+      desc: 'Coupe après une roulette pour rentrer.',
+      tip: 'Pratique le jeu de jambes.'
+    },
+    'Fake Pass (While standing)': {
+      name: 'Fausse passe (Debout)',
+      desc: 'Fais semblant de passer pour tromper les défenseurs.',
+      tip: 'Rends-le réaliste.'
+    },
+    'Fake Pass Exit Left/Right': {
+      name: 'Fausse passe sortie gauche/droite',
+      desc: 'Fausse passe puis sors de l\'autre côté.',
+      tip: 'Vise avec le stick gauche.'
+    },
+    'Quick Ball Rolls': {
+      name: 'Roulettes rapides',
+      desc: 'Petites roulettes rapides pour changer le rythme.',
+      tip: 'Utilise de courtes accélérations.'
+    },
+    'Lane Change Left/Right': {
+      name: 'Changement de couloir gauche/droite',
+      desc: 'Change de couloir pour trouver de l\'espace.',
+      tip: 'Garde la tête haute.'
+    },
+    'Three Touch Roulette': {
+      name: 'Roulette trois touches',
+      desc: 'Un tour en trois touches pour échapper avancé.',
+      tip: 'Pratique lentement d\'abord.'
+    },
+    'Heel to Ball Roll': {
+      name: 'Talon vers roulette',
+      desc: 'Touche de talon vers une roulette.',
+      tip: 'Commence lentement.'
+    },
+    'Drag Back Spin': {
+      name: 'Talonnade rotation',
+      desc: 'Talonnade et rotation pour échapper.',
+      tip: 'Observe le défenseur.'
+    },
+    'In-Air Elastico (While juggling)': {
+      name: 'Elastico en l\'air (En jonglant)',
+      desc: 'Un elastico difficile en l\'air en jonglant.',
+      tip: 'Nécessite de la pratique.'
+    },
+    'Chest Flick (While juggling)': {
+      name: 'Coup de poitrine (En jonglant)',
+      desc: 'Frappe avec la poitrine pendant le jonglage.',
+      tip: 'Essaie lentement.'
+    },
+    'Around the World (While juggling)': {
+      name: 'Tour du monde (En jonglant)',
+      desc: 'Un grand tour de jonglage autour du ballon.',
+      tip: 'Compte les rotations.'
+    },
+    'Elastico': {
+      name: 'Elastico',
+      desc: 'Un mouvement rapide extérieur-intérieur pour battre les joueurs.',
+      tip: 'Pratique le timing.'
+    },
+    'Reverse Elastico': {
+      name: 'Elastico inversé',
+      desc: 'Elastico inversé pour surprendre.',
+      tip: 'Essaie avec les deux pieds.'
+    },
+    'Advanced Rainbow': {
+      name: 'Arc-en-ciel avancé',
+      desc: 'Un arc-en-ciel fantaisie nécessitant du contrôle.',
+      tip: 'Sois patient.'
+    },
+    'Heel Flick Turn': {
+      name: 'Coup de talon et tour',
+      desc: 'Coup de talon puis un tour sec.',
+      tip: 'Maîtrise le coup de talon d\'abord.'
+    },
+    'Sombrero Flick': {
+      name: 'Coup de sombrero',
+      desc: 'Retourne le ballon par-dessus un adversaire.',
+      tip: 'Essaie avec une touche douce.'
+    },
+    'Antony Spin': {
+      name: 'Tour d\'Antony',
+      desc: 'Tour rapide et rotation pour battre les marqueurs.',
+      tip: 'Utilise l\'espace pour tourner.'
+    },
+    'Ball Roll Fake Turn': {
+      name: 'Fausse roulette et tour',
+      desc: 'Une fausse roulette vers un tour.',
+      tip: 'Pratique les directions.'
+    },
+    'Rabona Fake (While jogging)': {
+      name: 'Fausse rabona (En trottinant)',
+      desc: 'Une fausse rabona fantaisie pour tromper les défenseurs.',
+      tip: 'Fais-le en trottinant.'
+    },
+    'Elastico Chop': {
+      name: 'Elastico tacle',
+      desc: 'Elastico puis un tacle pour la vitesse.',
+      tip: 'Difficile mais cool.'
+    },
+    'Spin Flick': {
+      name: 'Rotation rapide',
+      desc: 'Une rotation rapide pour ouvrir l\'espace.',
+      tip: 'Pratique lentement.'
+    },
+    'Heel Fake': {
+      name: 'Feinte de talon',
+      desc: 'Feinte de talon pour déplacer un défenseur.',
+      tip: 'Essaie lentement d\'abord.'
+    },
+    'Flair Rainbow': {
+      name: 'Arc-en-ciel stylé',
+      desc: 'Un arc-en-ciel flashy pour le spectacle et l\'échappée.',
+      tip: 'Amuse-toi avec.'
+    }
+  },
+  es: {
+    'Directional Nutmeg': {
+      name: 'Caño direccional',
+      desc: 'Caño rápido para sorprender al defensor.',
+      tip: 'Prueba despacio primero.'
+    },
+    'Ball Juggle (While standing)': {
+      name: 'Malabares (Parado)',
+      desc: 'Mantén el balón en el aire parado.',
+      tip: 'Cuenta tus toques.'
+    },
+    'Open Up Fake Shot': {
+      name: 'Tiro falso abierto',
+      desc: 'Finge un tiro para abrir espacio.',
+      tip: 'Pretende tirar primero.'
+    },
+    'Flick Up': {
+      name: 'Toque alto',
+      desc: 'Levanta el balón ligeramente.',
+      tip: 'Úsalo suavemente.'
+    },
+    'First Time Feint Turn': {
+      name: 'Giro de finta de primera',
+      desc: 'Giro rápido después de un toque para escapar.',
+      tip: 'Gira en pequeñas cantidades.'
+    },
+    'Feint Forward and Turn': {
+      name: 'Finta adelante y giro',
+      desc: 'Finge ir adelante y gira rápido.',
+      tip: 'Dobla tu cuerpo como un jugador real.'
+    },
+    'Body Feint Left/Right': {
+      name: 'Finta de cuerpo izquierda/derecha',
+      desc: 'Usa tu cuerpo para engañar a los defensores.',
+      tip: 'Mueve tus caderas.'
+    },
+    'Stepover Left/Right': {
+      name: 'Bicicleta izquierda/derecha',
+      desc: 'Pasa por encima del balón para confundir.',
+      tip: 'Los pies rápidos ayudan.'
+    },
+    'Reverse Stepover Left/Right': {
+      name: 'Bicicleta inversa izquierda/derecha',
+      desc: 'Las bicicletas inversas sorprenden a los defensores.',
+      tip: 'Practica en ambos sentidos.'
+    },
+    'Ball Roll Left/Right': {
+      name: 'Rodar balón izquierda/derecha',
+      desc: 'Rueda el balón para cambiar de dirección.',
+      tip: 'Mantenlo estable.'
+    },
+    'Drag Back': {
+      name: 'Arrastre atrás',
+      desc: 'Arrastra el balón hacia atrás para detener el juego.',
+      tip: 'Úsalo cerca de la línea lateral.'
+    },
+    'Heel Flick': {
+      name: 'Toque de talón',
+      desc: 'Usa el talón para impulsar el balón adelante.',
+      tip: 'Prueba toques pequeños.'
+    },
+    'Roulette': {
+      name: 'Ruleta',
+      desc: 'Gira con el balón para escapar.',
+      tip: 'Mantén el equilibrio.'
+    },
+    'Heel Chop (While running)': {
+      name: 'Corte de talón (Corriendo)',
+      desc: 'Corta el balón hacia atrás mientras corres.',
+      tip: 'Usa un toque pequeño.'
+    },
+    'Stutter Feint': {
+      name: 'Finta entrecortada',
+      desc: 'Pequeña parada y arranque para engañar a los defensores.',
+      tip: 'Usa pausas cortas.'
+    },
+    'Ball Hop (While standing)': {
+      name: 'Salto de balón (Parado)',
+      desc: 'Salta sobre el balón mientras estás parado.',
+      tip: 'Mantente ligero sobre tus pies.'
+    },
+    'Ball Roll Drag': {
+      name: 'Rodar y arrastrar',
+      desc: 'Rueda y arrastra para alejarte.',
+      tip: 'Combínalo con un sprint.'
+    },
+    'Drag Back Turn': {
+      name: 'Arrastre y giro',
+      desc: 'Arrastra atrás y gira para cambiar de dirección.',
+      tip: 'Gira suavemente.'
+    },
+    'Flair Nutmegs': {
+      name: 'Caños con estilo',
+      desc: 'Caños elegantes para estilo y espacio.',
+      tip: 'Prueba despacio primero.'
+    },
+    'Heel to Heel': {
+      name: 'Talón a talón',
+      desc: 'Usa los talones para impulsar y avanzar.',
+      tip: 'Sé rápido.'
+    },
+    'Simple Rainbow': {
+      name: 'Arcoíris simple',
+      desc: 'Un pequeño arcoíris para levantar el balón.',
+      tip: 'Úsalo cerca del defensor.'
+    },
+    'Stop and Turn': {
+      name: 'Parar y girar',
+      desc: 'Para y gira para perder a un marcador.',
+      tip: 'Hazlo con confianza.'
+    },
+    'Ball Roll Cut Left/Right': {
+      name: 'Rodar y cortar izquierda/derecha',
+      desc: 'Corta después de rodar para entrar.',
+      tip: 'Practica el juego de pies.'
+    },
+    'Fake Pass (While standing)': {
+      name: 'Pase falso (Parado)',
+      desc: 'Finge un pase para engañar a los defensores.',
+      tip: 'Hazlo parecer real.'
+    },
+    'Fake Pass Exit Left/Right': {
+      name: 'Pase falso salida izquierda/derecha',
+      desc: 'Pase falso y sal por el otro lado.',
+      tip: 'Apunta con el stick izquierdo.'
+    },
+    'Quick Ball Rolls': {
+      name: 'Rodadas rápidas',
+      desc: 'Rodadas pequeñas y rápidas para cambiar el ritmo.',
+      tip: 'Usa aceleraciones cortas.'
+    },
+    'Lane Change Left/Right': {
+      name: 'Cambio de carril izquierda/derecha',
+      desc: 'Cambia de carril para encontrar espacio.',
+      tip: 'Mantén la cabeza arriba.'
+    },
+    'Three Touch Roulette': {
+      name: 'Ruleta de tres toques',
+      desc: 'Un giro de tres toques para escape avanzado.',
+      tip: 'Practica despacio primero.'
+    },
+    'Heel to Ball Roll': {
+      name: 'Talón a rodada',
+      desc: 'Toque de talón hacia una rodada.',
+      tip: 'Comienza despacio.'
+    },
+    'Drag Back Spin': {
+      name: 'Arrastre y giro',
+      desc: 'Arrastra atrás y gira para escapar.',
+      tip: 'Observa al defensor.'
+    },
+    'In-Air Elastico (While juggling)': {
+      name: 'Elástico aéreo (Haciendo malabares)',
+      desc: 'Un elástico complicado en el aire haciendo malabares.',
+      tip: 'Necesita práctica.'
+    },
+    'Chest Flick (While juggling)': {
+      name: 'Toque de pecho (Haciendo malabares)',
+      desc: 'Golpea con el pecho durante los malabares.',
+      tip: 'Prueba despacio.'
+    },
+    'Around the World (While juggling)': {
+      name: 'Vuelta al mundo (Haciendo malabares)',
+      desc: 'Un gran giro de malabares alrededor del balón.',
+      tip: 'Cuenta las rotaciones.'
+    },
+    'Elastico': {
+      name: 'Elástico',
+      desc: 'Un movimiento rápido exterior-interior para vencer jugadores.',
+      tip: 'Practica el tiempo.'
+    },
+    'Reverse Elastico': {
+      name: 'Elástico inverso',
+      desc: 'Elástico inverso para sorprender.',
+      tip: 'Prueba con ambos pies.'
+    },
+    'Advanced Rainbow': {
+      name: 'Arcoíris avanzado',
+      desc: 'Un arcoíris elegante que requiere control.',
+      tip: 'Sé paciente.'
+    },
+    'Heel Flick Turn': {
+      name: 'Toque de talón y giro',
+      desc: 'Toque de talón y luego un giro brusco.',
+      tip: 'Domina el toque de talón primero.'
+    },
+    'Sombrero Flick': {
+      name: 'Toque de sombrero',
+      desc: 'Voltea el balón sobre un oponente.',
+      tip: 'Prueba con toque suave.'
+    },
+    'Antony Spin': {
+      name: 'Giro de Antony',
+      desc: 'Giro rápido y rotación para vencer marcadores.',
+      tip: 'Usa espacio para girar.'
+    },
+    'Ball Roll Fake Turn': {
+      name: 'Rodada falsa y giro',
+      desc: 'Una rodada falsa hacia un giro.',
+      tip: 'Practica las direcciones.'
+    },
+    'Rabona Fake (While jogging)': {
+      name: 'Rabona falsa (Trotando)',
+      desc: 'Una rabona falsa elegante para engañar defensores.',
+      tip: 'Hazlo mientras trotas.'
+    },
+    'Elastico Chop': {
+      name: 'Elástico y corte',
+      desc: 'Elástico y luego un corte para velocidad.',
+      tip: 'Difícil pero genial.'
+    },
+    'Spin Flick': {
+      name: 'Giro rápido',
+      desc: 'Un giro rápido para abrir espacio.',
+      tip: 'Practica despacio.'
+    },
+    'Heel Fake': {
+      name: 'Finta de talón',
+      desc: 'Finta de talón para desplazar un defensor.',
+      tip: 'Prueba despacio primero.'
+    },
+    'Flair Rainbow': {
+      name: 'Arcoíris con estilo',
+      desc: 'Un arcoíris llamativo para espectáculo y escape.',
+      tip: 'Diviértete con él.'
+    }
+  },
+  ar: {
+    'Directional Nutmeg': {
+      name: 'خداع اتجاهي',
+      desc: 'خداع سريع لمفاجأة المدافع.',
+      tip: 'جرّب ببطء أولاً.'
+    },
+    'Ball Juggle (While standing)': {
+      name: 'التنطيط (وأنت واقف)',
+      desc: 'أبقِ الكرة في الهواء وأنت واقف.',
+      tip: 'عدّ لمساتك.'
+    },
+    'Open Up Fake Shot': {
+      name: 'تسديدة مزيفة مفتوحة',
+      desc: 'تظاهر بالتسديد لفتح مساحة.',
+      tip: 'تظاهر بالتسديد أولاً.'
+    },
+    'Flick Up': {
+      name: 'رفع الكرة',
+      desc: 'ارفع الكرة قليلاً.',
+      tip: 'استخدمها بلطف.'
+    },
+    'First Time Feint Turn': {
+      name: 'خداع ودوران من اللمسة الأولى',
+      desc: 'دوران سريع بعد لمسة للهروب.',
+      tip: 'دُر بكميات صغيرة.'
+    },
+    'Feint Forward and Turn': {
+      name: 'خداع للأمام ودوران',
+      desc: 'تظاهر بالذهاب للأمام ثم دُر بسرعة.',
+      tip: 'اثنِ جسمك مثل لاعب حقيقي.'
+    },
+    'Body Feint Left/Right': {
+      name: 'خداع جسدي يسار/يمين',
+      desc: 'استخدم جسمك لخداع المدافعين.',
+      tip: 'حرّك وركيك.'
+    },
+    'Stepover Left/Right': {
+      name: 'المقص يسار/يمين',
+      desc: 'مرّر قدمك فوق الكرة للإرباك.',
+      tip: 'الأقدام السريعة تساعد.'
+    },
+    'Reverse Stepover Left/Right': {
+      name: 'المقص العكسي يسار/يمين',
+      desc: 'المقص العكسي يفاجئ المدافعين.',
+      tip: 'تدرّب في الاتجاهين.'
+    },
+    'Ball Roll Left/Right': {
+      name: 'لف الكرة يسار/يمين',
+      desc: 'لُف الكرة لتغيير الاتجاه.',
+      tip: 'أبقها ثابتة.'
+    },
+    'Drag Back': {
+      name: 'السحب للخلف',
+      desc: 'اسحب الكرة للخلف لإيقاف اللعب.',
+      tip: 'استخدمها قرب خط التماس.'
+    },
+    'Heel Flick': {
+      name: 'لمسة الكعب',
+      desc: 'استخدم الكعب لدفع الكرة للأمام.',
+      tip: 'جرّب لمسات صغيرة.'
+    },
+    'Roulette': {
+      name: 'الروليت',
+      desc: 'دُر مع الكرة للهروب.',
+      tip: 'حافظ على التوازن.'
+    },
+    'Heel Chop (While running)': {
+      name: 'قطع بالكعب (أثناء الجري)',
+      desc: 'اقطع الكرة للخلف أثناء الجري.',
+      tip: 'استخدم لمسة صغيرة.'
+    },
+    'Stutter Feint': {
+      name: 'خداع متقطع',
+      desc: 'توقف صغير وانطلاق لخداع المدافعين.',
+      tip: 'استخدم توقفات قصيرة.'
+    },
+    'Ball Hop (While standing)': {
+      name: 'قفزة الكرة (واقفاً)',
+      desc: 'اقفز فوق الكرة وأنت واقف.',
+      tip: 'ابقَ خفيفاً على قدميك.'
+    },
+    'Ball Roll Drag': {
+      name: 'لف وسحب الكرة',
+      desc: 'لُف واسحب للابتعاد.',
+      tip: 'اجمعها مع عدو سريع.'
+    },
+    'Drag Back Turn': {
+      name: 'سحب ودوران',
+      desc: 'اسحب للخلف ثم دُر لتغيير الاتجاه.',
+      tip: 'دُر بسلاسة.'
+    },
+    'Flair Nutmegs': {
+      name: 'خداعات أنيقة',
+      desc: 'خداعات خيالية للأناقة والمساحة.',
+      tip: 'جرّب ببطء أولاً.'
+    },
+    'Heel to Heel': {
+      name: 'كعب إلى كعب',
+      desc: 'استخدم الكعبين لدفع الكرة والتقدم.',
+      tip: 'كن سريعاً.'
+    },
+    'Simple Rainbow': {
+      name: 'قوس قزح بسيط',
+      desc: 'قوس قزح صغير لرفع الكرة.',
+      tip: 'استخدمه بالقرب من المدافع.'
+    },
+    'Stop and Turn': {
+      name: 'توقف ودوران',
+      desc: 'توقف ثم دُر لتفقد المراقب.',
+      tip: 'افعلها بثقة.'
+    },
+    'Ball Roll Cut Left/Right': {
+      name: 'لف وقطع يسار/يمين',
+      desc: 'اقطع بعد اللف للدخول.',
+      tip: 'تدرّب على حركة القدم.'
+    },
+    'Fake Pass (While standing)': {
+      name: 'تمريرة مزيفة (واقفاً)',
+      desc: 'تظاهر بالتمرير لخداع المدافعين.',
+      tip: 'اجعلها تبدو حقيقية.'
+    },
+    'Fake Pass Exit Left/Right': {
+      name: 'تمريرة مزيفة وخروج يسار/يمين',
+      desc: 'تمريرة مزيفة ثم اخرج من الجهة الأخرى.',
+      tip: 'صوّب بالعصا اليسرى.'
+    },
+    'Quick Ball Rolls': {
+      name: 'لفات سريعة',
+      desc: 'لفات صغيرة وسريعة لتغيير الإيقاع.',
+      tip: 'استخدم تسارعات قصيرة.'
+    },
+    'Lane Change Left/Right': {
+      name: 'تغيير المسار يسار/يمين',
+      desc: 'غيّر المسار لإيجاد مساحة.',
+      tip: 'أبقِ رأسك مرفوعاً.'
+    },
+    'Three Touch Roulette': {
+      name: 'روليت ثلاث لمسات',
+      desc: 'دوران من ثلاث لمسات للهروب المتقدم.',
+      tip: 'تدرّب ببطء أولاً.'
+    },
+    'Heel to Ball Roll': {
+      name: 'كعب إلى لف',
+      desc: 'لمسة كعب نحو لف الكرة.',
+      tip: 'ابدأ ببطء.'
+    },
+    'Drag Back Spin': {
+      name: 'سحب ودوران',
+      desc: 'اسحب للخلف ودُر للهروب.',
+      tip: 'راقب المدافع.'
+    },
+    'In-Air Elastico (While juggling)': {
+      name: 'إيلاستيكو جوي (أثناء التنطيط)',
+      desc: 'إيلاستيكو صعب في الهواء أثناء التنطيط.',
+      tip: 'يحتاج ممارسة.'
+    },
+    'Chest Flick (While juggling)': {
+      name: 'لمسة الصدر (أثناء التنطيط)',
+      desc: 'اضرب بالصدر أثناء التنطيط.',
+      tip: 'جرّب ببطء.'
+    },
+    'Around the World (While juggling)': {
+      name: 'حول العالم (أثناء التنطيط)',
+      desc: 'دوران تنطيط كبير حول الكرة.',
+      tip: 'عدّ الدورات.'
+    },
+    'Elastico': {
+      name: 'إيلاستيكو',
+      desc: 'حركة سريعة من الخارج للداخل لهزيمة اللاعبين.',
+      tip: 'تدرّب على التوقيت.'
+    },
+    'Reverse Elastico': {
+      name: 'إيلاستيكو عكسي',
+      desc: 'إيلاستيكو عكسي للمفاجأة.',
+      tip: 'جرّب بكلتا القدمين.'
+    },
+    'Advanced Rainbow': {
+      name: 'قوس قزح متقدم',
+      desc: 'قوس قزح خيالي يتطلب تحكماً.',
+      tip: 'كن صبوراً.'
+    },
+    'Heel Flick Turn': {
+      name: 'لمسة كعب ودوران',
+      desc: 'لمسة كعب ثم دوران حاد.',
+      tip: 'أتقن لمسة الكعب أولاً.'
+    },
+    'Sombrero Flick': {
+      name: 'لمسة السومبريرو',
+      desc: 'اقلب الكرة فوق الخصم.',
+      tip: 'جرّب بلمسة ناعمة.'
+    },
+    'Antony Spin': {
+      name: 'دوران أنتوني',
+      desc: 'دوران سريع ولف لهزيمة المراقبين.',
+      tip: 'استخدم المساحة للدوران.'
+    },
+    'Ball Roll Fake Turn': {
+      name: 'لف مزيف ودوران',
+      desc: 'لف مزيف نحو دوران.',
+      tip: 'تدرّب على الاتجاهات.'
+    },
+    'Rabona Fake (While jogging)': {
+      name: 'رابونا مزيفة (أثناء الهرولة)',
+      desc: 'رابونا مزيفة خيالية لخداع المدافعين.',
+      tip: 'افعلها أثناء الهرولة.'
+    },
+    'Elastico Chop': {
+      name: 'إيلاستيكو وقطع',
+      desc: 'إيلاستيكو ثم قطع للسرعة.',
+      tip: 'صعب لكن رائع.'
+    },
+    'Spin Flick': {
+      name: 'دوران سريع',
+      desc: 'دوران سريع لفتح المساحة.',
+      tip: 'تدرّب ببطء.'
+    },
+    'Heel Fake': {
+      name: 'خداع بالكعب',
+      desc: 'خداع بالكعب لإزاحة مدافع.',
+      tip: 'جرّب ببطء أولاً.'
+    },
+    'Flair Rainbow': {
+      name: 'قوس قزح أنيق',
+      desc: 'قوس قزح لامع للاستعراض والهروب.',
+      tip: 'استمتع به.'
+    }
+  }
+};
+
+// Get translated trick content (name, desc, or tip)
+// Returns null if no translation exists (will fall back to English)
+function getTrickTranslation(trickName, field) {
+  if (currentLanguage === 'en') return null;
+  const translations = TRICK_TRANSLATIONS[currentLanguage];
+  if (!translations || !translations[trickName]) return null;
+  return translations[trickName][field] || null;
+}
+
+// Translation dictionary for controller instruction words
+// Button names (R2, R1, R3, L3, L2, L1, etc.) are NOT translated
+const CONTROL_WORD_TRANSLATIONS = {
+  fr: {
+    'Hold': 'Maintiens',
+    'hold': 'maintiens',
+    'Flick': 'Pousse',
+    'flick': 'pousse',
+    'Rotate': 'Fais tourner',
+    'rotate': 'fais tourner',
+    'Click': 'Clique',
+    'click': 'clique',
+    'Press': 'Appuie',
+    'press': 'appuie',
+    'Tap': 'Tape',
+    'tap': 'tape',
+    'then': 'puis',
+    'or': 'ou',
+    'and': 'et',
+    'up': 'haut',
+    'down': 'bas',
+    'left': 'gauche',
+    'right': 'droite',
+    'UP': 'HAUT',
+    'DOWN': 'BAS',
+    'LEFT': 'GAUCHE',
+    'RIGHT': 'DROITE',
+    'twice': 'deux fois',
+    'clockwise': 'horaire',
+    'anticlockwise': 'antihoraire',
+    'top': 'haut',
+    'bottom': 'bas',
+    'sideways': 'côté',
+    'fully': 'complètement',
+    'quarters': 'quarts',
+    'aim': 'vise',
+    'with': 'avec',
+    'while': 'pendant',
+    'standing': 'immobile',
+    'running': 'en courant',
+    'jogging': 'en trottinant',
+    'juggling': 'en jonglant',
+    'pointing': 'pointant'
+  },
+  es: {
+    'Hold': 'Mantén',
+    'hold': 'mantén',
+    'Flick': 'Mueve',
+    'flick': 'mueve',
+    'Rotate': 'Gira',
+    'rotate': 'gira',
+    'Click': 'Haz clic',
+    'click': 'haz clic',
+    'Press': 'Presiona',
+    'press': 'presiona',
+    'Tap': 'Toca',
+    'tap': 'toca',
+    'then': 'luego',
+    'or': 'o',
+    'and': 'y',
+    'up': 'arriba',
+    'down': 'abajo',
+    'left': 'izquierda',
+    'right': 'derecha',
+    'UP': 'ARRIBA',
+    'DOWN': 'ABAJO',
+    'LEFT': 'IZQUIERDA',
+    'RIGHT': 'DERECHA',
+    'twice': 'dos veces',
+    'clockwise': 'horario',
+    'anticlockwise': 'antihorario',
+    'top': 'arriba',
+    'bottom': 'abajo',
+    'sideways': 'lateral',
+    'fully': 'completamente',
+    'quarters': 'cuartos',
+    'aim': 'apunta',
+    'with': 'con',
+    'while': 'mientras',
+    'standing': 'parado',
+    'running': 'corriendo',
+    'jogging': 'trotando',
+    'juggling': 'haciendo malabares',
+    'pointing': 'apuntando'
+  },
+  ar: {
+    'Hold': 'اضغط مع الاستمرار',
+    'hold': 'اضغط مع الاستمرار',
+    'Flick': 'حرّك',
+    'flick': 'حرّك',
+    'Rotate': 'أدر',
+    'rotate': 'أدر',
+    'Click': 'انقر',
+    'click': 'انقر',
+    'Press': 'اضغط',
+    'press': 'اضغط',
+    'Tap': 'اضغط بخفة',
+    'tap': 'اضغط بخفة',
+    'then': 'ثم',
+    'or': 'أو',
+    'and': 'و',
+    'up': 'أعلى',
+    'down': 'أسفل',
+    'left': 'يسار',
+    'right': 'يمين',
+    'UP': 'أعلى',
+    'DOWN': 'أسفل',
+    'LEFT': 'يسار',
+    'RIGHT': 'يمين',
+    'twice': 'مرتين',
+    'clockwise': 'مع عقارب الساعة',
+    'anticlockwise': 'عكس عقارب الساعة',
+    'top': 'أعلى',
+    'bottom': 'أسفل',
+    'sideways': 'جانبياً',
+    'fully': 'كاملاً',
+    'quarters': 'أرباع',
+    'aim': 'صوّب',
+    'with': 'مع',
+    'while': 'أثناء',
+    'standing': 'الوقوف',
+    'running': 'الجري',
+    'jogging': 'الهرولة',
+    'juggling': 'التنطيط',
+    'pointing': 'التوجيه'
+  }
+};
+
+// Translate controller instruction text while preserving button names
+function translateControlsString(input) {
+  if (currentLanguage === 'en' || !input) return input;
+  
+  const wordMap = CONTROL_WORD_TRANSLATIONS[currentLanguage];
+  if (!wordMap) return input;
+  
+  let result = input;
+  
+  // Replace each word while preserving button names (R2, R1, R3, L3, L2, L1)
+  for (const [eng, trans] of Object.entries(wordMap)) {
+    // Use word boundary regex to match whole words only
+    const regex = new RegExp(`\\b${eng}\\b`, 'g');
+    result = result.replace(regex, trans);
+  }
+  
+  return result;
+}
+
+// Update all UI text elements with current language
+function updateUIText() {
+  const advancedTitle = document.getElementById('advancedTitle');
+  if (advancedTitle) {
+    advancedTitle.textContent = t('advancedAttacks');
+  }
+  
+  const advancedBtn = document.getElementById('advancedAttacksBtn');
+  if (advancedBtn) {
+    advancedBtn.textContent = t('advancedAttacks');
+  }
+}
+
+// Advanced Attacks translations
+const ADVANCED_ATTACKS_TRANSLATIONS = {
+  fr: {
+    'Quick Tactics': 'Tactiques rapides',
+    'Offside Trap': 'Piège du hors-jeu',
+    'Team Press': 'Pressing collectif',
+    'Extra Striker': 'Attaquant supplémentaire',
+    'Get In The Box': 'Entrer dans la surface',
+    'Tactical Focus': 'Focus tactique',
+    'Default': 'Par défaut',
+    'My Tactics': 'Mes tactiques',
+    'Defending': 'Défense',
+    'Attacking': 'Attaque',
+    'Custom Tactic 1': 'Tactique personnalisée 1',
+    'Custom Tactic 2': 'Tactique personnalisée 2',
+    'Custom Tactic 3': 'Tactique personnalisée 3',
+    'Custom Tactic 4': 'Tactique personnalisée 4',
+    'Tactical Suggestions': 'Suggestions tactiques',
+    'Tactic Suggestion 1': 'Suggestion tactique 1',
+    'Tactic Suggestion 2': 'Suggestion tactique 2',
+    'Tactic / Focus Suggestion': 'Suggestion tactique / focus',
+    'Substitution': 'Remplacement'
+  },
+  es: {
+    'Quick Tactics': 'Tácticas rápidas',
+    'Offside Trap': 'Trampa del fuera de juego',
+    'Team Press': 'Presión colectiva',
+    'Extra Striker': 'Delantero extra',
+    'Get In The Box': 'Entrar en el área',
+    'Tactical Focus': 'Enfoque táctico',
+    'Default': 'Predeterminado',
+    'My Tactics': 'Mis tácticas',
+    'Defending': 'Defensa',
+    'Attacking': 'Ataque',
+    'Custom Tactic 1': 'Táctica personalizada 1',
+    'Custom Tactic 2': 'Táctica personalizada 2',
+    'Custom Tactic 3': 'Táctica personalizada 3',
+    'Custom Tactic 4': 'Táctica personalizada 4',
+    'Tactical Suggestions': 'Sugerencias tácticas',
+    'Tactic Suggestion 1': 'Sugerencia táctica 1',
+    'Tactic Suggestion 2': 'Sugerencia táctica 2',
+    'Tactic / Focus Suggestion': 'Sugerencia táctica / enfoque',
+    'Substitution': 'Sustitución'
+  },
+  ar: {
+    'Quick Tactics': 'تكتيكات سريعة',
+    'Offside Trap': 'مصيدة التسلل',
+    'Team Press': 'ضغط جماعي',
+    'Extra Striker': 'مهاجم إضافي',
+    'Get In The Box': 'الدخول للمنطقة',
+    'Tactical Focus': 'تركيز تكتيكي',
+    'Default': 'افتراضي',
+    'My Tactics': 'تكتيكاتي',
+    'Defending': 'الدفاع',
+    'Attacking': 'الهجوم',
+    'Custom Tactic 1': 'تكتيك مخصص 1',
+    'Custom Tactic 2': 'تكتيك مخصص 2',
+    'Custom Tactic 3': 'تكتيك مخصص 3',
+    'Custom Tactic 4': 'تكتيك مخصص 4',
+    'Tactical Suggestions': 'اقتراحات تكتيكية',
+    'Tactic Suggestion 1': 'اقتراح تكتيكي 1',
+    'Tactic Suggestion 2': 'اقتراح تكتيكي 2',
+    'Tactic / Focus Suggestion': 'اقتراح تكتيكي / تركيز',
+    'Substitution': 'استبدال'
+  }
+};
+
+// Get translated advanced attack action name
+function getAdvancedAttackTranslation(actionName) {
+  if (currentLanguage === 'en') return actionName;
+  const translations = ADVANCED_ATTACKS_TRANSLATIONS[currentLanguage];
+  if (!translations) return actionName;
+  return translations[actionName] || actionName;
+}
 
 // Current app state
 let currentPlatform = 'ps'; // default to PlayStation
@@ -141,6 +1118,7 @@ function createCard(trick) {
   const a = document.createElement('article');
   a.className = 'card';
   a.dataset.stars = String(trick.stars);
+  // CRITICAL: Keep English name in dataset for video tutorial matching
   a.dataset.name = trick.name;
 
   // Some tricks should never show a tutorial button/link (even if an alias map matches)
@@ -150,7 +1128,9 @@ function createCard(trick) {
 
   const h = document.createElement('h3');
   h.className = 'card-title';
-  h.textContent = trick.name;
+  // Use translated name if available, otherwise use English
+  const translatedName = getTrickTranslation(trick.name, 'name');
+  h.textContent = translatedName || trick.name;
   a.appendChild(h);
 
   const stars = document.createElement('p');
@@ -168,13 +1148,18 @@ function createCard(trick) {
 
   const desc = document.createElement('p');
   desc.className = 'desc';
-  desc.textContent = trick.desc;
+  // Use translated description if available, otherwise use English
+  const translatedDesc = getTrickTranslation(trick.name, 'desc');
+  desc.textContent = translatedDesc || trick.desc;
   a.appendChild(desc);
 
   if (trick.tip) {
     const tip = document.createElement('p');
     tip.className = 'tip';
-    tip.textContent = `Tip: ${trick.tip}`;
+    // Use translated tip if available, otherwise use English
+    const translatedTip = getTrickTranslation(trick.name, 'tip');
+    const tipText = translatedTip || trick.tip;
+    tip.textContent = `Tip: ${tipText}`;
     a.appendChild(tip);
   }
 
@@ -275,7 +1260,8 @@ function createCard(trick) {
     watch.href = videoUrl;
     watch.target = '_blank';
     watch.rel = 'noopener noreferrer';
-    watch.textContent = '▶ Watch Tutorial';
+    // Use translated button text
+    watch.textContent = t('watchTutorial');
     watch.setAttribute('aria-label', `Watch ${trick.name} tutorial (opens in new tab)`);
 
     // Prevent the anchor click from bubbling (anchor handles opening)
@@ -329,6 +1315,8 @@ function updateControllers() {
   const allCtrls = $$('.controller');
   allCtrls.forEach(ctrl => {
     let text = currentPlatform === 'ps' ? ctrl.dataset.ps : ctrl.dataset.xbox;
+    // Translate instruction words while keeping button names
+    text = translateControlsString(text);
     if (currentPlatform === 'ps') {
       // Replace all R3 and L3 (not inside HTML tags) with tooltip spans
       text = text.replace(/R3/g, '<span class="r3-tooltip" data-platform-only="ps">R3<span class="tooltip-text">Right Joystick</span></span>');
@@ -340,9 +1328,11 @@ function updateControllers() {
   });
 
   // If featured shows a card, update it too (Trick of the Day)
-  const featuredCtrl = featuredCardContainer.querySelector('.controller');
+  const featuredCtrl = featuredCardContainer ? featuredCardContainer.querySelector('.controller') : null;
   if (featuredCtrl) {
     let text = currentPlatform === 'ps' ? featuredCtrl.dataset.ps : featuredCtrl.dataset.xbox;
+    // Translate instruction words while keeping button names
+    text = translateControlsString(text);
     if (currentPlatform === 'ps') {
       text = text.replace(/R3/g, '<span class="r3-tooltip" data-platform-only="ps">R3<span class="tooltip-text">Right Joystick</span></span>');
       text = text.replace(/L3/g, '<span class="l3-tooltip" data-platform-only="ps">L3<span class="tooltip-text">Left Joystick</span></span>');
@@ -492,6 +1482,35 @@ function setTrickOfTheDay() {
 
 // Event bindings and initialization
 function init() {
+  // Load saved language first
+  loadLanguage();
+  
+  // Language selector
+  const languageSelect = document.getElementById('languageSelect');
+  if (languageSelect) {
+    languageSelect.value = currentLanguage;
+    languageSelect.addEventListener('change', () => {
+      const nextLang = languageSelect.value;
+      if (!I18N[nextLang]) return;
+      currentLanguage = nextLang;
+      saveLanguage(nextLang);
+      
+      // Update UI text elements
+      updateUIText();
+      
+      // Re-render all tricks with new language
+      renderTricks();
+      
+      // Re-render advanced attacks with new language
+      renderAdvancedAttacks();
+      
+      // Update Trick of the Day with new language
+      setTrickOfTheDay();
+      
+      console.log('FC25: language changed to', nextLang);
+    });
+  }
+  
   // Platform toggles
   if (platformButtons && platformButtons.length) {
     platformButtons.forEach(btn => {
@@ -525,7 +1544,9 @@ function init() {
   initContainers();
 
   // First render and default UI
+  updateUIText();
   renderTricks();
+  renderAdvancedAttacks();
   setActivePlatformButton();
   updateControllers();
   updatePlatformOnlyElements();

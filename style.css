@@ -25,6 +25,12 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 20px;
+  position: relative;
+}
+.advanced-cards-grid .advanced-card.last-centered {
+  grid-column: 1 / -1;
+  justify-self: center;
+  max-width: 320px;
 }
 .advanced-card {
   background: #181f24;
@@ -110,10 +116,6 @@
   visibility: visible;
   opacity: 1;
 }
-/* Hide R3 tooltip if not PlayStation */
-[data-platform="xbox"] .r3-tooltip {
-  display: none;
-}
 /* FC25 Tricks Manual — style.css
    Dark football theme with green/gold highlights.
    Simple, kid-friendly layout and big buttons.
@@ -154,6 +156,26 @@ html,body{ height:100%; margin:0; font-family: Inter, system-ui, -apple-system, 
 .site-sub{ margin:6px 0 10px 0; color:var(--muted); font-size:1rem; }
 
 .controls{ display:flex; gap:18px; align-items:center; flex-wrap:wrap; }
+
+.lang-select{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+#languageSelect{
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.03);
+  color:#e6eef3;
+  padding:10px 12px;
+  border-radius:10px;
+  font-size:1rem;
+}
+
+#languageSelect:focus{
+  outline: 3px solid rgba(107,214,75,0.18);
+  outline-offset:3px;
+}
 
 .platform-toggle { display:flex; gap:10px; align-items:center; }
 .platform-btn{
@@ -214,9 +236,8 @@ html,body{ height:100%; margin:0; font-family: Inter, system-ui, -apple-system, 
 /* Space between star sections (prevents headings sticking to previous content) */
 .stars-container .star-section + .star-section{ margin-top: var(--gap); }
 
-/* Platform-only visibility (fallback + works with JS) */
-body[data-platform="xbox"] [data-platform-only="ps"]{ display:none !important; }
-body[data-platform="ps"] [data-platform-only="xbox"]{ display:none !important; }
+/* Platform-only visibility (PS5-only manual) */
+[data-platform-only="xbox"]{ display:none !important; }
 
 .star-heading{ margin:0 0 8px 0; color:var(--accent2); font-size:1.05rem; font-weight:700; }
 
