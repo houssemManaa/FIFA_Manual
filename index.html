@@ -13,13 +13,22 @@
       <p class="site-sub">Learn skill moves. Beat defenders. Have fun.</p>
 
       <div class="controls">
+        <div class="lang-select">
+          <p class="small-label" id="langLabel">Language</p>
+          <select id="languageSelect" aria-label="Language">
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="es">Español</option>
+            <option value="ar">العربية</option>
+          </select>
+        </div>
+
         <div class="platform-toggle" role="tablist" aria-label="Platform selector">
-          <button class="platform-btn active" data-platform="ps" aria-pressed="true">PlayStation <span class="emoji">◯✖</span></button>
-          <button class="platform-btn" data-platform="xbox" aria-pressed="false">Xbox <span class="emoji">BA</span></button>
+          <button class="platform-btn active" data-platform="ps" aria-pressed="true">PlayStation (PS5) <span class="emoji">◯✖</span></button>
         </div>
 
         <div class="level-select" role="tablist" aria-label="Choose star rating">
-          <p class="small-label">Choose Stars</p>
+          <p class="small-label" id="starsLabel">Choose Stars</p>
           <div class="level-buttons">
             <button class="level-btn active" data-level="all" aria-pressed="true">All</button>
             <button class="level-btn" data-level="0" aria-pressed="false">0 ⭐</button>
@@ -28,7 +37,7 @@
             <button class="level-btn" data-level="3" aria-pressed="false">3 ⭐</button>
             <button class="level-btn" data-level="4" aria-pressed="false">4 ⭐</button>
             <button class="level-btn" data-level="5" aria-pressed="false">5 ⭐</button>
-            <button class="level-btn" data-level="advanced" aria-pressed="false">Advanced Attacks</button>
+            <button class="level-btn" data-level="advanced" aria-pressed="false" id="advancedAttacksBtn">Advanced Attacks</button>
           </div>
         </div>
       </div>
@@ -37,47 +46,50 @@
 
   <main>
     <section id="featured" class="featured">
-      <h2>Trick of the Day ✨</h2>
+      <h2 id="todTitle">Trick of the Day ✨</h2>
       <div class="featured-card" id="featuredCard" aria-live="polite">
         <!-- JS fills featured trick here -->
       </div>
-      <p class="practice-challenge">Practice challenge: Try the trick 5 times in a row with both feet.</p>
+      <p class="practice-challenge" id="practiceChallenge">Practice challenge: Try the trick 5 times in a row with both feet.</p>
     </section>
 
     <section id="tricks" class="tricks-section">
-      <h2>Skill Moves by Stars</h2>
-      <p class="team-note" aria-hidden="false">Tip: To see a player's skill move stars, go to Team Management and press <strong><span class="r3-tooltip" data-platform-only="ps">R3<span class="tooltip-text">Right Joystick</span></span></strong> on the player. 🎮</p>
+      <h2 id="skillsTitle">Skill Moves by Stars</h2>
+      <p class="team-note" aria-hidden="false">
+        <span id="teamTipPrefix">Tip: To see a player's skill move stars, go to Team Management and press </span>
+        <strong><span class="r3-tooltip" data-platform-only="ps">R3<span class="tooltip-text" id="r3Tooltip">Right Joystick</span></span></strong>
+        <span id="teamTipSuffix"> on the player. 🎮</span>
+      </p>
 
       <div class="stars-container">
         <section class="star-section" data-stars="0" data-static="true">
-          <h3 class="star-heading">0 Star ⭐</h3>
+          <h3 class="star-heading" data-stars-heading="0">0 Star ⭐</h3>
           <img src="controoler.webp" alt="PlayStation Controller Layout" class="controller-image" data-platform-only="ps" />
-          <img src="aa84b368a69a65c63ba4470ebcc1f9735e03d8e3_2_690x486.png" alt="Xbox Controller Layout" class="controller-image" data-platform-only="xbox" />
         </section>
 
         <section class="star-section" data-stars="1">
-          <h3 class="star-heading">1 Star ⭐</h3>
-          <p class="section-note" aria-hidden="false">Note: Goalkeepers can do these skills too! 🧤</p>
+          <h3 class="star-heading" data-stars-heading="1">1 Star ⭐</h3>
+          <p class="section-note" aria-hidden="false" id="gkNote">Note: Goalkeepers can do these skills too! 🧤</p>
           <div id="stars-1" class="cards-grid" aria-live="polite"></div>
         </section>
 
         <section class="star-section" data-stars="2">
-          <h3 class="star-heading">2 Star ⭐⭐</h3>
+          <h3 class="star-heading" data-stars-heading="2">2 Star ⭐⭐</h3>
           <div id="stars-2" class="cards-grid" aria-live="polite"></div>
         </section>
 
         <section class="star-section" data-stars="3">
-          <h3 class="star-heading">3 Star ⭐⭐⭐</h3>
+          <h3 class="star-heading" data-stars-heading="3">3 Star ⭐⭐⭐</h3>
           <div id="stars-3" class="cards-grid" aria-live="polite"></div>
         </section>
 
         <section class="star-section" data-stars="4">
-          <h3 class="star-heading">4 Star ⭐⭐⭐⭐</h3>
+          <h3 class="star-heading" data-stars-heading="4">4 Star ⭐⭐⭐⭐</h3>
           <div id="stars-4" class="cards-grid" aria-live="polite"></div>
         </section>
 
         <section class="star-section" data-stars="5">
-          <h3 class="star-heading">5 Star ⭐⭐⭐⭐⭐</h3>
+          <h3 class="star-heading" data-stars-heading="5">5 Star ⭐⭐⭐⭐⭐</h3>
           <div id="stars-5" class="cards-grid" aria-live="polite"></div>
         </section>
       </div>
@@ -85,7 +97,7 @@
     </section>
 
   <section id="advanced-attacks" class="advanced-attacks-section">
-    <h2>Advanced Attacks</h2>
+    <h2 id="advancedTitle">Advanced Attacks</h2>
     <div class="advanced-cards-grid">
       <!-- Cards will be rendered by JS -->
     </div>
@@ -93,8 +105,26 @@
   </main>
 
   <footer class="site-footer">
-    <p>Made for young players • Keep practicing! ⚽</p>
+    <p id="footerText">Made for young players • Keep practicing! ⚽</p>
   </footer>
+
+  <!-- Review Modal -->
+  <div id="review-modal" class="review-modal" aria-hidden="true" tabindex="-1">
+    <div class="review-modal-content">
+      <button class="close-modal" id="close-review-modal" aria-label="Close">&times;</button>
+      <h2 id="rateTitle">Rate This Manual</h2>
+      <div class="star-rating" id="star-rating">
+        <span data-star="1">&#9733;</span>
+        <span data-star="2">&#9733;</span>
+        <span data-star="3">&#9733;</span>
+        <span data-star="4">&#9733;</span>
+        <span data-star="5">&#9733;</span>
+      </div>
+      <textarea id="review-text" placeholder="What did you like? Any ideas to improve?" rows="3"></textarea>
+      <button id="submit-review" class="submit-review">Submit Review</button>
+      <div id="review-thankyou" class="review-thankyou" style="display:none;">Thank you for your feedback!</div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
