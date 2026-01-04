@@ -203,7 +203,48 @@ const I18N = {
     favoritesCount: '{count} favorite(s)',
     searchFilterLabel: 'Filter by:',
     filterSkills: 'Skills',
-    filterAdvanced: 'Advanced Attacks'
+    filterAdvanced: 'Advanced Attacks',
+    settings: 'Settings',
+    theme: 'Theme',
+    themeDark: 'Dark',
+    themeLight: 'Light',
+    themeChanged: 'Theme changed!',
+    dataManagement: 'Data Management',
+    displayOptions: 'Display Options',
+    clearRecentText: 'Clear Recently Viewed',
+    clearFavoritesText: 'Clear All Favorites',
+    resetAllText: 'Reset All Settings',
+    showControllerText: 'Show Controller Image',
+    showTimerText: 'Show Practice Timer',
+    animationsText: 'Enable Animations',
+    bgDefault: 'Default',
+    bgGradient: 'Gradient',
+    bgPitch: 'Pitch',
+    bgMinimal: 'Minimal',
+    confirmClearRecent: 'Clear all recently viewed tricks?',
+    confirmClearFavorites: 'Clear all favorite tricks?',
+    confirmResetAll: 'Reset all settings and data? This cannot be undone.',
+    recentCleared: 'Recently viewed cleared!',
+    favoritesCleared: 'Favorites cleared!',
+    allReset: 'All settings reset!',
+    practiceStatsTitle: 'Practice Statistics',
+    pauseTracking: 'Pause Tracking',
+    resumeTracking: 'Resume Tracking',
+    trackingPaused: 'Practice tracking paused',
+    trackingResumed: 'Practice tracking resumed',
+    statTodayLabel: 'Today',
+    statWeekLabel: 'This Week',
+    statMonthLabel: 'This Month',
+    statYearLabel: 'This Year',
+    resetStatsText: 'Reset Statistics',
+    startPractice: 'Start Practice',
+    stopPractice: 'Stop Practice',
+    confirmResetStats: 'Reset all practice statistics?',
+    statsReset: 'Statistics reset!',
+    practiceComplete: 'Practice session complete! {time} practiced today.',
+    dailyGoalReached: '🎉 Daily goal reached! Great work!',
+    weeklyMilestone: '🔥 Weekly milestone! You practiced {time} this week!',
+    monthlyAchievement: '⭐ Monthly achievement! {time} practiced this month!'
   },
   fr: {
     siteTitle: 'Manuel de gestes FC25 (PS5)',
@@ -238,7 +279,44 @@ const I18N = {
     favoritesCount: '{count} favori(s)',
     searchFilterLabel: 'Filtrer par:',
     filterSkills: 'Gestes',
-    filterAdvanced: 'Attaques avancées'
+    filterAdvanced: 'Attaques avancées',
+    settings: 'Paramètres',
+    theme: 'Thème',
+    themeDark: 'Sombre',
+    themeLight: 'Clair',
+    themeChanged: 'Thème changé!',
+    dataManagement: 'Gestion des données',
+    displayOptions: 'Options d\'affichage',
+    clearRecentText: 'Effacer les vus récemment',
+    clearFavoritesText: 'Effacer tous les favoris',
+    resetAllText: 'Réinitialiser tout',
+    showControllerText: 'Afficher l\'image du contrôleur',
+    showTimerText: 'Afficher le minuteur',
+    animationsText: 'Activer les animations',
+    confirmClearRecent: 'Effacer tous les gestes vus récemment?',
+    confirmClearFavorites: 'Effacer tous les gestes favoris?',
+    confirmResetAll: 'Réinitialiser tous les paramètres et données? Cette action est irréversible.',
+    recentCleared: 'Historique effacé!',
+    favoritesCleared: 'Favoris effacés!',
+    allReset: 'Tous les paramètres réinitialisés!',
+    practiceStatsTitle: 'Statistiques de pratique',
+    pauseTracking: 'Mettre en pause',
+    resumeTracking: 'Reprendre',
+    trackingPaused: 'Suivi en pause',
+    trackingResumed: 'Suivi repris',
+    statTodayLabel: 'Aujourd\'hui',
+    statWeekLabel: 'Cette semaine',
+    statMonthLabel: 'Ce mois',
+    statYearLabel: 'Cette année',
+    resetStatsText: 'Réinitialiser les stats',
+    startPractice: 'Démarrer la pratique',
+    stopPractice: 'Arrêter la pratique',
+    confirmResetStats: 'Réinitialiser toutes les statistiques?',
+    statsReset: 'Statistiques réinitialisées!',
+    practiceComplete: 'Session terminée! {time} pratiqué aujourd\'hui.',
+    dailyGoalReached: '🎉 Objectif quotidien atteint! Bravo!',
+    weeklyMilestone: '🔥 Jalon hebdomadaire! Tu as pratiqué {time} cette semaine!',
+    monthlyAchievement: '⭐ Réussite mensuelle! {time} pratiqué ce mois!'
   },
   es: {
     siteTitle: 'Manual de trucos FC25 (PS5)',
@@ -273,7 +351,44 @@ const I18N = {
     favoritesCount: '{count} favorito(s)',
     searchFilterLabel: 'Filtrar por:',
     filterSkills: 'Regates',
-    filterAdvanced: 'Ataques avanzados'
+    filterAdvanced: 'Ataques avanzados',
+    settings: 'Configuración',
+    theme: 'Tema',
+    themeDark: 'Oscuro',
+    themeLight: 'Claro',
+    themeChanged: '¡Tema cambiado!',
+    dataManagement: 'Gestión de datos',
+    displayOptions: 'Opciones de visualización',
+    clearRecentText: 'Borrar vistos recientemente',
+    clearFavoritesText: 'Borrar todos los favoritos',
+    resetAllText: 'Restablecer todo',
+    showControllerText: 'Mostrar imagen del mando',
+    showTimerText: 'Mostrar temporizador',
+    animationsText: 'Activar animaciones',
+    confirmClearRecent: '¿Borrar todos los trucos vistos recientemente?',
+    confirmClearFavorites: '¿Borrar todos los trucos favoritos?',
+    confirmResetAll: '¿Restablecer toda la configuración y datos? Esta acción no se puede deshacer.',
+    recentCleared: '¡Historial borrado!',
+    favoritesCleared: '¡Favoritos borrados!',
+    allReset: '¡Configuración restablecida!',
+    practiceStatsTitle: 'Estadísticas de práctica',
+    pauseTracking: 'Pausar seguimiento',
+    resumeTracking: 'Reanudar seguimiento',
+    trackingPaused: 'Seguimiento pausado',
+    trackingResumed: 'Seguimiento reanudado',
+    statTodayLabel: 'Hoy',
+    statWeekLabel: 'Esta semana',
+    statMonthLabel: 'Este mes',
+    statYearLabel: 'Este año',
+    resetStatsText: 'Restablecer estadísticas',
+    startPractice: 'Iniciar práctica',
+    stopPractice: 'Detener práctica',
+    confirmResetStats: '¿Restablecer todas las estadísticas?',
+    statsReset: '¡Estadísticas restablecidas!',
+    practiceComplete: '¡Sesión completa! {time} practicado hoy.',
+    dailyGoalReached: '🎉 ¡Meta diaria alcanzada! ¡Buen trabajo!',
+    weeklyMilestone: '🔥 ¡Hito semanal! ¡Practicaste {time} esta semana!',
+    monthlyAchievement: '⭐ ¡Logro mensual! {time} practicado este mes!'
   },
   ar: {
     siteTitle: 'دليل مهارات FC25 (PS5)',
@@ -308,7 +423,44 @@ const I18N = {
     favoritesCount: '{count} مفضلة',
     searchFilterLabel: 'تصفية حسب:',
     filterSkills: 'المهارات',
-    filterAdvanced: 'الهجمات المتقدمة'
+    filterAdvanced: 'الهجمات المتقدمة',
+    settings: 'الإعدادات',
+    theme: 'السمة',
+    themeDark: 'داكن',
+    themeLight: 'فاتح',
+    themeChanged: 'تم تغيير السمة!',
+    dataManagement: 'إدارة البيانات',
+    displayOptions: 'خيارات العرض',
+    clearRecentText: 'مسح المشاهدة الأخيرة',
+    clearFavoritesText: 'مسح كل المفضلة',
+    resetAllText: 'إعادة تعيين الكل',
+    showControllerText: 'إظهار صورة وحدة التحكم',
+    showTimerText: 'إظهار مؤقت التدريب',
+    animationsText: 'تفعيل الرسوم المتحركة',
+    confirmClearRecent: 'مسح كل الحركات المشاهدة مؤخراً؟',
+    confirmClearFavorites: 'مسح كل الحركات المفضلة؟',
+    confirmResetAll: 'إعادة تعيين جميع الإعدادات والبيانات؟ لا يمكن التراجع عن ذلك.',
+    recentCleared: 'تم مسح السجل!',
+    favoritesCleared: 'تم مسح المفضلة!',
+    allReset: 'تمت إعادة تعيين جميع الإعدادات!',
+    practiceStatsTitle: 'إحصائيات التدريب',
+    pauseTracking: 'إيقاف مؤقت',
+    resumeTracking: 'استئناف',
+    trackingPaused: 'تم إيقاف التتبع',
+    trackingResumed: 'تم استئناف التتبع',
+    statTodayLabel: 'اليوم',
+    statWeekLabel: 'هذا الأسبوع',
+    statMonthLabel: 'هذا الشهر',
+    statYearLabel: 'هذه السنة',
+    resetStatsText: 'إعادة تعيين الإحصائيات',
+    startPractice: 'بدء التدريب',
+    stopPractice: 'إيقاف التدريب',
+    confirmResetStats: 'إعادة تعيين كل الإحصائيات؟',
+    statsReset: 'تم إعادة تعيين الإحصائيات!',
+    practiceComplete: 'انتهت الجلسة! تدربت {time} اليوم.',
+    dailyGoalReached: '🎉 تم الوصول للهدف اليومي! عمل رائع!',
+    weeklyMilestone: '🔥 إنجاز أسبوعي! تدربت {time} هذا الأسبوع!',
+    monthlyAchievement: '⭐ إنجاز شهري! {time} من التدريب هذا الشهر!'
   }
 };
 
@@ -1837,8 +1989,15 @@ function setTrickOfTheDay() {
     console.log('FC25: no visible tricks for featured');
     return;
   }
-  const pick = visible[Math.floor(Math.random() * visible.length)];
-  console.log('FC25: picked trick for featured ->', pick.dataset.name);
+  
+  // Use today's date as seed for consistent daily selection
+  const today = new Date();
+  const dateString = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+  const daysSinceEpoch = Math.floor(today.getTime() / (1000 * 60 * 60 * 24));
+  const index = daysSinceEpoch % visible.length;
+  const pick = visible[index];
+  
+  console.log('FC25: picked trick for featured (date:', dateString, ') ->', pick.dataset.name);
   const clone = pick.cloneNode(true);
 
   // ensure controller text for the clone is correct, with tooltips for R3/L3
@@ -1856,10 +2015,11 @@ function setTrickOfTheDay() {
   }
 
   const funPracticeLines = getFunPracticeLines();
+  const practiceDayIndex = daysSinceEpoch % funPracticeLines.length;
 
   const practice = document.createElement('p');
   practice.className = 'featured-practice';
-  practice.textContent = funPracticeLines[Math.floor(Math.random() * funPracticeLines.length)];
+  practice.textContent = funPracticeLines[practiceDayIndex];
   clone.appendChild(practice);
 
   featuredCardContainer.innerHTML = '';
@@ -2275,6 +2435,501 @@ function init() {
   filterByLevel('all');
   setTrickOfTheDay();
   renderRecentlyViewed();
+  initSettings();
+  initPracticeTracking();
+}
+
+// Settings functionality
+function initSettings() {
+  const settingsBtn = document.getElementById('settingsBtn');
+  const settingsModal = document.getElementById('settingsModal');
+  const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+  const clearRecentBtn = document.getElementById('clearRecentBtn');
+  const clearFavoritesBtn = document.getElementById('clearFavoritesBtn');
+  const resetAllBtn = document.getElementById('resetAllBtn');
+  const showControllerImg = document.getElementById('showControllerImg');
+  const animationsEnabled = document.getElementById('animationsEnabled');
+  const themeOptions = document.querySelectorAll('.theme-option');
+
+  // Load saved settings
+  loadSettings();
+
+  // Open settings
+  settingsBtn?.addEventListener('click', () => {
+    settingsModal.style.display = 'flex';
+    updateSettingsTranslations();
+  });
+
+  // Close settings
+  const closeModal = () => {
+    settingsModal.style.display = 'none';
+  };
+
+  closeSettingsBtn?.addEventListener('click', closeModal);
+  settingsModal?.addEventListener('click', (e) => {
+    if (e.target === settingsModal) closeModal();
+  });
+
+  // Escape key to close
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && settingsModal.style.display === 'flex') {
+      closeModal();
+    }
+  });
+
+  // Theme selection
+  themeOptions.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const theme = btn.dataset.theme;
+      themeOptions.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyTheme(theme);
+      localStorage.setItem('fc25_theme', theme);
+      showNotification(t('themeChanged') || 'Theme changed!');
+    });
+  });
+
+  // Clear recently viewed
+  clearRecentBtn?.addEventListener('click', () => {
+    if (confirm(t('confirmClearRecent') || 'Clear all recently viewed tricks?')) {
+      localStorage.removeItem('fc25_recent');
+      renderRecentlyViewed();
+      showNotification(t('recentCleared') || 'Recently viewed cleared!');
+    }
+  });
+
+  // Clear favorites
+  clearFavoritesBtn?.addEventListener('click', () => {
+    if (confirm(t('confirmClearFavorites') || 'Clear all favorite tricks?')) {
+      localStorage.removeItem('fc25_favorites');
+      renderTricks();
+      renderAdvancedAttacks();
+      const activeBtn = document.querySelector('.level-btn.active');
+      if (activeBtn && activeBtn.dataset.level === 'favorites') {
+        showFavorites();
+      }
+      showNotification(t('favoritesCleared') || 'Favorites cleared!');
+    }
+  });
+
+  // Reset all
+  resetAllBtn?.addEventListener('click', () => {
+    if (confirm(t('confirmResetAll') || 'Reset all settings and data? This cannot be undone.')) {
+      localStorage.clear();
+      showNotification(t('allReset') || 'All settings reset!');
+      setTimeout(() => location.reload(), 1000);
+    }
+  });
+
+  // Controller image toggle
+  showControllerImg?.addEventListener('change', (e) => {
+    const img = document.querySelector('.controller-image');
+    const zeroStarSection = document.querySelector('.star-section[data-stars="0"]');
+    const zeroStarBtn = document.querySelector('.level-btn[data-level="0"]');
+    
+    if (img) {
+      img.style.display = e.target.checked ? 'block' : 'none';
+    }
+    
+    // Also hide/show 0 star section and button
+    if (zeroStarSection) {
+      zeroStarSection.style.display = e.target.checked ? 'block' : 'none';
+    }
+    if (zeroStarBtn) {
+      zeroStarBtn.style.display = e.target.checked ? 'inline-block' : 'none';
+    }
+    
+    localStorage.setItem('fc25_showController', e.target.checked);
+  });
+
+  // Timer widget toggle
+  const showTimerWidget = document.getElementById('showTimerWidget');
+  showTimerWidget?.addEventListener('change', (e) => {
+    const timerWidget = document.getElementById('practiceTimer');
+    if (timerWidget) {
+      timerWidget.style.display = e.target.checked ? 'flex' : 'none';
+    }
+    localStorage.setItem('fc25_showTimer', e.target.checked);
+  });
+
+  // Animations toggle
+  animationsEnabled?.addEventListener('change', (e) => {
+    document.body.classList.toggle('no-animations', !e.target.checked);
+    localStorage.setItem('fc25_animations', e.target.checked);
+  });
+}
+
+function loadSettings() {
+  // Load theme
+  const savedTheme = localStorage.getItem('fc25_theme') || 'dark';
+  applyTheme(savedTheme);
+  document.querySelector(`.theme-option[data-theme="${savedTheme}"]`)?.classList.add('active');
+
+  // Load controller image setting
+  const showController = localStorage.getItem('fc25_showController');
+  if (showController === 'false') {
+    const img = document.querySelector('.controller-image');
+    const zeroStarSection = document.querySelector('.star-section[data-stars="0"]');
+    const zeroStarBtn = document.querySelector('.level-btn[data-level="0"]');
+    const checkbox = document.getElementById('showControllerImg');
+    
+    if (img) img.style.display = 'none';
+    if (zeroStarSection) zeroStarSection.style.display = 'none';
+    if (zeroStarBtn) zeroStarBtn.style.display = 'none';
+    if (checkbox) checkbox.checked = false;
+  }
+
+  // Load timer visibility setting
+  const showTimer = localStorage.getItem('fc25_showTimer');
+  if (showTimer === 'false') {
+    const timerWidget = document.getElementById('practiceTimer');
+    const checkbox = document.getElementById('showTimerWidget');
+    if (timerWidget) timerWidget.style.display = 'none';
+    if (checkbox) checkbox.checked = false;
+  }
+
+  // Load animations setting
+  const animations = localStorage.getItem('fc25_animations');
+  if (animations === 'false') {
+    document.body.classList.add('no-animations');
+    const checkbox = document.getElementById('animationsEnabled');
+    if (checkbox) checkbox.checked = false;
+  }
+}
+
+function applyTheme(theme) {
+  if (theme === 'light') {
+    document.body.classList.add('theme-light');
+  } else {
+    document.body.classList.remove('theme-light');
+  }
+}
+
+function showNotification(message) {
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed;
+    top: 90px;
+    right: 20px;
+    background: #34c759;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+    animation: slideIn 0.3s ease;
+    font-weight: 600;
+  `;
+  notification.textContent = message;
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.style.animation = 'slideOut 0.3s ease';
+    setTimeout(() => notification.remove(), 300);
+  }, 2500);
+}
+
+function updateSettingsTranslations() {
+  const settingsTitle = document.getElementById('settingsTitle');
+  const themeTitle = document.getElementById('themeTitle');
+  const dataManagementTitle = document.getElementById('dataManagementTitle');
+  const displayOptionsTitle = document.getElementById('displayOptionsTitle');
+  const clearRecentText = document.getElementById('clearRecentText');
+  const clearFavoritesText = document.getElementById('clearFavoritesText');
+  const resetAllText = document.getElementById('resetAllText');
+  const showControllerText = document.getElementById('showControllerText');
+  const showTimerText = document.getElementById('showTimerText');
+  const animationsText = document.getElementById('animationsText');
+  const themeDark = document.getElementById('themeDark');
+  const themeLight = document.getElementById('themeLight');
+
+  if (settingsTitle) settingsTitle.textContent = t('settings');
+  if (themeTitle) themeTitle.textContent = t('theme');
+  if (dataManagementTitle) dataManagementTitle.textContent = t('dataManagement');
+  if (displayOptionsTitle) displayOptionsTitle.textContent = t('displayOptions');
+  if (clearRecentText) clearRecentText.textContent = t('clearRecentText');
+  if (clearFavoritesText) clearFavoritesText.textContent = t('clearFavoritesText');
+  if (resetAllText) resetAllText.textContent = t('resetAllText');
+  if (showControllerText) showControllerText.textContent = t('showControllerText');
+  if (showTimerText) showTimerText.textContent = t('showTimerText');
+  if (animationsText) animationsText.textContent = t('animationsText');
+  if (themeDark) themeDark.textContent = t('themeDark');
+  if (themeLight) themeLight.textContent = t('themeLight');
+}
+
+// Practice Time Tracking
+let practiceStartTime = Date.now();
+let practiceInterval = null;
+let currentSessionSeconds = 0;
+let isPaused = false;
+
+function initPracticeTracking() {
+  const timerDisplay = document.getElementById('practiceTimerDisplay');
+  const resetStatsBtn = document.getElementById('resetStatsBtn');
+  const pauseResumeBtn = document.getElementById('pauseResumeBtn');
+  
+  if (!timerDisplay) return;
+  
+  // Check if tracking was paused
+  isPaused = localStorage.getItem('fc25_tracking_paused') === 'true';
+  
+  // Start automatic tracking only if not paused
+  practiceStartTime = Date.now();
+  currentSessionSeconds = 0;
+  
+  if (!isPaused) {
+    startTracking();
+  } else {
+    updatePauseButton(true);
+  }
+  
+  // Pause/Resume button
+  pauseResumeBtn?.addEventListener('click', () => {
+    if (isPaused) {
+      resumeTracking();
+    } else {
+      pauseTracking();
+    }
+  });
+  
+  // Reset stats button
+  resetStatsBtn?.addEventListener('click', () => {
+    if (confirm(t('confirmResetStats') || 'Reset all practice statistics?')) {
+      localStorage.removeItem('fc25_practice_stats');
+      updateStatsDisplay();
+      showNotification(t('statsReset') || 'Statistics reset!');
+    }
+  });
+  
+  // Save time when leaving page
+  window.addEventListener('beforeunload', () => {
+    if (currentSessionSeconds > 0 && !isPaused) {
+      savePracticeTime(currentSessionSeconds);
+    }
+  });
+  
+  // Update stats display initially
+  updateStatsDisplay();
+}
+
+function startTracking() {
+  if (practiceInterval) return; // Already tracking
+  
+  practiceInterval = setInterval(() => {
+    currentSessionSeconds++;
+    updateTimerDisplay(currentSessionSeconds);
+    
+    // Save progress every minute
+    if (currentSessionSeconds % 60 === 0) {
+      savePracticeTime(60); // Save 1 minute
+      updateStatsDisplay();
+      checkMilestones();
+    }
+  }, 1000);
+}
+
+function pauseTracking() {
+  if (practiceInterval) {
+    clearInterval(practiceInterval);
+    practiceInterval = null;
+  }
+  
+  // Save any unsaved time
+  if (currentSessionSeconds > 0) {
+    savePracticeTime(currentSessionSeconds);
+    currentSessionSeconds = 0;
+  }
+  
+  isPaused = true;
+  localStorage.setItem('fc25_tracking_paused', 'true');
+  updatePauseButton(true);
+  showNotification(t('trackingPaused') || 'Practice tracking paused');
+}
+
+function resumeTracking() {
+  isPaused = false;
+  localStorage.setItem('fc25_tracking_paused', 'false');
+  startTracking();
+  updatePauseButton(false);
+  showNotification(t('trackingResumed') || 'Practice tracking resumed');
+}
+
+function updatePauseButton(paused) {
+  const pauseResumeBtn = document.getElementById('pauseResumeBtn');
+  const pauseResumeIcon = document.getElementById('pauseResumeIcon');
+  const pauseResumeText = document.getElementById('pauseResumeText');
+  
+  if (!pauseResumeBtn) return;
+  
+  if (paused) {
+    pauseResumeIcon.textContent = '▶️';
+    pauseResumeText.textContent = t('resumeTracking');
+    pauseResumeBtn.style.background = 'linear-gradient(135deg, #34c759 0%, #28a745 100%)';
+    pauseResumeBtn.style.borderColor = 'rgba(52, 199, 89, 0.3)';
+  } else {
+    pauseResumeIcon.textContent = '⏸️';
+    pauseResumeText.textContent = t('pauseTracking');
+    pauseResumeBtn.style.background = 'linear-gradient(135deg, #ff9500 0%, #ff5e3a 100%)';
+    pauseResumeBtn.style.borderColor = 'rgba(255, 149, 0, 0.3)';
+  }
+}
+
+function updateTimerDisplay(seconds) {
+  const timerDisplay = document.getElementById('practiceTimerDisplay');
+  if (!timerDisplay) return;
+  
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+  
+  if (hours > 0) {
+    timerDisplay.textContent = `${hours}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  } else {
+    timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  }
+}
+
+function savePracticeTime(seconds) {
+  const stats = getPracticeStats();
+  const now = new Date();
+  const today = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+  const week = getWeekNumber(now);
+  const month = `${now.getFullYear()}-${now.getMonth() + 1}`;
+  const year = now.getFullYear();
+  
+  // Add to daily
+  if (!stats.daily[today]) stats.daily[today] = 0;
+  stats.daily[today] += seconds;
+  
+  // Add to weekly
+  if (!stats.weekly[week]) stats.weekly[week] = 0;
+  stats.weekly[week] += seconds;
+  
+  // Add to monthly
+  if (!stats.monthly[month]) stats.monthly[month] = 0;
+  stats.monthly[month] += seconds;
+  
+  // Add to yearly
+  if (!stats.yearly[year]) stats.yearly[year] = 0;
+  stats.yearly[year] += seconds;
+  
+  localStorage.setItem('fc25_practice_stats', JSON.stringify(stats));
+}
+
+function getPracticeStats() {
+  const stored = localStorage.getItem('fc25_practice_stats');
+  if (!stored) {
+    return {
+      daily: {},
+      weekly: {},
+      monthly: {},
+      yearly: {}
+    };
+  }
+  try {
+    return JSON.parse(stored);
+  } catch (e) {
+    return {
+      daily: {},
+      weekly: {},
+      monthly: {},
+      yearly: {}
+    };
+  }
+}
+
+function getWeekNumber(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  return `${d.getUTCFullYear()}-W${weekNo}`;
+}
+
+function formatTime(seconds) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  } else if (minutes > 0) {
+    return `${minutes}m`;
+  } else {
+    return `${seconds}s`;
+  }
+}
+
+function updateStatsDisplay() {
+  const stats = getPracticeStats();
+  const now = new Date();
+  const today = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+  const week = getWeekNumber(now);
+  const month = `${now.getFullYear()}-${now.getMonth() + 1}`;
+  const year = now.getFullYear();
+  
+  const todaySeconds = stats.daily[today] || 0;
+  const weekSeconds = stats.weekly[week] || 0;
+  const monthSeconds = stats.monthly[month] || 0;
+  const yearSeconds = stats.yearly[year] || 0;
+  
+  const statToday = document.getElementById('statToday');
+  const statWeek = document.getElementById('statWeek');
+  const statMonth = document.getElementById('statMonth');
+  const statYear = document.getElementById('statYear');
+  
+  if (statToday) statToday.textContent = formatTime(todaySeconds);
+  if (statWeek) statWeek.textContent = formatTime(weekSeconds);
+  if (statMonth) statMonth.textContent = formatTime(monthSeconds);
+  if (statYear) statYear.textContent = formatTime(yearSeconds);
+  
+  // Update labels with translations
+  const statTodayLabel = document.getElementById('statTodayLabel');
+  const statWeekLabel = document.getElementById('statWeekLabel');
+  const statMonthLabel = document.getElementById('statMonthLabel');
+  const statYearLabel = document.getElementById('statYearLabel');
+  const practiceStatsTitle = document.getElementById('practiceStatsTitle');
+  const resetStatsText = document.getElementById('resetStatsText');
+  
+  if (statTodayLabel) statTodayLabel.textContent = t('statTodayLabel');
+  if (statWeekLabel) statWeekLabel.textContent = t('statWeekLabel');
+  if (statMonthLabel) statMonthLabel.textContent = t('statMonthLabel');
+  if (statYearLabel) statYearLabel.textContent = t('statYearLabel');
+  if (practiceStatsTitle) practiceStatsTitle.textContent = t('practiceStatsTitle');
+  if (resetStatsText) resetStatsText.textContent = t('resetStatsText');
+  
+  // Update pause/resume button
+  updatePauseButton(isPaused);
+}
+
+function checkMilestones() {
+  const stats = getPracticeStats();
+  const now = new Date();
+  const today = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+  const week = getWeekNumber(now);
+  const month = `${now.getFullYear()}-${now.getMonth() + 1}`;
+  
+  const todaySeconds = stats.daily[today] || 0;
+  const weekSeconds = stats.weekly[week] || 0;
+  const monthSeconds = stats.monthly[month] || 0;
+  
+  // Check for daily milestones (every 30 minutes)
+  if (todaySeconds > 0 && todaySeconds % 1800 === 0) {
+    const msg = t('practiceComplete').replace('{time}', formatTime(todaySeconds));
+    showNotification(msg);
+  }
+  
+  // Check for weekly milestones (every 3 hours)
+  if (weekSeconds > 0 && weekSeconds % 10800 === 0) {
+    const msg = t('weeklyMilestone').replace('{time}', formatTime(weekSeconds));
+    showNotification(msg);
+  }
+  
+  // Check for monthly milestones (every 10 hours)
+  if (monthSeconds > 0 && monthSeconds % 36000 === 0) {
+    const msg = t('monthlyAchievement').replace('{time}', formatTime(monthSeconds));
+    showNotification(msg);
+  }
 }
 
 // Start

@@ -46,14 +46,112 @@
             <button class="level-btn" data-level="advanced" aria-pressed="false" id="advancedAttacksBtn">Advanced Attacks</button>
           </div>
         </div>
-        
-        <div class="theme-selector">
-          <button class="theme-btn" data-theme="dark" aria-label="Dark theme">🌙</button>
-          <button class="theme-btn" data-theme="light" aria-label="Light theme">☀️</button>
-        </div>
       </div>
     </div>
   </header>
+
+  <!-- Settings Button -->
+  <button id="settingsBtn" class="settings-btn" aria-label="Settings">⚙️</button>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="settings-modal" style="display:none;">
+    <div class="settings-content">
+      <div class="settings-header">
+        <h2 id="settingsTitle">Settings</h2>
+        <button id="closeSettingsBtn" class="close-settings-btn" aria-label="Close settings">✕</button>
+      </div>
+      
+      <div class="settings-body">
+        <!-- Theme Settings -->
+        <div class="settings-section">
+          <h3 id="themeTitle">Theme</h3>
+          <div class="theme-options">
+            <button class="theme-option" data-theme="dark">
+              <div class="theme-preview theme-dark">🌙</div>
+              <span id="themeDark">Dark</span>
+            </button>
+            <button class="theme-option" data-theme="light">
+              <div class="theme-preview theme-light">☀️</div>
+              <span id="themeLight">Light</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Practice Stats -->
+        <div class="settings-section">
+          <h3 id="practiceStatsTitle">Practice Statistics</h3>
+          <button id="pauseResumeBtn" class="settings-action-btn" style="margin-bottom: 12px; background: linear-gradient(135deg, #ff9500 0%, #ff5e3a 100%); border-color: rgba(255, 149, 0, 0.3);">
+            <span id="pauseResumeIcon">⏸️</span>
+            <span id="pauseResumeText">Pause Tracking</span>
+          </button>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value" id="statToday">0m</div>
+              <div class="stat-label" id="statTodayLabel">Today</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="statWeek">0m</div>
+              <div class="stat-label" id="statWeekLabel">This Week</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="statMonth">0m</div>
+              <div class="stat-label" id="statMonthLabel">This Month</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="statYear">0m</div>
+              <div class="stat-label" id="statYearLabel">This Year</div>
+            </div>
+          </div>
+          <button id="resetStatsBtn" class="settings-action-btn" style="margin-top: 12px;">
+            <span>📊</span>
+            <span id="resetStatsText">Reset Statistics</span>
+          </button>
+        </div>
+
+        <!-- Data Management -->
+        <div class="settings-section">
+          <h3 id="dataManagementTitle">Data Management</h3>
+          <button id="clearRecentBtn" class="settings-action-btn">
+            <span>🗑️</span>
+            <span id="clearRecentText">Clear Recently Viewed</span>
+          </button>
+          <button id="clearFavoritesBtn" class="settings-action-btn">
+            <span>💔</span>
+            <span id="clearFavoritesText">Clear All Favorites</span>
+          </button>
+          <button id="resetAllBtn" class="settings-action-btn danger">
+            <span>⚠️</span>
+            <span id="resetAllText">Reset All Settings</span>
+          </button>
+        </div>
+
+        <!-- Display Options -->
+        <div class="settings-section">
+          <h3 id="displayOptionsTitle">Display Options</h3>
+          <label class="settings-toggle">
+            <input type="checkbox" id="showControllerImg" checked>
+            <span class="toggle-slider"></span>
+            <span id="showControllerText">Show Controller Image</span>
+          </label>
+          <label class="settings-toggle">
+            <input type="checkbox" id="showTimerWidget" checked>
+            <span class="toggle-slider"></span>
+            <span id="showTimerText">Show Practice Timer</span>
+          </label>
+          <label class="settings-toggle">
+            <input type="checkbox" id="animationsEnabled" checked>
+            <span class="toggle-slider"></span>
+            <span id="animationsText">Enable Animations</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Practice Timer Widget -->
+  <div id="practiceTimer" class="practice-timer">
+    <div id="practiceTimerDisplay" class="timer-display">00:00</div>
+  </div>
 
   <main>
     <section id="featured" class="featured">
