@@ -10,30 +10,41 @@
   <header class="site-header">
     <img src="EA-Sports-FC-25-Logo-v2.jpg" alt="EA Sports FC 25 Logo" class="header-logo">
     <div class="header-inner">
-      <h1 class="site-title">FC25 Tricks Manual (PS5)</h1>
-      <p class="site-sub">Learn skill moves. Beat defenders. Have fun.</p>
+      <div class="header-top">
+        <div class="title-section">
+          <h1 class="site-title">FC25 Tricks Manual</h1>
+          <span class="platform-badge">PS5</span>
+        </div>
+        <p class="site-sub">Master every skill move • Dominate the pitch • Level up your game</p>
+      </div>
 
       <div class="controls">
-        <div class="lang-select">
-          <p class="small-label" id="langLabel">Language</p>
-          <select id="languageSelect" aria-label="Language">
-            <option value="en">English</option>
-            <option value="fr">Français</option>
-            <option value="es">Español</option>
-            <option value="ar">العربية</option>
-          </select>
-        </div>
+        <div class="control-row">
+          <div class="lang-select">
+            <label for="languageSelect" class="control-label" id="langLabel">
+              <span class="label-icon">🌐</span> Language
+            </label>
+            <select id="languageSelect" aria-label="Language">
+              <option value="en">English</option>
+              <option value="fr">Français</option>
+              <option value="es">Español</option>
+              <option value="ar">العربية</option>
+            </select>
+          </div>
 
-        <div class="search-box">
-          <p class="small-label" id="searchLabel">Search Tricks</p>
-          <div class="search-input-wrapper">
-            <input type="text" id="searchInput" placeholder="Type trick name..." aria-label="Search tricks by name" />
-            <button id="clearSearchBtn" class="clear-search-btn" aria-label="Clear search" style="display:none;">✕</button>
+          <div class="search-box">
+            <label for="searchInput" class="control-label" id="searchLabel">
+              <span class="label-icon">🔍</span> Search Tricks
+            </label>
+            <div class="search-input-wrapper">
+              <input type="text" id="searchInput" placeholder="Type trick name..." aria-label="Search tricks by name" />
+              <button id="clearSearchBtn" class="clear-search-btn" aria-label="Clear search" style="display:none;">✕</button>
+            </div>
           </div>
         </div>
 
         <div class="level-select" role="tablist" aria-label="Choose star rating">
-          <p class="small-label" id="starsLabel">Choose Stars</p>
+          <p class="control-label" id="starsLabel"><span class="label-icon">⭐</span> <span id="starsLabel">Choose Stars</span></p>
           <div class="level-buttons">
             <button class="level-btn active" data-level="all" aria-pressed="true">All</button>
             <button class="level-btn" data-level="0" aria-pressed="false">0 ⭐</button>
@@ -42,8 +53,8 @@
             <button class="level-btn" data-level="3" aria-pressed="false">3 ⭐</button>
             <button class="level-btn" data-level="4" aria-pressed="false">4 ⭐</button>
             <button class="level-btn" data-level="5" aria-pressed="false">5 ⭐</button>
-            <button class="level-btn" data-level="favorites" aria-pressed="false" id="favoritesBtn">❤ Favorites</button>
-            <button class="level-btn" data-level="advanced" aria-pressed="false" id="advancedAttacksBtn">Advanced Attacks</button>
+            <button class="level-btn level-btn-special" data-level="favorites" aria-pressed="false" id="favoritesBtn">❤ Favorites</button>
+            <button class="level-btn level-btn-special" data-level="advanced" aria-pressed="false" id="advancedAttacksBtn">⚡ Advanced</button>
           </div>
         </div>
       </div>
@@ -75,37 +86,6 @@
               <span id="themeLight">Light</span>
             </button>
           </div>
-        </div>
-
-        <!-- Practice Stats -->
-        <div class="settings-section">
-          <h3 id="practiceStatsTitle">Practice Statistics</h3>
-          <button id="pauseResumeBtn" class="settings-action-btn" style="margin-bottom: 12px; background: linear-gradient(135deg, #ff9500 0%, #ff5e3a 100%); border-color: rgba(255, 149, 0, 0.3);">
-            <span id="pauseResumeIcon">⏸️</span>
-            <span id="pauseResumeText">Pause Tracking</span>
-          </button>
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-value" id="statToday">0m</div>
-              <div class="stat-label" id="statTodayLabel">Today</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value" id="statWeek">0m</div>
-              <div class="stat-label" id="statWeekLabel">This Week</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value" id="statMonth">0m</div>
-              <div class="stat-label" id="statMonthLabel">This Month</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value" id="statYear">0m</div>
-              <div class="stat-label" id="statYearLabel">This Year</div>
-            </div>
-          </div>
-          <button id="resetStatsBtn" class="settings-action-btn" style="margin-top: 12px;">
-            <span>📊</span>
-            <span id="resetStatsText">Reset Statistics</span>
-          </button>
         </div>
 
         <!-- Data Management -->

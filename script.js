@@ -21,6 +21,19 @@ const advancedAttacks = [
   { action: 'Substitution', ps: 'D-Pad: DOWN then DOWN', xbox: 'D-Pad: DOWN then DOWN' },
 ];
 
+// Debounce utility to reduce excessive function calls
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
 function renderAdvancedAttacks() {
   const grid = document.querySelector('.advanced-cards-grid');
   if (!grid) return;
@@ -226,25 +239,7 @@ const I18N = {
     confirmResetAll: 'Reset all settings and data? This cannot be undone.',
     recentCleared: 'Recently viewed cleared!',
     favoritesCleared: 'Favorites cleared!',
-    allReset: 'All settings reset!',
-    practiceStatsTitle: 'Practice Statistics',
-    pauseTracking: 'Pause Tracking',
-    resumeTracking: 'Resume Tracking',
-    trackingPaused: 'Practice tracking paused',
-    trackingResumed: 'Practice tracking resumed',
-    statTodayLabel: 'Today',
-    statWeekLabel: 'This Week',
-    statMonthLabel: 'This Month',
-    statYearLabel: 'This Year',
-    resetStatsText: 'Reset Statistics',
-    startPractice: 'Start Practice',
-    stopPractice: 'Stop Practice',
-    confirmResetStats: 'Reset all practice statistics?',
-    statsReset: 'Statistics reset!',
-    practiceComplete: 'Practice session complete! {time} practiced today.',
-    dailyGoalReached: '🎉 Daily goal reached! Great work!',
-    weeklyMilestone: '🔥 Weekly milestone! You practiced {time} this week!',
-    monthlyAchievement: '⭐ Monthly achievement! {time} practiced this month!'
+    allReset: 'All settings reset!'
   },
   fr: {
     siteTitle: 'Manuel de gestes FC25 (PS5)',
@@ -298,25 +293,7 @@ const I18N = {
     confirmResetAll: 'Réinitialiser tous les paramètres et données? Cette action est irréversible.',
     recentCleared: 'Historique effacé!',
     favoritesCleared: 'Favoris effacés!',
-    allReset: 'Tous les paramètres réinitialisés!',
-    practiceStatsTitle: 'Statistiques de pratique',
-    pauseTracking: 'Mettre en pause',
-    resumeTracking: 'Reprendre',
-    trackingPaused: 'Suivi en pause',
-    trackingResumed: 'Suivi repris',
-    statTodayLabel: 'Aujourd\'hui',
-    statWeekLabel: 'Cette semaine',
-    statMonthLabel: 'Ce mois',
-    statYearLabel: 'Cette année',
-    resetStatsText: 'Réinitialiser les stats',
-    startPractice: 'Démarrer la pratique',
-    stopPractice: 'Arrêter la pratique',
-    confirmResetStats: 'Réinitialiser toutes les statistiques?',
-    statsReset: 'Statistiques réinitialisées!',
-    practiceComplete: 'Session terminée! {time} pratiqué aujourd\'hui.',
-    dailyGoalReached: '🎉 Objectif quotidien atteint! Bravo!',
-    weeklyMilestone: '🔥 Jalon hebdomadaire! Tu as pratiqué {time} cette semaine!',
-    monthlyAchievement: '⭐ Réussite mensuelle! {time} pratiqué ce mois!'
+    allReset: 'Tous les paramètres réinitialisés!'
   },
   es: {
     siteTitle: 'Manual de trucos FC25 (PS5)',
@@ -370,25 +347,7 @@ const I18N = {
     confirmResetAll: '¿Restablecer toda la configuración y datos? Esta acción no se puede deshacer.',
     recentCleared: '¡Historial borrado!',
     favoritesCleared: '¡Favoritos borrados!',
-    allReset: '¡Configuración restablecida!',
-    practiceStatsTitle: 'Estadísticas de práctica',
-    pauseTracking: 'Pausar seguimiento',
-    resumeTracking: 'Reanudar seguimiento',
-    trackingPaused: 'Seguimiento pausado',
-    trackingResumed: 'Seguimiento reanudado',
-    statTodayLabel: 'Hoy',
-    statWeekLabel: 'Esta semana',
-    statMonthLabel: 'Este mes',
-    statYearLabel: 'Este año',
-    resetStatsText: 'Restablecer estadísticas',
-    startPractice: 'Iniciar práctica',
-    stopPractice: 'Detener práctica',
-    confirmResetStats: '¿Restablecer todas las estadísticas?',
-    statsReset: '¡Estadísticas restablecidas!',
-    practiceComplete: '¡Sesión completa! {time} practicado hoy.',
-    dailyGoalReached: '🎉 ¡Meta diaria alcanzada! ¡Buen trabajo!',
-    weeklyMilestone: '🔥 ¡Hito semanal! ¡Practicaste {time} esta semana!',
-    monthlyAchievement: '⭐ ¡Logro mensual! {time} practicado este mes!'
+    allReset: '¡Configuración restablecida!'
   },
   ar: {
     siteTitle: 'دليل مهارات FC25 (PS5)',
@@ -442,25 +401,7 @@ const I18N = {
     confirmResetAll: 'إعادة تعيين جميع الإعدادات والبيانات؟ لا يمكن التراجع عن ذلك.',
     recentCleared: 'تم مسح السجل!',
     favoritesCleared: 'تم مسح المفضلة!',
-    allReset: 'تمت إعادة تعيين جميع الإعدادات!',
-    practiceStatsTitle: 'إحصائيات التدريب',
-    pauseTracking: 'إيقاف مؤقت',
-    resumeTracking: 'استئناف',
-    trackingPaused: 'تم إيقاف التتبع',
-    trackingResumed: 'تم استئناف التتبع',
-    statTodayLabel: 'اليوم',
-    statWeekLabel: 'هذا الأسبوع',
-    statMonthLabel: 'هذا الشهر',
-    statYearLabel: 'هذه السنة',
-    resetStatsText: 'إعادة تعيين الإحصائيات',
-    startPractice: 'بدء التدريب',
-    stopPractice: 'إيقاف التدريب',
-    confirmResetStats: 'إعادة تعيين كل الإحصائيات؟',
-    statsReset: 'تم إعادة تعيين الإحصائيات!',
-    practiceComplete: 'انتهت الجلسة! تدربت {time} اليوم.',
-    dailyGoalReached: '🎉 تم الوصول للهدف اليومي! عمل رائع!',
-    weeklyMilestone: '🔥 إنجاز أسبوعي! تدربت {time} هذا الأسبوع!',
-    monthlyAchievement: '⭐ إنجاز شهري! {time} من التدريب هذا الشهر!'
+    allReset: 'تمت إعادة تعيين جميع الإعدادات!'
   }
 };
 
@@ -1545,6 +1486,19 @@ let currentPlatform = 'ps'; // default to PlayStation
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
+// Cache frequently used selectors for better performance
+let cachedSelectors = {};
+function getCached(selector) {
+  if (!cachedSelectors[selector]) {
+    cachedSelectors[selector] = document.querySelector(selector);
+  }
+  return cachedSelectors[selector];
+}
+
+function clearSelectorCache() {
+  cachedSelectors = {};
+}
+
 // UI elements
 const platformButtons = $$('.platform-btn');
 const levelButtons = $$('.level-btn');
@@ -1822,21 +1776,30 @@ function createCard(trick) {
 
 // Render all tricks into their star containers
 function renderTricks() {
-  // Clear each container (if present)
+  // Use document fragments for better performance
+  const fragments = {};
   for (let s = 1; s <= 5; s++) {
-    if (starContainers[s]) starContainers[s].innerHTML = '';
+    fragments[s] = document.createDocumentFragment();
   }
 
-  // Append cards to proper container
+  // Append cards to proper fragment
   tricks.forEach((t, i) => {
     const card = createCard(t);
-    // Light stagger index as CSS variable for animation
-    card.style.setProperty('--delay', `${(i % 8) * 30}ms`);
+    // Reduced stagger for faster rendering
+    card.style.setProperty('--delay', `${(i % 8) * 15}ms`);
     card.classList.add('animate-in');
-    if (starContainers[t.stars]) {
-      starContainers[t.stars].appendChild(card);
+    if (fragments[t.stars]) {
+      fragments[t.stars].appendChild(card);
     }
   });
+
+  // Batch DOM update: clear and append all at once
+  for (let s = 1; s <= 5; s++) {
+    if (starContainers[s]) {
+      starContainers[s].innerHTML = '';
+      starContainers[s].appendChild(fragments[s]);
+    }
+  }
 
   // Update controller text now that cards are in DOM
   updateControllers();
@@ -1912,42 +1875,43 @@ function filterByLevel(level) {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const all = getAllCards();
 
-  // Hide/show trick cards
-  all.forEach(card => {
-    const stars = card.dataset.stars;
-    const show = level === 'all' || stars === level;
-    card.classList.toggle('hide', !show);
-    card.classList.remove('animate-in');
-    card.style.removeProperty('--delay');
-  });
+  // Batch class operations for better performance
+  requestAnimationFrame(() => {
+    // Hide/show trick cards
+    all.forEach(card => {
+      const stars = card.dataset.stars;
+      const show = level === 'all' || stars === level;
+      card.classList.toggle('hide', !show);
+      card.classList.remove('animate-in');
+      card.style.removeProperty('--delay');
+    });
 
-  if (!reduceMotion) {
-    const visible = $$('.stars-container .card:not(.hide)');
-    visible.forEach((c, i) => {
-      requestAnimationFrame(() => {
-        c.style.setProperty('--delay', `${i * 25}ms`);
+    if (!reduceMotion) {
+      const visible = $$('.stars-container .card:not(.hide)');
+      visible.forEach((c, i) => {
+        c.style.setProperty('--delay', `${i * 12}ms`);
         c.classList.add('animate-in');
       });
-    });
-  }
-
-  // Hide or show entire star sections based on current filter. Use visible card counts so empty headings don't show.
-  const sections = $$('.star-section');
-  sections.forEach(section => {
-    const s = section.dataset.stars;
-    const isStatic = section.dataset.static === 'true';
-    const visibleInSection = section.querySelectorAll('.card:not(.hide)').length;
-    const totalInSection = section.querySelectorAll('.card').length;
-
-    if (level === 'all') {
-      const shouldHide = !isStatic && totalInSection === 0;
-      section.classList.toggle('hide-section', shouldHide);
-      section.setAttribute('aria-hidden', shouldHide ? 'true' : 'false');
-    } else {
-      const shouldShow = s === level && (isStatic || visibleInSection > 0);
-      section.classList.toggle('hide-section', !shouldShow);
-      section.setAttribute('aria-hidden', shouldShow ? 'false' : 'true');
     }
+
+    // Hide or show entire star sections based on current filter
+    const sections = $$('.star-section');
+    sections.forEach(section => {
+      const s = section.dataset.stars;
+      const isStatic = section.dataset.static === 'true';
+      const visibleInSection = section.querySelectorAll('.card:not(.hide)').length;
+      const totalInSection = section.querySelectorAll('.card').length;
+
+      if (level === 'all') {
+        const shouldHide = !isStatic && totalInSection === 0;
+        section.classList.toggle('hide-section', shouldHide);
+        section.setAttribute('aria-hidden', shouldHide ? 'true' : 'false');
+      } else {
+        const shouldShow = s === level && (isStatic || visibleInSection > 0);
+        section.classList.toggle('hide-section', !shouldShow);
+        section.setAttribute('aria-hidden', shouldShow ? 'false' : 'true');
+      }
+    });
   });
 
   // Show/hide Advanced Attacks section
@@ -2156,28 +2120,17 @@ function applySearchFilter(filter) {
   const searchResultsCount = document.getElementById('searchResultsCount');
   
   if (!searchResultsGrid) return;
-  searchResultsGrid.innerHTML = '';
   
   // Filter results based on selected filter
-  let filteredResults = currentSearchResults;
-  
-  if (filter === 'skills') {
-    // Show only skills
-    filteredResults = currentSearchResults.filter(item => item.type === 'skill');
-  } else if (filter === 'advanced') {
-    // Show only advanced attacks
-    filteredResults = currentSearchResults.filter(item => item.type === 'advanced');
-  } else if (filter !== 'all') {
-    // Filter by star rating (only applies to skills)
-    const starLevel = parseInt(filter);
-    filteredResults = currentSearchResults.filter(item => 
-      item.type === 'skill' && item.stars === starLevel
-    );
-  }
+  const filteredResults = applySearchFilterLogic(currentSearchResults, filter);
+
+  // Use document fragment for performance
+  const fragment = document.createDocumentFragment();
 
   if (filteredResults.length === 0) {
     if (noResultsMsg) noResultsMsg.style.display = 'block';
     if (searchResultsCount) searchResultsCount.textContent = '';
+    searchResultsGrid.innerHTML = '';
     return;
   }
 
@@ -2194,12 +2147,28 @@ function applySearchFilter(filter) {
     } else {
       card = createCard(item);
     }
-    card.style.setProperty('--delay', `${(i % 8) * 30}ms`);
+    card.style.setProperty('--delay', `${(i % 8) * 15}ms`);
     card.classList.add('animate-in');
-    searchResultsGrid.appendChild(card);
+    fragment.appendChild(card);
   });
 
+  // Single DOM update
+  searchResultsGrid.innerHTML = '';
+  searchResultsGrid.appendChild(fragment);
   updateControllers();
+}
+
+// Helper function for filter logic (extracted to avoid duplication)
+function applySearchFilterLogic(results, filter) {
+  if (filter === 'skills') {
+    return results.filter(item => item.type === 'skill');
+  } else if (filter === 'advanced') {
+    return results.filter(item => item.type === 'advanced');
+  } else if (filter !== 'all') {
+    const starLevel = parseInt(filter);
+    return results.filter(item => item.type === 'skill' && item.stars === starLevel);
+  }
+  return results;
 }
 
 // Render recently viewed tricks
@@ -2216,19 +2185,23 @@ function renderRecentlyViewed() {
   }
   
   recentSection.style.display = 'block';
-  recentGrid.innerHTML = '';
   
   const recentTricks = recentNames.map(name => 
     tricks.find(t => t.name === name)
   ).filter(Boolean);
   
+  // Use document fragment
+  const fragment = document.createDocumentFragment();
+  
   recentTricks.forEach((trick, i) => {
     const card = createCard(trick);
-    card.style.setProperty('--delay', `${i * 30}ms`);
+    card.style.setProperty('--delay', `${i * 15}ms`);
     card.classList.add('animate-in');
-    recentGrid.appendChild(card);
+    fragment.appendChild(card);
   });
   
+  recentGrid.innerHTML = '';
+  recentGrid.appendChild(fragment);
   updateControllers();
 }
 
@@ -2282,26 +2255,30 @@ function showFavorites() {
     searchResultsCount.textContent = countText;
   }
 
+  // Use document fragment for performance
+  const fragment = document.createDocumentFragment();
   let index = 0;
   
   // Add skill tricks
   favTricks.forEach((trick) => {
     const card = createCard(trick);
-    card.style.setProperty('--delay', `${(index % 8) * 30}ms`);
+    card.style.setProperty('--delay', `${(index % 8) * 15}ms`);
     card.classList.add('animate-in');
-    searchResultsGrid.appendChild(card);
+    fragment.appendChild(card);
     index++;
   });
   
   // Add advanced attacks
   favAdvanced.forEach((attack) => {
     const card = createAdvancedCard(attack);
-    card.style.setProperty('--delay', `${(index % 8) * 30}ms`);
+    card.style.setProperty('--delay', `${(index % 8) * 15}ms`);
     card.classList.add('animate-in');
-    searchResultsGrid.appendChild(card);
+    fragment.appendChild(card);
     index++;
   });
 
+  searchResultsGrid.innerHTML = '';
+  searchResultsGrid.appendChild(fragment);
   updateControllers();
 }
 
@@ -2390,12 +2367,16 @@ function init() {
     });
   }
 
-  // Search input filter
+  // Search input filter with debouncing
   const searchInput = document.getElementById('searchInput');
   if (searchInput) {
+    const debouncedSearch = debounce((term) => {
+      performSearch(term);
+    }, 150); // 150ms debounce delay for better responsiveness
+    
     searchInput.addEventListener('input', () => {
       const term = searchInput.value;
-      performSearch(term);
+      debouncedSearch(term);
     });
   }
 
@@ -2436,7 +2417,6 @@ function init() {
   setTrickOfTheDay();
   renderRecentlyViewed();
   initSettings();
-  initPracticeTracking();
 }
 
 // Settings functionality
@@ -2655,281 +2635,6 @@ function updateSettingsTranslations() {
   if (animationsText) animationsText.textContent = t('animationsText');
   if (themeDark) themeDark.textContent = t('themeDark');
   if (themeLight) themeLight.textContent = t('themeLight');
-}
-
-// Practice Time Tracking
-let practiceStartTime = Date.now();
-let practiceInterval = null;
-let currentSessionSeconds = 0;
-let isPaused = false;
-
-function initPracticeTracking() {
-  const timerDisplay = document.getElementById('practiceTimerDisplay');
-  const resetStatsBtn = document.getElementById('resetStatsBtn');
-  const pauseResumeBtn = document.getElementById('pauseResumeBtn');
-  
-  if (!timerDisplay) return;
-  
-  // Check if tracking was paused
-  isPaused = localStorage.getItem('fc25_tracking_paused') === 'true';
-  
-  // Start automatic tracking only if not paused
-  practiceStartTime = Date.now();
-  currentSessionSeconds = 0;
-  
-  if (!isPaused) {
-    startTracking();
-  } else {
-    updatePauseButton(true);
-  }
-  
-  // Pause/Resume button
-  pauseResumeBtn?.addEventListener('click', () => {
-    if (isPaused) {
-      resumeTracking();
-    } else {
-      pauseTracking();
-    }
-  });
-  
-  // Reset stats button
-  resetStatsBtn?.addEventListener('click', () => {
-    if (confirm(t('confirmResetStats') || 'Reset all practice statistics?')) {
-      localStorage.removeItem('fc25_practice_stats');
-      updateStatsDisplay();
-      showNotification(t('statsReset') || 'Statistics reset!');
-    }
-  });
-  
-  // Save time when leaving page
-  window.addEventListener('beforeunload', () => {
-    if (currentSessionSeconds > 0 && !isPaused) {
-      savePracticeTime(currentSessionSeconds);
-    }
-  });
-  
-  // Update stats display initially
-  updateStatsDisplay();
-}
-
-function startTracking() {
-  if (practiceInterval) return; // Already tracking
-  
-  practiceInterval = setInterval(() => {
-    currentSessionSeconds++;
-    updateTimerDisplay(currentSessionSeconds);
-    
-    // Save progress every minute
-    if (currentSessionSeconds % 60 === 0) {
-      savePracticeTime(60); // Save 1 minute
-      updateStatsDisplay();
-      checkMilestones();
-    }
-  }, 1000);
-}
-
-function pauseTracking() {
-  if (practiceInterval) {
-    clearInterval(practiceInterval);
-    practiceInterval = null;
-  }
-  
-  // Save any unsaved time
-  if (currentSessionSeconds > 0) {
-    savePracticeTime(currentSessionSeconds);
-    currentSessionSeconds = 0;
-  }
-  
-  isPaused = true;
-  localStorage.setItem('fc25_tracking_paused', 'true');
-  updatePauseButton(true);
-  showNotification(t('trackingPaused') || 'Practice tracking paused');
-}
-
-function resumeTracking() {
-  isPaused = false;
-  localStorage.setItem('fc25_tracking_paused', 'false');
-  startTracking();
-  updatePauseButton(false);
-  showNotification(t('trackingResumed') || 'Practice tracking resumed');
-}
-
-function updatePauseButton(paused) {
-  const pauseResumeBtn = document.getElementById('pauseResumeBtn');
-  const pauseResumeIcon = document.getElementById('pauseResumeIcon');
-  const pauseResumeText = document.getElementById('pauseResumeText');
-  
-  if (!pauseResumeBtn) return;
-  
-  if (paused) {
-    pauseResumeIcon.textContent = '▶️';
-    pauseResumeText.textContent = t('resumeTracking');
-    pauseResumeBtn.style.background = 'linear-gradient(135deg, #34c759 0%, #28a745 100%)';
-    pauseResumeBtn.style.borderColor = 'rgba(52, 199, 89, 0.3)';
-  } else {
-    pauseResumeIcon.textContent = '⏸️';
-    pauseResumeText.textContent = t('pauseTracking');
-    pauseResumeBtn.style.background = 'linear-gradient(135deg, #ff9500 0%, #ff5e3a 100%)';
-    pauseResumeBtn.style.borderColor = 'rgba(255, 149, 0, 0.3)';
-  }
-}
-
-function updateTimerDisplay(seconds) {
-  const timerDisplay = document.getElementById('practiceTimerDisplay');
-  if (!timerDisplay) return;
-  
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = seconds % 60;
-  
-  if (hours > 0) {
-    timerDisplay.textContent = `${hours}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-  } else {
-    timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-  }
-}
-
-function savePracticeTime(seconds) {
-  const stats = getPracticeStats();
-  const now = new Date();
-  const today = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
-  const week = getWeekNumber(now);
-  const month = `${now.getFullYear()}-${now.getMonth() + 1}`;
-  const year = now.getFullYear();
-  
-  // Add to daily
-  if (!stats.daily[today]) stats.daily[today] = 0;
-  stats.daily[today] += seconds;
-  
-  // Add to weekly
-  if (!stats.weekly[week]) stats.weekly[week] = 0;
-  stats.weekly[week] += seconds;
-  
-  // Add to monthly
-  if (!stats.monthly[month]) stats.monthly[month] = 0;
-  stats.monthly[month] += seconds;
-  
-  // Add to yearly
-  if (!stats.yearly[year]) stats.yearly[year] = 0;
-  stats.yearly[year] += seconds;
-  
-  localStorage.setItem('fc25_practice_stats', JSON.stringify(stats));
-}
-
-function getPracticeStats() {
-  const stored = localStorage.getItem('fc25_practice_stats');
-  if (!stored) {
-    return {
-      daily: {},
-      weekly: {},
-      monthly: {},
-      yearly: {}
-    };
-  }
-  try {
-    return JSON.parse(stored);
-  } catch (e) {
-    return {
-      daily: {},
-      weekly: {},
-      monthly: {},
-      yearly: {}
-    };
-  }
-}
-
-function getWeekNumber(date) {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  const dayNum = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-  return `${d.getUTCFullYear()}-W${weekNo}`;
-}
-
-function formatTime(seconds) {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`;
-  } else if (minutes > 0) {
-    return `${minutes}m`;
-  } else {
-    return `${seconds}s`;
-  }
-}
-
-function updateStatsDisplay() {
-  const stats = getPracticeStats();
-  const now = new Date();
-  const today = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
-  const week = getWeekNumber(now);
-  const month = `${now.getFullYear()}-${now.getMonth() + 1}`;
-  const year = now.getFullYear();
-  
-  const todaySeconds = stats.daily[today] || 0;
-  const weekSeconds = stats.weekly[week] || 0;
-  const monthSeconds = stats.monthly[month] || 0;
-  const yearSeconds = stats.yearly[year] || 0;
-  
-  const statToday = document.getElementById('statToday');
-  const statWeek = document.getElementById('statWeek');
-  const statMonth = document.getElementById('statMonth');
-  const statYear = document.getElementById('statYear');
-  
-  if (statToday) statToday.textContent = formatTime(todaySeconds);
-  if (statWeek) statWeek.textContent = formatTime(weekSeconds);
-  if (statMonth) statMonth.textContent = formatTime(monthSeconds);
-  if (statYear) statYear.textContent = formatTime(yearSeconds);
-  
-  // Update labels with translations
-  const statTodayLabel = document.getElementById('statTodayLabel');
-  const statWeekLabel = document.getElementById('statWeekLabel');
-  const statMonthLabel = document.getElementById('statMonthLabel');
-  const statYearLabel = document.getElementById('statYearLabel');
-  const practiceStatsTitle = document.getElementById('practiceStatsTitle');
-  const resetStatsText = document.getElementById('resetStatsText');
-  
-  if (statTodayLabel) statTodayLabel.textContent = t('statTodayLabel');
-  if (statWeekLabel) statWeekLabel.textContent = t('statWeekLabel');
-  if (statMonthLabel) statMonthLabel.textContent = t('statMonthLabel');
-  if (statYearLabel) statYearLabel.textContent = t('statYearLabel');
-  if (practiceStatsTitle) practiceStatsTitle.textContent = t('practiceStatsTitle');
-  if (resetStatsText) resetStatsText.textContent = t('resetStatsText');
-  
-  // Update pause/resume button
-  updatePauseButton(isPaused);
-}
-
-function checkMilestones() {
-  const stats = getPracticeStats();
-  const now = new Date();
-  const today = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
-  const week = getWeekNumber(now);
-  const month = `${now.getFullYear()}-${now.getMonth() + 1}`;
-  
-  const todaySeconds = stats.daily[today] || 0;
-  const weekSeconds = stats.weekly[week] || 0;
-  const monthSeconds = stats.monthly[month] || 0;
-  
-  // Check for daily milestones (every 30 minutes)
-  if (todaySeconds > 0 && todaySeconds % 1800 === 0) {
-    const msg = t('practiceComplete').replace('{time}', formatTime(todaySeconds));
-    showNotification(msg);
-  }
-  
-  // Check for weekly milestones (every 3 hours)
-  if (weekSeconds > 0 && weekSeconds % 10800 === 0) {
-    const msg = t('weeklyMilestone').replace('{time}', formatTime(weekSeconds));
-    showNotification(msg);
-  }
-  
-  // Check for monthly milestones (every 10 hours)
-  if (monthSeconds > 0 && monthSeconds % 36000 === 0) {
-    const msg = t('monthlyAchievement').replace('{time}', formatTime(monthSeconds));
-    showNotification(msg);
-  }
 }
 
 // Start
