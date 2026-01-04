@@ -28,6 +28,7 @@ function renderAdvancedAttacks() {
   advancedAttacks.forEach(item => {
     const card = document.createElement('div');
     card.className = 'advanced-card';
+    card.style.position = 'relative';
     
     // Translate the action name
     const translatedAction = getAdvancedAttackTranslation(item.action);
@@ -35,13 +36,31 @@ function renderAdvancedAttacks() {
     // Translate the D-Pad instructions
     let translatedPs = translateControlsString(item.ps);
     // Wrap D-Pad with tooltip
-    translatedPs = translatedPs.replace(/D-Pad/gi, '<span class="dpad-tooltip">D-Pad<span class="tooltip-text">Arrow Keys</span></span>');
+    translatedPs = translatedPs.replace(/D-Pad/gi, `<span class="dpad-tooltip">D-Pad<span class="tooltip-text">${t('arrowKeys')}</span></span>`);
     // PS5-only UI: we keep the data, but don't display Xbox
+    
+    // Add favorite button
+    const favBtn = document.createElement('button');
+    favBtn.className = 'favorite-btn';
+    favBtn.setAttribute('aria-label', 'Toggle favorite');
+    favBtn.innerHTML = isFavorite('advanced:' + item.action) ? '❤' : '♡';
+    favBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isNowFav = toggleFavorite('advanced:' + item.action);
+      favBtn.innerHTML = isNowFav ? '❤' : '♡';
+      // Refresh if viewing favorites
+      const activeBtn = document.querySelector('.level-btn.active');
+      if (activeBtn && activeBtn.dataset.level === 'favorites') {
+        showFavorites();
+      }
+    });
     
     card.innerHTML = `
       <div class="action-title">${translatedAction}</div>
       <div class="controls-row"><span class="controls-label">${t('playstationLabel')}</span> ${translatedPs}</div>
     `;
+    
+    card.appendChild(favBtn);
     grid.appendChild(card);
   });
 }
@@ -53,6 +72,11 @@ function renderAdvancedAttacks() {
 
 // Language system
 let currentLanguage = 'en';
+
+// Search results storage
+let currentSearchResults = [];
+let currentSearchTerm = '';
+let currentSearchFilter = 'all';
 
 // Load saved language from localStorage
 function loadLanguage() {
@@ -75,15 +99,86 @@ function applyLanguageDirection(lang) {
   root.setAttribute('lang', lang);
 }
 
+// Theme functions
+function getTheme() {
+  return localStorage.getItem('fc25_theme') || 'dark';
+}
+
+function setTheme(theme) {
+  localStorage.setItem('fc25_theme', theme);
+  document.body.className = theme === 'dark' ? '' : `theme-${theme}`;
+  
+  // Update active button
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.theme === theme);
+  });
+}
+
+// Favorites localStorage functions
+function getFavorites() {
+  const stored = localStorage.getItem('fc25_favorites');
+  if (!stored) return [];
+  try {
+    return JSON.parse(stored);
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveFavorites(favs) {
+  localStorage.setItem('fc25_favorites', JSON.stringify(favs));
+}
+
+function toggleFavorite(trickName) {
+  const favs = getFavorites();
+  const index = favs.indexOf(trickName);
+  if (index > -1) {
+    favs.splice(index, 1);
+  } else {
+    favs.push(trickName);
+  }
+  saveFavorites(favs);
+  return favs.includes(trickName);
+}
+
+function isFavorite(trickName) {
+  return getFavorites().includes(trickName);
+}
+
+// Recently Viewed localStorage functions
+function getRecentlyViewed() {
+  const stored = localStorage.getItem('fc25_recent');
+  if (!stored) return [];
+  try {
+    return JSON.parse(stored);
+  } catch (e) {
+    return [];
+  }
+}
+
+function addToRecentlyViewed(trickName) {
+  let recent = getRecentlyViewed();
+  // Remove if already exists
+  recent = recent.filter(name => name !== trickName);
+  // Add to front
+  recent.unshift(trickName);
+  // Keep only last 5
+  recent = recent.slice(0, 5);
+  localStorage.setItem('fc25_recent', JSON.stringify(recent));
+  renderRecentlyViewed();
+}
+
 // UI translations for labels, headings, buttons
 const I18N = {
   en: {
+    siteTitle: 'FC25 Tricks Manual (PS5)',
     watchTutorial: '▶ Watch Tutorial',
     advancedAttacks: 'Advanced Attacks',
     languageLabel: 'Language',
     siteSub: 'Learn skill moves. Beat defenders. Have fun.',
     chooseStars: 'Choose Stars',
     all: 'All',
+    recentlyViewed: 'Recently Viewed',
     trickOfTheDay: 'Trick of the Day ✨',
     practiceChallenge: "Practice challenge: Try the trick 5 times in a row with both feet.",
     skillsTitle: 'Skill Moves by Stars',
@@ -95,15 +190,30 @@ const I18N = {
     xboxLabel: 'Xbox:',
     tipPrefix: 'Tip:',
     rightJoystick: 'Right Joystick',
-    leftJoystick: 'Left Joystick'
+    leftJoystick: 'Left Joystick',
+    arrowKeys: 'Arrow Keys',
+    searchLabel: 'Search Tricks',
+    searchPlaceholder: 'Type trick name...',
+    searchResultsTitle: 'Search Results',
+    noResultsMsg: 'No results found',
+    resultsCount: '{count} trick(s) found',
+    favorites: 'Favorites',
+    favoritesTitle: 'My Favorites',
+    noFavoritesMsg: 'No favorites yet. Click the ❤ on any trick to save it!',
+    favoritesCount: '{count} favorite(s)',
+    searchFilterLabel: 'Filter by:',
+    filterSkills: 'Skills',
+    filterAdvanced: 'Advanced Attacks'
   },
   fr: {
+    siteTitle: 'Manuel de gestes FC25 (PS5)',
     watchTutorial: '▶ Voir le tuto',
     advancedAttacks: 'Attaques avancées',
     languageLabel: 'Langue',
     siteSub: 'Apprends les gestes. Bats les défenseurs. Amuse-toi.',
     chooseStars: 'Choisir les étoiles',
     all: 'Tous',
+    recentlyViewed: 'Vus récemment',
     trickOfTheDay: 'Geste du jour ✨',
     practiceChallenge: "Défi: Réussis le geste 5 fois d'affilée avec les deux pieds.",
     skillsTitle: 'Gestes techniques par étoiles',
@@ -115,15 +225,30 @@ const I18N = {
     xboxLabel: 'Xbox:',
     tipPrefix: 'Conseil:',
     rightJoystick: 'Joystick droit',
-    leftJoystick: 'Joystick gauche'
+    leftJoystick: 'Joystick gauche',
+    arrowKeys: 'Flèches directionnelles',
+    searchLabel: 'Rechercher',
+    searchPlaceholder: 'Nom du geste...',
+    searchResultsTitle: 'Résultats de recherche',
+    noResultsMsg: 'Aucun résultat',
+    resultsCount: '{count} geste(s) trouvé(s)',
+    favorites: 'Favoris',
+    favoritesTitle: 'Mes Favoris',
+    noFavoritesMsg: 'Aucun favori. Cliquez sur ❤ pour sauvegarder un geste!',
+    favoritesCount: '{count} favori(s)',
+    searchFilterLabel: 'Filtrer par:',
+    filterSkills: 'Gestes',
+    filterAdvanced: 'Attaques avancées'
   },
   es: {
+    siteTitle: 'Manual de trucos FC25 (PS5)',
     watchTutorial: '▶ Ver tutorial',
     advancedAttacks: 'Ataques avanzados',
     languageLabel: 'Idioma',
     siteSub: 'Aprende skills. Supera defensas. Diviértete.',
     chooseStars: 'Elegir estrellas',
     all: 'Todas',
+    recentlyViewed: 'Vistos recientemente',
     trickOfTheDay: 'Truco del día ✨',
     practiceChallenge: 'Reto: Haz el truco 5 veces seguidas con ambos pies.',
     skillsTitle: 'Regates por estrellas',
@@ -135,15 +260,30 @@ const I18N = {
     xboxLabel: 'Xbox:',
     tipPrefix: 'Consejo:',
     rightJoystick: 'Joystick derecho',
-    leftJoystick: 'Joystick izquierdo'
+    leftJoystick: 'Joystick izquierdo',
+    arrowKeys: 'Teclas de flecha',
+    searchLabel: 'Buscar trucos',
+    searchPlaceholder: 'Escribe nombre...',
+    searchResultsTitle: 'Resultados de búsqueda',
+    noResultsMsg: 'Sin resultados',
+    resultsCount: '{count} truco(s) encontrado(s)',
+    favorites: 'Favoritos',
+    favoritesTitle: 'Mis Favoritos',
+    noFavoritesMsg: '¡Sin favoritos aún. Haz clic en ❤ para guardar!',
+    favoritesCount: '{count} favorito(s)',
+    searchFilterLabel: 'Filtrar por:',
+    filterSkills: 'Regates',
+    filterAdvanced: 'Ataques avanzados'
   },
   ar: {
+    siteTitle: 'دليل مهارات FC25 (PS5)',
     watchTutorial: '▶ شاهد الفيديو',
     advancedAttacks: 'هجمات متقدمة',
     languageLabel: 'اللغة',
     siteSub: 'تعلّم المهارات. راوغ المدافعين. استمتع.',
     chooseStars: 'اختر النجوم',
     all: 'الكل',
+    recentlyViewed: 'شوهدت مؤخراً',
     trickOfTheDay: 'مهارة اليوم ✨',
     practiceChallenge: 'تحدي التدريب: جرّب المهارة 5 مرات متتالية بكلتا القدمين.',
     skillsTitle: 'المهارات حسب النجوم',
@@ -155,7 +295,20 @@ const I18N = {
     xboxLabel: 'إكس بوكس:',
     tipPrefix: 'نصيحة:',
     rightJoystick: 'العصا اليمنى',
-    leftJoystick: 'العصا اليسرى'
+    leftJoystick: 'العصا اليسرى',
+    arrowKeys: 'أزرار الاتجاه',
+    searchLabel: 'بحث',
+    searchPlaceholder: 'اسم المهارة...',
+    searchResultsTitle: 'نتائج البحث',
+    noResultsMsg: 'لا توجد نتائج',
+    resultsCount: '{count} مهارة',
+    favorites: 'المفضلة',
+    favoritesTitle: 'مهاراتي المفضلة',
+    noFavoritesMsg: 'لا توجد مفضلة. اضغط على ❤ لحفظ مهارة!',
+    favoritesCount: '{count} مفضلة',
+    searchFilterLabel: 'تصفية حسب:',
+    filterSkills: 'المهارات',
+    filterAdvanced: 'الهجمات المتقدمة'
   }
 };
 
@@ -1069,6 +1222,9 @@ function translateControlsString(input) {
 
 // Update all UI text elements with current language
 function updateUIText() {
+  const siteTitle = document.querySelector('.site-title');
+  if (siteTitle) siteTitle.textContent = t('siteTitle');
+  
   const langLabel = document.getElementById('langLabel');
   if (langLabel) langLabel.textContent = t('languageLabel');
 
@@ -1080,6 +1236,9 @@ function updateUIText() {
 
   const todTitle = document.getElementById('todTitle');
   if (todTitle) todTitle.textContent = t('trickOfTheDay');
+  
+  const recentlyViewedTitle = document.getElementById('recentlyViewedTitle');
+  if (recentlyViewedTitle) recentlyViewedTitle.textContent = t('recentlyViewed');
 
   const practiceChallenge = document.getElementById('practiceChallenge');
   if (practiceChallenge) practiceChallenge.textContent = t('practiceChallenge');
@@ -1121,9 +1280,35 @@ function updateUIText() {
     advancedBtn.textContent = t('advancedAttacks');
   }
 
+  const favoritesBtn = document.getElementById('favoritesBtn');
+  if (favoritesBtn) {
+    favoritesBtn.textContent = '❤ ' + t('favorites');
+  }
+
   // Tooltip texts in the static team tip (header)
   const r3Tooltip = document.getElementById('r3Tooltip');
   if (r3Tooltip) r3Tooltip.textContent = t('rightJoystick');
+
+  // Search box
+  const searchLabel = document.getElementById('searchLabel');
+  if (searchLabel) searchLabel.textContent = t('searchLabel');
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) searchInput.placeholder = t('searchPlaceholder');
+  
+  const searchResultsTitle = document.getElementById('searchResultsTitle');
+  if (searchResultsTitle) searchResultsTitle.textContent = t('searchResultsTitle');
+  
+  const noResultsMsg = document.getElementById('noResultsMsg');
+  if (noResultsMsg) noResultsMsg.textContent = t('noResultsMsg');
+  
+  const searchFilterLabel = document.getElementById('searchFilterLabel');
+  if (searchFilterLabel) searchFilterLabel.textContent = t('searchFilterLabel');
+  
+  const searchFilterSkills = document.getElementById('searchFilterSkills');
+  if (searchFilterSkills) searchFilterSkills.textContent = t('filterSkills');
+  
+  const searchFilterAdvanced = document.getElementById('searchFilterAdvanced');
+  if (searchFilterAdvanced) searchFilterAdvanced.textContent = t('filterAdvanced');
 }
 
 // Advanced Attacks translations
@@ -1312,6 +1497,23 @@ function createCard(trick) {
   h.textContent = translatedName || trick.name;
   a.appendChild(h);
 
+  // Add favorite button
+  const favBtn = document.createElement('button');
+  favBtn.className = 'favorite-btn';
+  favBtn.setAttribute('aria-label', 'Toggle favorite');
+  favBtn.innerHTML = isFavorite(trick.name) ? '❤' : '♡';
+  favBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isNowFav = toggleFavorite(trick.name);
+    favBtn.innerHTML = isNowFav ? '❤' : '♡';
+    // Refresh if viewing favorites
+    const activeBtn = document.querySelector('.level-btn.active');
+    if (activeBtn && activeBtn.dataset.level === 'favorites') {
+      showFavorites();
+    }
+  });
+  a.appendChild(favBtn);
+
   const stars = document.createElement('p');
   stars.className = 'stars';
   stars.textContent = '⭐'.repeat(trick.stars);
@@ -1452,8 +1654,11 @@ function createCard(trick) {
     a.setAttribute('role', 'link');
     a.setAttribute('aria-label', `${trick.name} — open tutorial in new tab`);
 
-    // Click or keyboard opens the video in a new tab
-    const openVideo = () => window.open(videoUrl, '_blank', 'noopener,noreferrer');
+    // Click or keyboard opens the video in a new tab and tracks view
+    const openVideo = () => {
+      addToRecentlyViewed(trick.name);
+      window.open(videoUrl, '_blank', 'noopener,noreferrer');
+    };
     a.addEventListener('click', openVideo);
     a.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openVideo(); } });
 
@@ -1598,9 +1803,17 @@ function filterByLevel(level) {
   if (advSection) {
     if (level === 'advanced') {
       advSection.style.display = 'block';
+    } else if (level === 'all') {
+      advSection.style.display = 'block';
     } else {
       advSection.style.display = 'none';
     }
+  }
+
+  // Show/hide favorites view
+  if (level === 'favorites') {
+    showFavorites();
+    return;
   }
 
   // Hide tricks section if advanced is selected, show otherwise
@@ -1653,8 +1866,298 @@ function setTrickOfTheDay() {
   featuredCardContainer.appendChild(clone);
 }
 
+// Perform search and show dedicated results area
+function performSearch(searchTerm) {
+  const tricksSection = document.getElementById('tricks');
+  const advancedSection = document.querySelector('.advanced-attacks-section');
+  const featuredSection = document.getElementById('featured');
+  const searchResultsSection = document.getElementById('search-results');
+  const searchResultsGrid = document.getElementById('searchResultsGrid');
+  const noResultsMsg = document.getElementById('noResultsMsg');
+  const searchResultsCount = document.getElementById('searchResultsCount');
+  const clearBtn = document.getElementById('clearSearchBtn');
+
+  if (!searchTerm || searchTerm.trim() === '') {
+    // No search term: show normal sections, hide search results
+    if (tricksSection) tricksSection.style.display = '';
+    if (advancedSection) advancedSection.style.display = '';
+    if (featuredSection) featuredSection.style.display = '';
+    if (searchResultsSection) searchResultsSection.style.display = 'none';
+    if (clearBtn) clearBtn.style.display = 'none';
+    
+    // Re-apply the active level filter when search is cleared
+    const activeBtn = document.querySelector('.level-btn.active');
+    if (activeBtn) {
+      const level = activeBtn.dataset.level;
+      if (level === 'favorites') {
+        showFavorites();
+      } else if (level === 'advanced') {
+        filterByLevel('advanced');
+      } else {
+        filterByLevel(level);
+      }
+    }
+    return;
+  }
+
+  // Has search term: hide normal sections, show search results
+  if (tricksSection) tricksSection.style.display = 'none';
+  if (advancedSection) advancedSection.style.display = 'none';
+  if (featuredSection) featuredSection.style.display = 'none';
+  if (searchResultsSection) searchResultsSection.style.display = 'block';
+  if (clearBtn) clearBtn.style.display = 'flex';
+  
+  // Show search filters when searching (hide them in favorites only)
+  const searchFilters = document.querySelector('.search-filters');
+  if (searchFilters) searchFilters.style.display = '';
+  
+  // Deactivate all level buttons when searching
+  document.querySelectorAll('.level-btn').forEach(btn => {
+    btn.classList.remove('active');
+    btn.setAttribute('aria-pressed', 'false');
+  });
+
+  const term = searchTerm.toLowerCase().trim();
+  
+  // Search through tricks
+  const matchingTricks = tricks.filter(trick => {
+    const name = (trick.name || '').toLowerCase();
+    const translatedName = (getTrickTranslation(trick.name, 'name') || '').toLowerCase();
+    return name.includes(term) || translatedName.includes(term);
+  });
+  
+  // Search through advanced attacks
+  const matchingAdvanced = advancedAttacks.filter(attack => {
+    const action = (attack.action || '').toLowerCase();
+    const translatedAction = (getAdvancedAttackTranslation(attack.action) || '').toLowerCase();
+    return action.includes(term) || translatedAction.includes(term);
+  });
+  
+  // Store search results globally (combine both with type identifier)
+  currentSearchResults = [
+    ...matchingTricks.map(t => ({ ...t, type: 'skill' })),
+    ...matchingAdvanced.map(a => ({ ...a, type: 'advanced' }))
+  ];
+  currentSearchTerm = term;
+  
+  // Reset filter to 'all' when new search
+  currentSearchFilter = 'all';
+  document.querySelectorAll('.search-filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.filter === 'all');
+  });
+
+  if (!searchResultsGrid) return;
+  
+  // Apply current filter
+  applySearchFilter(currentSearchFilter);
+}
+
+// Create an advanced attack card for search results
+function createAdvancedCard(attack) {
+  const card = document.createElement('div');
+  card.className = 'advanced-card';
+  card.style.position = 'relative';
+  
+  const translatedAction = getAdvancedAttackTranslation(attack.action);
+  let translatedPs = translateControlsString(attack.ps);
+  translatedPs = translatedPs.replace(/D-Pad/gi, `<span class="dpad-tooltip">D-Pad<span class="tooltip-text">${t('arrowKeys')}</span></span>`);
+  
+  // Add favorite button
+  const favBtn = document.createElement('button');
+  favBtn.className = 'favorite-btn';
+  favBtn.setAttribute('aria-label', 'Toggle favorite');
+  favBtn.innerHTML = isFavorite('advanced:' + attack.action) ? '❤' : '♡';
+  favBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isNowFav = toggleFavorite('advanced:' + attack.action);
+    favBtn.innerHTML = isNowFav ? '❤' : '♡';
+    // Refresh if viewing favorites
+    const activeBtn = document.querySelector('.level-btn.active');
+    if (activeBtn && activeBtn.dataset.level === 'favorites') {
+      showFavorites();
+    }
+  });
+  
+  card.innerHTML = `
+    <div class="action-title">${translatedAction}</div>
+    <div class="controls-row"><span class="controls-label">${t('playstationLabel')}</span> ${translatedPs}</div>
+  `;
+  
+  card.appendChild(favBtn);
+  
+  return card;
+}
+
+// Apply filter to current search results
+function applySearchFilter(filter) {
+  currentSearchFilter = filter;
+  const searchResultsGrid = document.getElementById('searchResultsGrid');
+  const noResultsMsg = document.getElementById('noResultsMsg');
+  const searchResultsCount = document.getElementById('searchResultsCount');
+  
+  if (!searchResultsGrid) return;
+  searchResultsGrid.innerHTML = '';
+  
+  // Filter results based on selected filter
+  let filteredResults = currentSearchResults;
+  
+  if (filter === 'skills') {
+    // Show only skills
+    filteredResults = currentSearchResults.filter(item => item.type === 'skill');
+  } else if (filter === 'advanced') {
+    // Show only advanced attacks
+    filteredResults = currentSearchResults.filter(item => item.type === 'advanced');
+  } else if (filter !== 'all') {
+    // Filter by star rating (only applies to skills)
+    const starLevel = parseInt(filter);
+    filteredResults = currentSearchResults.filter(item => 
+      item.type === 'skill' && item.stars === starLevel
+    );
+  }
+
+  if (filteredResults.length === 0) {
+    if (noResultsMsg) noResultsMsg.style.display = 'block';
+    if (searchResultsCount) searchResultsCount.textContent = '';
+    return;
+  }
+
+  if (noResultsMsg) noResultsMsg.style.display = 'none';
+  if (searchResultsCount) {
+    const countText = t('resultsCount').replace('{count}', filteredResults.length);
+    searchResultsCount.textContent = countText;
+  }
+
+  filteredResults.forEach((item, i) => {
+    let card;
+    if (item.type === 'advanced') {
+      card = createAdvancedCard(item);
+    } else {
+      card = createCard(item);
+    }
+    card.style.setProperty('--delay', `${(i % 8) * 30}ms`);
+    card.classList.add('animate-in');
+    searchResultsGrid.appendChild(card);
+  });
+
+  updateControllers();
+}
+
+// Render recently viewed tricks
+function renderRecentlyViewed() {
+  const recentNames = getRecentlyViewed();
+  const recentSection = document.getElementById('recently-viewed');
+  const recentGrid = document.getElementById('recentlyViewedGrid');
+  
+  if (!recentSection || !recentGrid) return;
+  
+  if (recentNames.length === 0) {
+    recentSection.style.display = 'none';
+    return;
+  }
+  
+  recentSection.style.display = 'block';
+  recentGrid.innerHTML = '';
+  
+  const recentTricks = recentNames.map(name => 
+    tricks.find(t => t.name === name)
+  ).filter(Boolean);
+  
+  recentTricks.forEach((trick, i) => {
+    const card = createCard(trick);
+    card.style.setProperty('--delay', `${i * 30}ms`);
+    card.classList.add('animate-in');
+    recentGrid.appendChild(card);
+  });
+  
+  updateControllers();
+}
+
+// Show favorites view
+function showFavorites() {
+  const tricksSection = document.getElementById('tricks');
+  const advancedSection = document.querySelector('.advanced-attacks-section');
+  const featuredSection = document.getElementById('featured');
+  const searchResultsSection = document.getElementById('search-results');
+  const searchResultsGrid = document.getElementById('searchResultsGrid');
+  const searchResultsTitle = document.getElementById('searchResultsTitle');
+  const noResultsMsg = document.getElementById('noResultsMsg');
+  const searchResultsCount = document.getElementById('searchResultsCount');
+  const searchFilters = document.querySelector('.search-filters');
+
+  // Hide normal sections, show search results (reuse for favorites)
+  if (tricksSection) tricksSection.style.display = 'none';
+  if (advancedSection) advancedSection.style.display = 'none';
+  if (featuredSection) featuredSection.style.display = 'none';
+  if (searchResultsSection) searchResultsSection.style.display = 'block';
+  
+  // Hide search filters in favorites view
+  if (searchFilters) searchFilters.style.display = 'none';
+
+  // Change title to Favorites
+  if (searchResultsTitle) searchResultsTitle.textContent = t('favoritesTitle');
+
+  const favNames = getFavorites();
+  
+  // Separate skill tricks and advanced attacks
+  const favTricks = tricks.filter(trick => favNames.includes(trick.name));
+  const favAdvanced = advancedAttacks.filter(attack => favNames.includes('advanced:' + attack.action));
+  
+  const totalFavorites = favTricks.length + favAdvanced.length;
+
+  if (!searchResultsGrid) return;
+  searchResultsGrid.innerHTML = '';
+
+  if (totalFavorites === 0) {
+    if (noResultsMsg) {
+      noResultsMsg.style.display = 'block';
+      noResultsMsg.textContent = t('noFavoritesMsg');
+    }
+    if (searchResultsCount) searchResultsCount.textContent = '';
+    return;
+  }
+
+  if (noResultsMsg) noResultsMsg.style.display = 'none';
+  if (searchResultsCount) {
+    const countText = t('favoritesCount').replace('{count}', totalFavorites);
+    searchResultsCount.textContent = countText;
+  }
+
+  let index = 0;
+  
+  // Add skill tricks
+  favTricks.forEach((trick) => {
+    const card = createCard(trick);
+    card.style.setProperty('--delay', `${(index % 8) * 30}ms`);
+    card.classList.add('animate-in');
+    searchResultsGrid.appendChild(card);
+    index++;
+  });
+  
+  // Add advanced attacks
+  favAdvanced.forEach((attack) => {
+    const card = createAdvancedCard(attack);
+    card.style.setProperty('--delay', `${(index % 8) * 30}ms`);
+    card.classList.add('animate-in');
+    searchResultsGrid.appendChild(card);
+    index++;
+  });
+
+  updateControllers();
+}
+
 // Event bindings and initialization
 function init() {
+  // Initialize theme
+  const savedTheme = getTheme();
+  setTheme(savedTheme);
+
+  // Theme button listeners
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setTheme(btn.dataset.theme);
+    });
+  });
+
   // Load saved language first
   loadLanguage();
   applyLanguageDirection(currentLanguage);
@@ -1705,6 +2208,17 @@ function init() {
   if (levelButtons && levelButtons.length) {
     levelButtons.forEach(btn => {
       btn.addEventListener('click', () => {
+        // Clear search when clicking level buttons
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput && searchInput.value) {
+          searchInput.value = '';
+          const clearBtn = document.getElementById('clearSearchBtn');
+          if (clearBtn) clearBtn.style.display = 'none';
+          // Hide search results section
+          const searchResultsSection = document.getElementById('search-results');
+          if (searchResultsSection) searchResultsSection.style.display = 'none';
+        }
+        
         levelButtons.forEach(b => {
           b.classList.toggle('active', b === btn);
           b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
@@ -1712,6 +2226,38 @@ function init() {
         const level = btn.dataset.level;
         filterByLevel(level);
         setTrickOfTheDay();
+      });
+    });
+  }
+
+  // Search input filter
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      const term = searchInput.value;
+      performSearch(term);
+    });
+  }
+
+  // Clear search button
+  const clearSearchBtn = document.getElementById('clearSearchBtn');
+  if (clearSearchBtn) {
+    clearSearchBtn.addEventListener('click', () => {
+      if (searchInput) searchInput.value = '';
+      performSearch('');
+    });
+  }
+  
+  // Search filter buttons
+  const searchFilterBtns = document.querySelectorAll('.search-filter-btn');
+  if (searchFilterBtns && searchFilterBtns.length) {
+    searchFilterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        searchFilterBtns.forEach(b => {
+          b.classList.toggle('active', b === btn);
+        });
+        const filter = btn.dataset.filter;
+        applySearchFilter(filter);
       });
     });
   }
@@ -1728,6 +2274,7 @@ function init() {
   updatePlatformOnlyElements();
   filterByLevel('all');
   setTrickOfTheDay();
+  renderRecentlyViewed();
 }
 
 // Start

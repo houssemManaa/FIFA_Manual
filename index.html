@@ -24,6 +24,14 @@
           </select>
         </div>
 
+        <div class="search-box">
+          <p class="small-label" id="searchLabel">Search Tricks</p>
+          <div class="search-input-wrapper">
+            <input type="text" id="searchInput" placeholder="Type trick name..." aria-label="Search tricks by name" />
+            <button id="clearSearchBtn" class="clear-search-btn" aria-label="Clear search" style="display:none;">✕</button>
+          </div>
+        </div>
+
         <div class="level-select" role="tablist" aria-label="Choose star rating">
           <p class="small-label" id="starsLabel">Choose Stars</p>
           <div class="level-buttons">
@@ -34,8 +42,14 @@
             <button class="level-btn" data-level="3" aria-pressed="false">3 ⭐</button>
             <button class="level-btn" data-level="4" aria-pressed="false">4 ⭐</button>
             <button class="level-btn" data-level="5" aria-pressed="false">5 ⭐</button>
+            <button class="level-btn" data-level="favorites" aria-pressed="false" id="favoritesBtn">❤ Favorites</button>
             <button class="level-btn" data-level="advanced" aria-pressed="false" id="advancedAttacksBtn">Advanced Attacks</button>
           </div>
+        </div>
+        
+        <div class="theme-selector">
+          <button class="theme-btn" data-theme="dark" aria-label="Dark theme">🌙</button>
+          <button class="theme-btn" data-theme="light" aria-label="Light theme">☀️</button>
         </div>
       </div>
     </div>
@@ -48,6 +62,32 @@
         <!-- JS fills featured trick here -->
       </div>
       <p class="practice-challenge" id="practiceChallenge">Practice challenge: Try the trick 5 times in a row with both feet.</p>
+    </section>
+
+    <section id="recently-viewed" class="recently-viewed-section" style="display:none;">
+      <h2 id="recentlyViewedTitle">Recently Viewed</h2>
+      <div id="recentlyViewedGrid" class="cards-grid recently-grid" aria-live="polite"></div>
+    </section>
+
+    <section id="search-results" class="search-results-section" style="display:none;">
+      <h2 id="searchResultsTitle">Search Results</h2>
+      <div class="search-filters">
+        <p class="small-label" id="searchFilterLabel">Filter by:</p>
+        <div class="search-filter-buttons">
+          <button class="search-filter-btn active" data-filter="all" id="searchFilterAll">All</button>
+          <button class="search-filter-btn" data-filter="skills" id="searchFilterSkills">Skills</button>
+          <button class="search-filter-btn" data-filter="advanced" id="searchFilterAdvanced">Advanced Attacks</button>
+          <button class="search-filter-btn" data-filter="0" id="searchFilter0">0 ⭐</button>
+          <button class="search-filter-btn" data-filter="1" id="searchFilter1">1 ⭐</button>
+          <button class="search-filter-btn" data-filter="2" id="searchFilter2">2 ⭐</button>
+          <button class="search-filter-btn" data-filter="3" id="searchFilter3">3 ⭐</button>
+          <button class="search-filter-btn" data-filter="4" id="searchFilter4">4 ⭐</button>
+          <button class="search-filter-btn" data-filter="5" id="searchFilter5">5 ⭐</button>
+        </div>
+      </div>
+      <p id="searchResultsCount" class="search-results-count"></p>
+      <div id="searchResultsGrid" class="cards-grid" aria-live="polite"></div>
+      <p id="noResultsMsg" class="no-results-msg" style="display:none;">No results found. Keep typing...</p>
     </section>
 
     <section id="tricks" class="tricks-section">
