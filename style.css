@@ -116,6 +116,33 @@
   visibility: visible;
   opacity: 1;
 }
+/* Tooltip for D-Pad */
+.dpad-tooltip {
+  position: relative;
+  cursor: pointer;
+}
+.dpad-tooltip .tooltip-text {
+  visibility: hidden;
+  width: 120px;
+  background: #222;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 4px 0;
+  position: absolute;
+  z-index: 10;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  font-size: 0.9em;
+  pointer-events: none;
+}
+.dpad-tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
 /* FC25 Tricks Manual — style.css
    Dark football theme with green/gold highlights.
    Simple, kid-friendly layout and big buttons.
@@ -128,7 +155,12 @@
   --muted:#a9b1b8;        /* muted text */
   --accent:#6bd64b;       /* fresh green */
   --accent2:#e1b95b;      /* gold */
+  --accent3:#1e90ff;      /* electric blue */
   --glow: rgba(107,214,75,0.18);
+  --glow2: rgba(30,144,255,0.16);
+  --goldGlow: rgba(225,185,91,0.22);
+  --goldGlowSoft: rgba(225,185,91,0.10);
+  --ink:#04070b;
   --big: 1.2rem;
   --rounded:14px;
   --gap:16px;
@@ -136,11 +168,110 @@
 }
 
 * { box-sizing: border-box; }
-html,body{ height:100%; margin:0; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background: radial-gradient(ellipse at 10% 0%, #05101a 0%, var(--bg) 60%); color: #e6eef3; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+html,body{ height:100%; margin:0; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color: #e6eef3; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+
+/* Background inspired by the reference: dark + gold geometric */
+body{
+  position:relative;
+  overflow-x:hidden;
+  background-color: var(--ink);
+  background:
+    radial-gradient(900px 520px at 22% 10%, var(--goldGlowSoft) 0%, transparent 62%),
+    radial-gradient(1100px 720px at 78% 30%, rgba(255,255,255,0.05) 0%, transparent 60%),
+    radial-gradient(900px 620px at 55% 88%, var(--goldGlow) 0%, transparent 68%),
+    linear-gradient(180deg, #060b10 0%, var(--ink) 55%, #020304 100%);
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  opacity:0.22;
+  background:
+    /* carbon texture */
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.07) 0 1px, transparent 1px 10px),
+    repeating-linear-gradient(45deg, rgba(0,0,0,0.35) 0 2px, transparent 2px 12px),
+    /* dotted metal */
+    radial-gradient(circle at 72% 18%, rgba(255,255,255,0.06) 0 1px, transparent 2px);
+  background-size: auto, auto, 12px 12px;
+  mix-blend-mode: overlay;
+}
+
+/* Angular gold linework + panels */
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  opacity:0.55;
+  background:
+    /* thin gold diagonals */
+    linear-gradient(115deg, transparent 0 53%, rgba(225,185,91,0.14) 53% 53.4%, transparent 53.4% 100%),
+    linear-gradient(135deg, transparent 0 62%, rgba(225,185,91,0.10) 62% 62.3%, transparent 62.3% 100%),
+    /* big polygon edges */
+    conic-gradient(from 210deg at 74% 20%,
+      transparent 0 56deg,
+      rgba(225,185,91,0.18) 56deg 58deg,
+      transparent 58deg 118deg,
+      rgba(225,185,91,0.14) 118deg 120deg,
+      transparent 120deg 360deg),
+    conic-gradient(from 35deg at 35% 52%,
+      transparent 0 72deg,
+      rgba(225,185,91,0.12) 72deg 74deg,
+      transparent 74deg 180deg,
+      rgba(225,185,91,0.08) 180deg 182deg,
+      transparent 182deg 360deg),
+    /* soft vignette */
+    radial-gradient(1400px 900px at 50% 10%, transparent 0%, rgba(0,0,0,0.72) 70%);
+  mix-blend-mode: screen;
+}
+
+/* Keep content above background overlays */
+.site-header, main{ position:relative; z-index:1; }
+
+/* RTL support (Arabic): mirror layout */
+html[dir="rtl"] body{ direction: rtl; }
+html[dir="rtl"] .header-inner{ flex-direction: row-reverse; }
+html[dir="rtl"] .controls{ justify-content: flex-start; }
+html[dir="rtl"] .header-logo{ right:auto; left:40px; }
+html[dir="rtl"] .site-footer{ right:auto; left:18px; }
+html[dir="rtl"] .site-footer p{ text-align:left; }
+
+@media (max-width:480px){
+  html[dir="rtl"] .site-footer{ left:10px; }
+}
 
 .site-header{
-  padding: 28px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
+  padding: 34px 16px 28px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+  background: linear-gradient(180deg, rgba(15,23,32,0.72), rgba(7,16,24,0));
+  backdrop-filter: blur(10px);
+}
+
+.site-header::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-1px;
+  height:1px;
+  background: linear-gradient(90deg, transparent, rgba(107,214,75,0.35), rgba(30,144,255,0.28), transparent);
+  pointer-events:none;
+}
+.header-logo{
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  height: 145px;
+  width: auto;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+}
+.header-logo:hover{
+  opacity: 1;
 }
 .header-inner{
   max-width:var(--max-width);
@@ -161,6 +292,13 @@ html,body{ height:100%; margin:0; font-family: Inter, system-ui, -apple-system, 
   display:flex;
   flex-direction:column;
   gap:6px;
+  align-items: stretch;
+}
+
+.lang-select .small-label{
+  margin:0 0 6px 0;
+  font-size:0.85rem;
+  color:var(--muted);
 }
 
 #languageSelect{
@@ -170,6 +308,8 @@ html,body{ height:100%; margin:0; font-family: Inter, system-ui, -apple-system, 
   padding:10px 12px;
   border-radius:10px;
   font-size:1rem;
+  width:100%;
+  min-width: 160px;
 }
 
 #languageSelect:focus{
@@ -182,13 +322,26 @@ html,body{ height:100%; margin:0; font-family: Inter, system-ui, -apple-system, 
   background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
   color:var(--accent2); border:2px solid rgba(255,255,255,0.03);
   padding:12px 18px; font-size:1.05rem; border-radius:10px; cursor:pointer;
-  transition:transform .18s ease, box-shadow .18s ease;
+  position: relative;
+  overflow: hidden;
+  transition: transform .22s ease, box-shadow .28s ease, color .28s ease, border-color .28s ease, filter .28s ease;
   display:inline-flex; gap:8px; align-items:center;
+}
+.platform-btn::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(107,214,75,0.06), rgba(255,255,255,0.01));
+  opacity: 0;
+  transition: opacity .28s ease;
+  z-index: -1;
 }
 .platform-btn.active{
   box-shadow: 0 8px 20px var(--glow); transform:translateY(-4px);
-  border-color: rgba(107,214,75,0.7); color: #eafaf0; background: linear-gradient(180deg, rgba(107,214,75,0.06), rgba(255,255,255,0.01));
+  border-color: rgba(107,214,75,0.7); color: #eafaf0;
 }
+.platform-btn.active::before{ opacity: 1; }
 .platform-btn .emoji{ font-size:0.9rem; opacity:0.9; }
 
 .level-select .small-label{ margin:0 0 6px 0; font-size:0.85rem; color:var(--muted); }
@@ -197,15 +350,28 @@ html,body{ height:100%; margin:0; font-family: Inter, system-ui, -apple-system, 
 .level-btn{
   background:transparent; border:1px solid rgba(255,255,255,0.03);
   color:var(--muted); padding:10px 14px; border-radius:10px; cursor:pointer; font-size:1rem;
-  transition:all .16s ease;
+  position: relative;
+  overflow: hidden;
+  transition: transform .22s ease, box-shadow .28s ease, color .28s ease, border-color .28s ease, filter .28s ease;
+}
+.level-btn::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(107,214,75,0.06), rgba(226,185,91,0.03));
+  opacity: 0;
+  transition: opacity .28s ease;
+  z-index: -1;
 }
 .level-btn.active{
-  color:#072; background:linear-gradient(90deg, rgba(107,214,75,0.06), rgba(226,185,91,0.03));
+  color:#072;
   border-color: rgba(107,214,75,0.25); transform:translateY(-3px);
 }
+.level-btn.active::before{ opacity: 1; }
 
 /* Featured */
-.featured{ max-width:var(--max-width); margin:24px auto; padding:18px; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); border:1px solid rgba(255,255,255,0.03); box-shadow:0 6px 18px rgba(0,0,0,0.6); }
+.featured{ max-width:var(--max-width); margin:24px auto; padding:18px; border-radius:12px; background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.06); box-shadow:0 12px 28px rgba(0,0,0,0.55); }
 .featured h2{ margin:0 0 12px 0; color:var(--accent2); font-size:1.2rem; }
 .featured-card{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
 .practice-challenge{ margin-top:10px; color:var(--muted); font-size:0.95rem; }
@@ -292,21 +458,21 @@ html,body{ height:100%; margin:0; font-family: Inter, system-ui, -apple-system, 
 .card{
   display:flex;
   flex-direction:column;
-  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.007));
-  border-radius:var(--rounded); padding:16px; border:1px solid rgba(255,255,255,0.03);
+  background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01));
+  border-radius:var(--rounded); padding:16px; border:1px solid rgba(255,255,255,0.06);
   /* Let grid control heights; make card fill its grid cell so all buttons align */
   min-height: 0;
   height: 100%;
   /* lighter shadow and hardware-accelerated transform only */
   box-shadow: 0 6px 12px rgba(0,0,0,0.45);
-  transition: transform .22s ease, opacity .22s ease;
+  transition: transform .22s ease, opacity .22s ease, box-shadow .28s ease, border-color .28s ease, background .28s ease;
   transform-origin: center; cursor:default;
   will-change: transform, opacity;
   -webkit-backface-visibility: hidden; /* improve rendering */
   backface-visibility: hidden;
   transform: translateZ(0);
 }
-.card:hover{ transform: translateY(-4px); box-shadow: 0 10px 18px rgba(0,0,0,0.5); }
+.card:hover{ transform: translateY(-4px); box-shadow: 0 16px 30px rgba(0,0,0,0.55), 0 0 0 1px rgba(107,214,75,0.10); }
 
 .card-title{ margin:0 0 6px 0; font-size:1.05rem; color:var(--accent); }
 .stars{ margin:0 0 8px 0; color: var(--accent2); font-weight:600; }

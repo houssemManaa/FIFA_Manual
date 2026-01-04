@@ -33,13 +33,14 @@ function renderAdvancedAttacks() {
     const translatedAction = getAdvancedAttackTranslation(item.action);
     
     // Translate the D-Pad instructions
-    const translatedPs = translateControlsString(item.ps);
-    const translatedXbox = translateControlsString(item.xbox);
+    let translatedPs = translateControlsString(item.ps);
+    // Wrap D-Pad with tooltip
+    translatedPs = translatedPs.replace(/D-Pad/gi, '<span class="dpad-tooltip">D-Pad<span class="tooltip-text">Arrow Keys</span></span>');
+    // PS5-only UI: we keep the data, but don't display Xbox
     
     card.innerHTML = `
       <div class="action-title">${translatedAction}</div>
-      <div class="controls-row"><span class="controls-label">PlayStation:</span> ${translatedPs}</div>
-      <div class="controls-row"><span class="controls-label">Xbox:</span> ${translatedXbox}</div>
+      <div class="controls-row"><span class="controls-label">${t('playstationLabel')}</span> ${translatedPs}</div>
     `;
     grid.appendChild(card);
   });
@@ -66,25 +67,145 @@ function saveLanguage(lang) {
   localStorage.setItem('fc25_lang', lang);
 }
 
+function applyLanguageDirection(lang) {
+  const root = document.documentElement;
+  if (!root) return;
+  const isArabic = lang === 'ar';
+  root.setAttribute('dir', isArabic ? 'rtl' : 'ltr');
+  root.setAttribute('lang', lang);
+}
+
 // UI translations for labels, headings, buttons
 const I18N = {
   en: {
     watchTutorial: '▶ Watch Tutorial',
-    advancedAttacks: 'Advanced Attacks'
+    advancedAttacks: 'Advanced Attacks',
+    languageLabel: 'Language',
+    siteSub: 'Learn skill moves. Beat defenders. Have fun.',
+    chooseStars: 'Choose Stars',
+    all: 'All',
+    trickOfTheDay: 'Trick of the Day ✨',
+    practiceChallenge: "Practice challenge: Try the trick 5 times in a row with both feet.",
+    skillsTitle: 'Skill Moves by Stars',
+    teamTipPrefix: "Tip: To see a player's skill move stars, go to Team Management and press ",
+    teamTipSuffix: ' on the player.',
+    gkNote: 'Note: Goalkeepers can do these skills too!',
+    footerText: 'Made for young players • Keep practicing!',
+    playstationLabel: 'PlayStation:',
+    xboxLabel: 'Xbox:',
+    tipPrefix: 'Tip:',
+    rightJoystick: 'Right Joystick',
+    leftJoystick: 'Left Joystick'
   },
   fr: {
     watchTutorial: '▶ Voir le tuto',
-    advancedAttacks: 'Attaques avancées'
+    advancedAttacks: 'Attaques avancées',
+    languageLabel: 'Langue',
+    siteSub: 'Apprends les gestes. Bats les défenseurs. Amuse-toi.',
+    chooseStars: 'Choisir les étoiles',
+    all: 'Tous',
+    trickOfTheDay: 'Geste du jour ✨',
+    practiceChallenge: "Défi: Réussis le geste 5 fois d'affilée avec les deux pieds.",
+    skillsTitle: 'Gestes techniques par étoiles',
+    teamTipPrefix: "Astuce: Pour voir les étoiles de gestes d’un joueur, va dans Gestion de l’équipe et appuie sur ",
+    teamTipSuffix: ' sur le joueur.',
+    gkNote: 'Note: Les gardiens peuvent aussi faire ces gestes!',
+    footerText: 'Fait pour les jeunes joueurs • Continue à t’entraîner!',
+    playstationLabel: 'PlayStation:',
+    xboxLabel: 'Xbox:',
+    tipPrefix: 'Conseil:',
+    rightJoystick: 'Joystick droit',
+    leftJoystick: 'Joystick gauche'
   },
   es: {
     watchTutorial: '▶ Ver tutorial',
-    advancedAttacks: 'Ataques avanzados'
+    advancedAttacks: 'Ataques avanzados',
+    languageLabel: 'Idioma',
+    siteSub: 'Aprende skills. Supera defensas. Diviértete.',
+    chooseStars: 'Elegir estrellas',
+    all: 'Todas',
+    trickOfTheDay: 'Truco del día ✨',
+    practiceChallenge: 'Reto: Haz el truco 5 veces seguidas con ambos pies.',
+    skillsTitle: 'Regates por estrellas',
+    teamTipPrefix: 'Consejo: Para ver las estrellas de skills de un jugador, ve a Gestión del equipo y pulsa ',
+    teamTipSuffix: ' en el jugador.',
+    gkNote: 'Nota: ¡Los porteros también pueden hacer estos skills!',
+    footerText: 'Hecho para jugadores jóvenes • ¡Sigue practicando!',
+    playstationLabel: 'PlayStation:',
+    xboxLabel: 'Xbox:',
+    tipPrefix: 'Consejo:',
+    rightJoystick: 'Joystick derecho',
+    leftJoystick: 'Joystick izquierdo'
   },
   ar: {
     watchTutorial: '▶ شاهد الفيديو',
-    advancedAttacks: 'هجمات متقدمة'
+    advancedAttacks: 'هجمات متقدمة',
+    languageLabel: 'اللغة',
+    siteSub: 'تعلّم المهارات. راوغ المدافعين. استمتع.',
+    chooseStars: 'اختر النجوم',
+    all: 'الكل',
+    trickOfTheDay: 'مهارة اليوم ✨',
+    practiceChallenge: 'تحدي التدريب: جرّب المهارة 5 مرات متتالية بكلتا القدمين.',
+    skillsTitle: 'المهارات حسب النجوم',
+    teamTipPrefix: 'نصيحة: لمعرفة نجوم مهارات اللاعب، اذهب إلى إدارة الفريق واضغط ',
+    teamTipSuffix: ' على اللاعب.',
+    gkNote: 'ملاحظة: يمكن لحراس المرمى تنفيذ هذه المهارات أيضًا!',
+    footerText: 'مخصص للاعبين الصغار • استمر بالتدريب!',
+    playstationLabel: 'بلايستيشن:',
+    xboxLabel: 'إكس بوكس:',
+    tipPrefix: 'نصيحة:',
+    rightJoystick: 'العصا اليمنى',
+    leftJoystick: 'العصا اليسرى'
   }
 };
+
+const FUN_PRACTICE_LINES = {
+  en: [
+    'Practice challenge: Do it 5 times in a row. ⚽',
+    'Coach challenge: Do it 3 times… then try it while sprinting! 🏃',
+    'Pro challenge: Try it with BOTH feet. 👟',
+    'Game challenge: Use it once in a real match! 🎮',
+    'Combo challenge: Do the move, then pass instantly. 🔥',
+    'Timing challenge: Slow → medium → fast (3 tries). ⏱️'
+  ],
+  fr: [
+    'Défi: Fais-le 5 fois de suite. ⚽',
+    'Défi coach: Fais-le 3 fois… puis essaie en sprintant! 🏃',
+    'Défi pro: Essaie avec les DEUX pieds. 👟',
+    'Défi match: Utilise-le une fois en vrai match! 🎮',
+    'Défi combo: Fais le geste, puis passe tout de suite. 🔥',
+    'Défi timing: Lent → moyen → rapide (3 essais). ⏱️'
+  ],
+  es: [
+    'Reto: Hazlo 5 veces seguidas. ⚽',
+    'Reto entrenador: Hazlo 3 veces… ¡y luego prueba esprintando! 🏃',
+    'Reto pro: Pruébalo con AMBOS pies. 👟',
+    'Reto partido: Úsalo una vez en un partido real. 🎮',
+    'Reto combo: Haz el regate y pasa al instante. 🔥',
+    'Reto ritmo: Lento → medio → rápido (3 intentos). ⏱️'
+  ],
+  ar: [
+    'تحدي: نفّذها 5 مرات متتالية. ⚽',
+    'تحدي المدرب: نفّذها 3 مرات… ثم جرّبها أثناء السرعة! 🏃',
+    'تحدي المحترف: جرّبها بكلتا القدمين. 👟',
+    'تحدي المباراة: استخدمها مرة واحدة في مباراة حقيقية! 🎮',
+    'تحدي الكومبو: نفّذ المهارة ثم مرّر مباشرة. 🔥',
+    'تحدي التوقيت: بطيء → متوسط → سريع (3 محاولات). ⏱️'
+  ]
+};
+
+function getFunPracticeLines() {
+  return FUN_PRACTICE_LINES[currentLanguage] || FUN_PRACTICE_LINES.en;
+}
+
+function formatStarHeading(stars) {
+  const n = Number(stars);
+  const starsIcons = '⭐'.repeat(Math.max(0, n));
+  if (currentLanguage === 'fr') return `${n} Étoile${n === 1 ? '' : 's'} ${starsIcons}`.trim();
+  if (currentLanguage === 'es') return `${n} Estrella${n === 1 ? '' : 's'} ${starsIcons}`.trim();
+  if (currentLanguage === 'ar') return `${n} نجمة ${starsIcons}`.trim();
+  return `${n} Star${n === 1 ? '' : 's'} ${starsIcons}`.trim();
+}
 
 // Helper function to get translation
 function t(key) {
@@ -803,6 +924,10 @@ const CONTROL_WORD_TRANSLATIONS = {
     'press': 'appuie',
     'Tap': 'Tape',
     'tap': 'tape',
+    'Square': 'Carré',
+    'square': 'carré',
+    'Circle': 'Rond',
+    'circle': 'rond',
     'then': 'puis',
     'or': 'ou',
     'and': 'et',
@@ -844,6 +969,10 @@ const CONTROL_WORD_TRANSLATIONS = {
     'press': 'presiona',
     'Tap': 'Toca',
     'tap': 'toca',
+    'Square': 'Cuadrado',
+    'square': 'cuadrado',
+    'Circle': 'Círculo',
+    'circle': 'círculo',
     'then': 'luego',
     'or': 'o',
     'and': 'y',
@@ -885,6 +1014,10 @@ const CONTROL_WORD_TRANSLATIONS = {
     'press': 'اضغط',
     'Tap': 'اضغط بخفة',
     'tap': 'اضغط بخفة',
+    'Square': 'مربع',
+    'square': 'مربع',
+    'Circle': 'دائرة',
+    'circle': 'دائرة',
     'then': 'ثم',
     'or': 'أو',
     'and': 'و',
@@ -936,6 +1069,48 @@ function translateControlsString(input) {
 
 // Update all UI text elements with current language
 function updateUIText() {
+  const langLabel = document.getElementById('langLabel');
+  if (langLabel) langLabel.textContent = t('languageLabel');
+
+  const sub = document.querySelector('.site-sub');
+  if (sub) sub.textContent = t('siteSub');
+
+  const starsLabel = document.getElementById('starsLabel');
+  if (starsLabel) starsLabel.textContent = t('chooseStars');
+
+  const todTitle = document.getElementById('todTitle');
+  if (todTitle) todTitle.textContent = t('trickOfTheDay');
+
+  const practiceChallenge = document.getElementById('practiceChallenge');
+  if (practiceChallenge) practiceChallenge.textContent = t('practiceChallenge');
+
+  const skillsTitle = document.getElementById('skillsTitle');
+  if (skillsTitle) skillsTitle.textContent = t('skillsTitle');
+
+  const teamTipPrefix = document.getElementById('teamTipPrefix');
+  if (teamTipPrefix) teamTipPrefix.textContent = t('teamTipPrefix');
+
+  const teamTipSuffix = document.getElementById('teamTipSuffix');
+  if (teamTipSuffix) teamTipSuffix.textContent = t('teamTipSuffix');
+
+  const gkNote = document.getElementById('gkNote');
+  if (gkNote) gkNote.textContent = t('gkNote');
+
+  const footerText = document.getElementById('footerText');
+  if (footerText) footerText.textContent = t('footerText');
+
+  // Star section headings (0..5)
+  const starHeadings = document.querySelectorAll('[data-stars-heading]');
+  starHeadings.forEach(el => {
+    const stars = el.getAttribute('data-stars-heading');
+    if (!stars) return;
+    el.textContent = formatStarHeading(stars);
+  });
+
+  // Level buttons
+  const allBtn = document.querySelector('.level-btn[data-level="all"]');
+  if (allBtn) allBtn.textContent = t('all');
+
   const advancedTitle = document.getElementById('advancedTitle');
   if (advancedTitle) {
     advancedTitle.textContent = t('advancedAttacks');
@@ -945,6 +1120,10 @@ function updateUIText() {
   if (advancedBtn) {
     advancedBtn.textContent = t('advancedAttacks');
   }
+
+  // Tooltip texts in the static team tip (header)
+  const r3Tooltip = document.getElementById('r3Tooltip');
+  if (r3Tooltip) r3Tooltip.textContent = t('rightJoystick');
 }
 
 // Advanced Attacks translations
@@ -1159,7 +1338,7 @@ function createCard(trick) {
     // Use translated tip if available, otherwise use English
     const translatedTip = getTrickTranslation(trick.name, 'tip');
     const tipText = translatedTip || trick.tip;
-    tip.textContent = `Tip: ${tipText}`;
+    tip.textContent = `${t('tipPrefix')} ${tipText}`;
     a.appendChild(tip);
   }
 
@@ -1319,8 +1498,8 @@ function updateControllers() {
     text = translateControlsString(text);
     if (currentPlatform === 'ps') {
       // Replace all R3 and L3 (not inside HTML tags) with tooltip spans
-      text = text.replace(/R3/g, '<span class="r3-tooltip" data-platform-only="ps">R3<span class="tooltip-text">Right Joystick</span></span>');
-      text = text.replace(/L3/g, '<span class="l3-tooltip" data-platform-only="ps">L3<span class="tooltip-text">Left Joystick</span></span>');
+      text = text.replace(/R3/g, `<span class="r3-tooltip" data-platform-only="ps">R3<span class="tooltip-text">${t('rightJoystick')}</span></span>`);
+      text = text.replace(/L3/g, `<span class="l3-tooltip" data-platform-only="ps">L3<span class="tooltip-text">${t('leftJoystick')}</span></span>`);
       ctrl.innerHTML = text;
     } else {
       ctrl.textContent = text;
@@ -1334,8 +1513,8 @@ function updateControllers() {
     // Translate instruction words while keeping button names
     text = translateControlsString(text);
     if (currentPlatform === 'ps') {
-      text = text.replace(/R3/g, '<span class="r3-tooltip" data-platform-only="ps">R3<span class="tooltip-text">Right Joystick</span></span>');
-      text = text.replace(/L3/g, '<span class="l3-tooltip" data-platform-only="ps">L3<span class="tooltip-text">Left Joystick</span></span>');
+      text = text.replace(/R3/g, `<span class="r3-tooltip" data-platform-only="ps">R3<span class="tooltip-text">${t('rightJoystick')}</span></span>`);
+      text = text.replace(/L3/g, `<span class="l3-tooltip" data-platform-only="ps">L3<span class="tooltip-text">${t('leftJoystick')}</span></span>`);
       featuredCtrl.innerHTML = text;
     } else {
       featuredCtrl.textContent = text;
@@ -1453,23 +1632,17 @@ function setTrickOfTheDay() {
   const ctrl = clone.querySelector('.controller');
   if (ctrl) {
     let text = currentPlatform === 'ps' ? ctrl.dataset.ps : ctrl.dataset.xbox;
+    text = translateControlsString(text);
     if (currentPlatform === 'ps') {
-      text = text.replace(/R3/g, '<span class="r3-tooltip" data-platform-only="ps">R3<span class="tooltip-text">Right Joystick</span></span>');
-      text = text.replace(/L3/g, '<span class="l3-tooltip" data-platform-only="ps">L3<span class="tooltip-text">Left Joystick</span></span>');
+      text = text.replace(/R3/g, `<span class="r3-tooltip" data-platform-only="ps">R3<span class="tooltip-text">${t('rightJoystick')}</span></span>`);
+      text = text.replace(/L3/g, `<span class="l3-tooltip" data-platform-only="ps">L3<span class="tooltip-text">${t('leftJoystick')}</span></span>`);
       ctrl.innerHTML = text;
     } else {
       ctrl.textContent = text;
     }
   }
 
-  const funPracticeLines = [
-    'Practice challenge: Do it 5 times in a row. ⚽',
-    'Coach challenge: Do it 3 times… then try it while sprinting! 🏃',
-    'Pro challenge: Try it with BOTH feet. 👟',
-    'Game challenge: Use it once in a real match! 🎮',
-    'Combo challenge: Do the move, then pass instantly. 🔥',
-    'Timing challenge: Slow → medium → fast (3 tries). ⏱️'
-  ];
+  const funPracticeLines = getFunPracticeLines();
 
   const practice = document.createElement('p');
   practice.className = 'featured-practice';
@@ -1484,6 +1657,7 @@ function setTrickOfTheDay() {
 function init() {
   // Load saved language first
   loadLanguage();
+  applyLanguageDirection(currentLanguage);
   
   // Language selector
   const languageSelect = document.getElementById('languageSelect');
@@ -1494,6 +1668,8 @@ function init() {
       if (!I18N[nextLang]) return;
       currentLanguage = nextLang;
       saveLanguage(nextLang);
+
+      applyLanguageDirection(nextLang);
       
       // Update UI text elements
       updateUIText();
