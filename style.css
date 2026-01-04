@@ -669,7 +669,7 @@ html[dir="rtl"] .stars{ text-align: right; }
 }
 
 .site-header{
-  padding: 40px 24px 32px;
+  padding: 48px 32px 40px;
   border-bottom: 2px solid rgba(107,214,75,0.15);
   position: relative;
   background: linear-gradient(180deg, rgba(15,23,32,0.95), rgba(7,16,24,0.85));
@@ -767,12 +767,10 @@ html[dir="rtl"] .stars{ text-align: right; }
   display:flex; 
   flex-direction: column;
   gap:20px;
-  background: rgba(0,0,0,0.2);
-  padding: 24px;
-  border-radius: 16px;
-  border: 1px solid rgba(107,214,75,0.15);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
-  backdrop-filter: blur(10px);
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
 }
 
 .control-row{
@@ -892,15 +890,15 @@ html[dir="rtl"] .stars{ text-align: right; }
 }
 
 #searchInput{
-  background: rgba(0,0,0,0.4);
-  border:2px solid rgba(107,214,75,0.25);
+  background: rgba(0,0,0,0.6);
+  border:2px solid rgba(107,214,75,0.4);
   color:#fff;
   padding:14px 45px 14px 16px;
   border-radius:12px;
   font-size:1rem;
   width:100%;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2), inset 0 1px 2px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5), inset 0 1px 3px rgba(0,0,0,0.5);
   font-weight: 500;
   will-change: border-color, box-shadow;
 }
@@ -919,8 +917,8 @@ html[dir="rtl"] .stars{ text-align: right; }
 }
 
 #languageSelect{
-  background: rgba(0,0,0,0.4);
-  border:2px solid rgba(107,214,75,0.25);
+  background: rgba(0,0,0,0.6);
+  border:2px solid rgba(107,214,75,0.4);
   color:#fff;
   padding:14px 16px;
   border-radius:12px;
@@ -928,7 +926,7 @@ html[dir="rtl"] .stars{ text-align: right; }
   width:100%;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2), inset 0 1px 2px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5), inset 0 1px 3px rgba(0,0,0,0.5);
   font-weight: 500;
   appearance: none;
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%236bd64b" d="M6 9L1 4h10z"/></svg>');
@@ -988,9 +986,9 @@ html[dir="rtl"] .stars{ text-align: right; }
 }
 
 .level-btn{
-  background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
-  border:2px solid rgba(107,214,75,0.25);
-  color:var(--text); 
+  background: rgba(0,0,0,0.6);
+  border:2px solid rgba(107,214,75,0.4);
+  color:#fff; 
   padding:12px 20px; 
   border-radius:12px; 
   cursor:pointer; 
@@ -999,7 +997,7 @@ html[dir="rtl"] .stars{ text-align: right; }
   position: relative;
   overflow: hidden;
   transition: all .2s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
   backdrop-filter: blur(5px);
   will-change: transform;
   transform: translateZ(0);
