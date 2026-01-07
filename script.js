@@ -34,10 +34,56 @@ function debounce(func, wait) {
   };
 }
 
+// Throttle utility to limit function execution rate
+function throttle(func, limit) {
+  let inThrottle;
+  return function(...args) {
+    if (!inThrottle) {
+      func.apply(this, args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
+// Performance guards
+const MIN_RENDER_INTERVAL = 100; // Minimum 100ms between renders
+
+// Separate render guards so Advanced and Skills don't block each other
+let _isRenderingAdvanced = false;
+let _lastRenderTimeAdvanced = 0;
+let _isRenderingTricks = false;
+let _lastRenderTimeTricks = 0;
+
+// Lazy rendering state (render skill cards only when needed)
+let _tricksRendered = false;
+
+// Search index (rebuilt when language changes)
+let _searchIndexLanguage = null;
+let _searchIndexTricks = []; // { trick, nameLower, translatedLower }
+let _searchIndexAdvanced = []; // { attack, actionLower, translatedLower }
+
+// Debug logging (console spam can cause noticeable lag)
+const DEBUG = false;
+function debugLog(...args) {
+  if (DEBUG) console.log(...args);
+}
+
 function renderAdvancedAttacks() {
   const grid = document.querySelector('.advanced-cards-grid');
   if (!grid) return;
-  grid.innerHTML = '';
+  
+  // Performance guard: prevent rapid re-renders
+  const now = Date.now();
+  if (_isRenderingAdvanced || (now - _lastRenderTimeAdvanced < MIN_RENDER_INTERVAL)) {
+    return;
+  }
+  _isRenderingAdvanced = true;
+  _lastRenderTimeAdvanced = now;
+  
+  // Use document fragment for better performance
+  const fragment = document.createDocumentFragment();
+  
   advancedAttacks.forEach(item => {
     const card = document.createElement('div');
     card.className = 'advanced-card';
@@ -48,33 +94,49 @@ function renderAdvancedAttacks() {
     
     // Translate the D-Pad instructions
     let translatedPs = translateControlsString(item.ps);
-    // Wrap D-Pad with tooltip
-    translatedPs = translatedPs.replace(/D-Pad/gi, `<span class="dpad-tooltip">D-Pad<span class="tooltip-text">${t('arrowKeys')}</span></span>`);
+    // Wrap D-Pad with tooltip (use negative lookahead to avoid double-wrapping)
+    translatedPs = translatedPs.replace(/D-Pad(?![^<]*<\/span>)/gi, `<span class="dpad-tooltip">D-Pad<span class="tooltip-text">${t('arrowKeys')}</span></span>`);
     // PS5-only UI: we keep the data, but don't display Xbox
     
-    // Add favorite button
-    const favBtn = document.createElement('button');
-    favBtn.className = 'favorite-btn';
-    favBtn.setAttribute('aria-label', 'Toggle favorite');
-    favBtn.innerHTML = isFavorite('advanced:' + item.action) ? '❤' : '♡';
-    favBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const isNowFav = toggleFavorite('advanced:' + item.action);
-      favBtn.innerHTML = isNowFav ? '❤' : '♡';
-      // Refresh if viewing favorites
-      const activeBtn = document.querySelector('.level-btn.active');
-      if (activeBtn && activeBtn.dataset.level === 'favorites') {
-        showFavorites();
-      }
-    });
-    
+    // Build card content first
     card.innerHTML = `
       <div class="action-title">${translatedAction}</div>
       <div class="controls-row"><span class="controls-label">${t('playstationLabel')}</span> ${translatedPs}</div>
     `;
     
+    // Add favorite button AFTER setting innerHTML to prevent event listener loss
+    const favBtn = document.createElement('button');
+    favBtn.className = 'favorite-btn';
+    favBtn.setAttribute('aria-label', 'Toggle favorite');
+    favBtn.innerHTML = isFavorite('advanced:' + item.action) ? '❤' : '♡';
+    let _favBtnCooldown = false;
+    favBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // Prevent rapid clicking
+      if (_favBtnCooldown) return;
+      _favBtnCooldown = true;
+      setTimeout(() => { _favBtnCooldown = false; }, 150);
+      
+      const isNowFav = toggleFavorite('advanced:' + item.action);
+      favBtn.innerHTML = isNowFav ? '❤' : '♡';
+      // Refresh if viewing favorites (use requestAnimationFrame to prevent lag)
+      const activeBtn = document.querySelector('.level-btn.active');
+      if (activeBtn && activeBtn.dataset.level === 'favorites') {
+        requestAnimationFrame(() => showFavorites());
+      }
+    });
+    
     card.appendChild(favBtn);
-    grid.appendChild(card);
+    fragment.appendChild(card);
+  });
+  
+  // Single DOM update
+  grid.innerHTML = '';
+  grid.appendChild(fragment);
+  
+  // Release rendering lock
+  requestAnimationFrame(() => {
+    _isRenderingAdvanced = false;
   });
 }
 
@@ -89,7 +151,236 @@ let currentLanguage = 'en';
 // Search results storage
 let currentSearchResults = [];
 let currentSearchTerm = '';
+
+// Search filter state (single-select)
+// Values: 'all', 'skills', 'advanced', '0'..'5'.
 let currentSearchFilter = 'all';
+
+// Main page filter state (multi-select)
+let mainSelectedStars = new Set(); // '0'..'5'
+let mainShowAdvanced = true;
+let mainFavoritesMode = false;
+let onlyAdvancedMode = false; // Track if we're in "only advanced" mode
+
+// Remember previous state when toggling Advanced-only view
+let _savedMainViewState = null;
+
+function computeEffectiveStarsSet(selectedStars) {
+  if (!selectedStars || selectedStars.size === 0) return null; // null => all stars
+
+  const numeric = Array.from(selectedStars)
+    .map(s => parseInt(s, 10))
+    .filter(n => Number.isFinite(n));
+
+  if (numeric.length === 0) return null;
+
+  // Exact match only (the "selected star and above" setting has been removed)
+  return new Set(numeric.map(n => String(n)));
+}
+
+function updateLevelButtonsUI() {
+  levelButtons.forEach(btn => {
+    const level = btn.dataset.level;
+    let isActive = false;
+
+    if (level === 'favorites') {
+      isActive = mainFavoritesMode;
+    } else if (mainFavoritesMode) {
+      isActive = false;
+    } else if (level === 'all') {
+      // "All" is only active if explicitly showing everything (stars and advanced)
+      isActive = mainSelectedStars.size === 0 && mainShowAdvanced && !onlyAdvancedMode;
+    } else if (level === 'advanced') {
+      // Advanced is active when mainShowAdvanced is true
+      isActive = mainShowAdvanced;
+    } else {
+      isActive = mainSelectedStars.has(level);
+    }
+
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+  });
+}
+
+function updateSearchFilterButtonsUI() {
+  const buttons = Array.from(document.querySelectorAll('.search-filter-btn'));
+  buttons.forEach(btn => {
+    const filter = btn.dataset.filter;
+    const isActive = (currentSearchFilter || 'all') === filter;
+    btn.classList.toggle('active', isActive);
+  });
+}
+
+function applyMainFilters() {
+  if (mainFavoritesMode) {
+    showFavorites();
+    return;
+  }
+
+  // Advanced-only view: show only the advanced attacks section
+  if (onlyAdvancedMode) {
+    const tricksSection = document.getElementById('tricks');
+    const featuredSection = document.getElementById('featured');
+    const recentlyViewedSection = document.getElementById('recently-viewed');
+    const searchResultsSection = document.getElementById('search-results');
+    const advSection = document.querySelector('.advanced-attacks-section');
+
+    if (tricksSection) tricksSection.style.display = 'none';
+    if (featuredSection) featuredSection.style.display = 'none';
+    if (recentlyViewedSection) recentlyViewedSection.style.display = 'none';
+    if (searchResultsSection) searchResultsSection.style.display = 'none';
+    if (advSection) advSection.style.display = 'block';
+    return;
+  }
+
+  // Avoid initial-load jank: don't render all skill cards unless we're showing them.
+  if (!onlyAdvancedMode) {
+    ensureTricksRendered();
+  }
+
+  const tricksSection = document.getElementById('tricks');
+  const featuredSection = document.getElementById('featured');
+  const recentlyViewedSection = document.getElementById('recently-viewed');
+  
+  if (tricksSection) tricksSection.style.display = '';
+  if (featuredSection) featuredSection.style.display = '';
+  
+  // Re-show Recently Viewed if it has content
+  if (recentlyViewedSection) {
+    const recentNames = getRecentlyViewed();
+    recentlyViewedSection.style.display = recentNames.length > 0 ? 'block' : 'none';
+  }
+
+  const advSection = document.querySelector('.advanced-attacks-section');
+  if (advSection) advSection.style.display = mainShowAdvanced ? 'block' : 'none';
+
+  const effectiveStars = computeEffectiveStarsSet(mainSelectedStars);
+  const allCards = getAllCards();
+
+  requestAnimationFrame(() => {
+    const visibleCountByStars = {};
+    const totalCountByStars = {};
+
+    allCards.forEach(card => {
+      const stars = card.dataset.stars;
+      totalCountByStars[stars] = (totalCountByStars[stars] || 0) + 1;
+      const show = !effectiveStars || effectiveStars.has(stars);
+      card.classList.toggle('hide', !show);
+      card.classList.remove('animate-in');
+      card.style.removeProperty('--delay');
+      if (show) visibleCountByStars[stars] = (visibleCountByStars[stars] || 0) + 1;
+    });
+
+    const sections = $$('.star-section');
+    sections.forEach(section => {
+      const s = String(section.dataset.stars);
+      const isStatic = section.dataset.static === 'true';
+      const visibleInSection = visibleCountByStars[s] || 0;
+      const totalInSection = totalCountByStars[s] || 0;
+
+      if (!effectiveStars) {
+        const shouldHide = !isStatic && totalInSection === 0;
+        section.classList.toggle('hide-section', shouldHide);
+        section.setAttribute('aria-hidden', shouldHide ? 'true' : 'false');
+      } else {
+        const shouldShow = effectiveStars.has(s) && (isStatic || visibleInSection > 0);
+        section.classList.toggle('hide-section', !shouldShow);
+        section.setAttribute('aria-hidden', shouldShow ? 'false' : 'true');
+      }
+    });
+  });
+}
+
+function toggleMainFilter(level) {
+  // Any main filter interaction cancels search input
+  const searchInput = document.getElementById('searchInput');
+  const clearBtn = document.getElementById('clearSearchBtn');
+  const searchResultsSection = document.getElementById('search-results');
+  if (searchInput && searchInput.value) searchInput.value = '';
+  if (clearBtn) clearBtn.style.display = 'none';
+  if (searchResultsSection) searchResultsSection.style.display = 'none';
+  currentSearchTerm = '';
+  currentSearchResults = [];
+  currentSearchFilter = 'all';
+  updateSearchFilterButtonsUI();
+
+  if (level === 'favorites') {
+    mainFavoritesMode = !mainFavoritesMode;
+    if (!mainFavoritesMode) {
+      mainSelectedStars.clear();
+      mainShowAdvanced = true;
+    }
+    updateLevelButtonsUI();
+    applyMainFilters();
+    setTrickOfTheDay();
+    return;
+  }
+
+  mainFavoritesMode = false;
+
+  if (level === 'all') {
+    mainSelectedStars.clear();
+    mainShowAdvanced = true;
+    onlyAdvancedMode = false;
+  } else if (level === 'advanced') {
+    // Toggle Advanced-only view
+    if (onlyAdvancedMode) {
+      // Exit Advanced-only: restore previous view (or default to All)
+      if (_savedMainViewState) {
+        mainSelectedStars = new Set(_savedMainViewState.selectedStars || []);
+        mainShowAdvanced = Boolean(_savedMainViewState.showAdvanced);
+      } else {
+        mainSelectedStars.clear();
+        mainShowAdvanced = true;
+      }
+      onlyAdvancedMode = false;
+      _savedMainViewState = null;
+    } else {
+      // Enter Advanced-only: save current view state
+      _savedMainViewState = {
+        selectedStars: Array.from(mainSelectedStars),
+        showAdvanced: mainShowAdvanced
+      };
+      mainFavoritesMode = false;
+      mainSelectedStars.clear();
+      mainShowAdvanced = true;
+      onlyAdvancedMode = true;
+    }
+  } else {
+    // When clicking a star, turn off Advanced Attacks
+    mainShowAdvanced = false;
+    onlyAdvancedMode = false;
+    
+    // Check if multi-select is enabled
+    const multiSelectEnabled = getMultiSelectEnabled();
+    
+    if (multiSelectEnabled) {
+      // Multi-select mode: toggle the clicked star
+      if (mainSelectedStars.has(level)) mainSelectedStars.delete(level);
+      else mainSelectedStars.add(level);
+    } else {
+      // Single-select mode: clear all and select only the clicked star
+      if (mainSelectedStars.has(level) && mainSelectedStars.size === 1) {
+        // If clicking the only selected star, deselect it
+        mainSelectedStars.clear();
+      } else {
+        // Select only the clicked star
+        mainSelectedStars.clear();
+        mainSelectedStars.add(level);
+      }
+    }
+  }
+
+  updateLevelButtonsUI();
+
+  // Only Advanced mode doesn't need the full skill list rendered.
+  if (!onlyAdvancedMode) {
+    ensureTricksRendered();
+  }
+
+  applyMainFilters();
+  setTrickOfTheDay();
+}
 
 // Load saved language from localStorage
 function loadLanguage() {
@@ -118,13 +409,26 @@ function getTheme() {
 }
 
 function setTheme(theme) {
-  localStorage.setItem('fc25_theme', theme);
-  document.body.className = theme === 'dark' ? '' : `theme-${theme}`;
-  
-  // Update active button
-  document.querySelectorAll('.theme-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.theme === theme);
+  const normalized = theme === 'light' ? 'light' : 'dark';
+  localStorage.setItem('fc25_theme', normalized);
+  applyTheme(normalized);
+
+  // Update active state everywhere (header + settings)
+  document.querySelectorAll('.theme-btn, .theme-option').forEach(btn => {
+    const isActive = btn.dataset.theme === normalized;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
   });
+}
+
+// Multi-select setting
+function getMultiSelectEnabled() {
+  const saved = localStorage.getItem('fc25_multiSelect');
+  return saved === null ? true : saved === 'true';
+}
+
+function setMultiSelectEnabled(enabled) {
+  localStorage.setItem('fc25_multiSelect', String(enabled));
 }
 
 // Favorites localStorage functions
@@ -184,7 +488,7 @@ function addToRecentlyViewed(trickName) {
 // UI translations for labels, headings, buttons
 const I18N = {
   en: {
-    siteTitle: 'FC25 Tricks Manual (PS5)',
+    siteTitle: 'FC25 Tricks Manual',
     watchTutorial: '▶ Watch Tutorial',
     advancedAttacks: 'Advanced Attacks',
     languageLabel: 'Language',
@@ -228,8 +532,8 @@ const I18N = {
     clearFavoritesText: 'Clear All Favorites',
     resetAllText: 'Reset All Settings',
     showControllerText: 'Show Controller Image',
-    showTimerText: 'Show Practice Timer',
     animationsText: 'Enable Animations',
+    multiSelectText: 'Allow Multiple Star Selection',
     bgDefault: 'Default',
     bgGradient: 'Gradient',
     bgPitch: 'Pitch',
@@ -242,7 +546,7 @@ const I18N = {
     allReset: 'All settings reset!'
   },
   fr: {
-    siteTitle: 'Manuel de gestes FC25 (PS5)',
+    siteTitle: 'Manuel de gestes FC25',
     watchTutorial: '▶ Voir le tuto',
     advancedAttacks: 'Attaques avancées',
     languageLabel: 'Langue',
@@ -286,8 +590,8 @@ const I18N = {
     clearFavoritesText: 'Effacer tous les favoris',
     resetAllText: 'Réinitialiser tout',
     showControllerText: 'Afficher l\'image du contrôleur',
-    showTimerText: 'Afficher le minuteur',
     animationsText: 'Activer les animations',
+    multiSelectText: 'Permettre la sélection multiple d\'étoiles',
     confirmClearRecent: 'Effacer tous les gestes vus récemment?',
     confirmClearFavorites: 'Effacer tous les gestes favoris?',
     confirmResetAll: 'Réinitialiser tous les paramètres et données? Cette action est irréversible.',
@@ -296,7 +600,7 @@ const I18N = {
     allReset: 'Tous les paramètres réinitialisés!'
   },
   es: {
-    siteTitle: 'Manual de trucos FC25 (PS5)',
+    siteTitle: 'Manual de trucos FC25',
     watchTutorial: '▶ Ver tutorial',
     advancedAttacks: 'Ataques avanzados',
     languageLabel: 'Idioma',
@@ -340,8 +644,8 @@ const I18N = {
     clearFavoritesText: 'Borrar todos los favoritos',
     resetAllText: 'Restablecer todo',
     showControllerText: 'Mostrar imagen del mando',
-    showTimerText: 'Mostrar temporizador',
     animationsText: 'Activar animaciones',
+    multiSelectText: 'Permitir selección múltiple de estrellas',
     confirmClearRecent: '¿Borrar todos los trucos vistos recientemente?',
     confirmClearFavorites: '¿Borrar todos los trucos favoritos?',
     confirmResetAll: '¿Restablecer toda la configuración y datos? Esta acción no se puede deshacer.',
@@ -350,7 +654,7 @@ const I18N = {
     allReset: '¡Configuración restablecida!'
   },
   ar: {
-    siteTitle: 'دليل مهارات FC25 (PS5)',
+    siteTitle: 'دليل مهارات FC25',
     watchTutorial: '▶ شاهد الفيديو',
     advancedAttacks: 'هجمات متقدمة',
     languageLabel: 'اللغة',
@@ -394,8 +698,8 @@ const I18N = {
     clearFavoritesText: 'مسح كل المفضلة',
     resetAllText: 'إعادة تعيين الكل',
     showControllerText: 'إظهار صورة وحدة التحكم',
-    showTimerText: 'إظهار مؤقت التدريب',
     animationsText: 'تفعيل الرسوم المتحركة',
+    multiSelectText: 'السماح باختيار نجوم متعددة',
     confirmClearRecent: 'مسح كل الحركات المشاهدة مؤخراً؟',
     confirmClearFavorites: 'مسح كل الحركات المفضلة؟',
     confirmResetAll: 'إعادة تعيين جميع الإعدادات والبيانات؟ لا يمكن التراجع عن ذلك.',
@@ -1402,6 +1706,10 @@ function updateUIText() {
   
   const searchFilterAdvanced = document.getElementById('searchFilterAdvanced');
   if (searchFilterAdvanced) searchFilterAdvanced.textContent = t('filterAdvanced');
+  
+  // Settings text
+  const multiSelectText = document.getElementById('multiSelectText');
+  if (multiSelectText) multiSelectText.textContent = t('multiSelectText');
 }
 
 // Advanced Attacks translations
@@ -1583,6 +1891,66 @@ function getAllCards() {
   return $$('.stars-container .card');
 }
 
+// Tutorial mapping (define once for performance)
+const TUTORIAL_DISABLED = new Set([
+  'Ball Roll Fake Left/Right'
+]);
+
+const VIDEO_MAP = {
+  'Directional Nutmeg': 'https://www.youtube.com/watch?v=1qGlzjvKVU8',
+  'Ball Juggle (While standing)': 'https://www.youtube.com/watch?v=XcfB3OuvBIQ',
+  'Open Up Fake Shot': 'https://www.youtube.com/watch?v=X07lxmn6a9Q',
+  'Flick Up': 'https://www.youtube.com/watch?v=mkHFQW_lvs8',
+  'First Time Feint Turn': 'https://www.youtube.com/watch?v=QQTQOgWwqs0',
+  'Feint Forward and Turn': 'https://www.youtube.com/watch?v=4cd-1cqD0bY',
+  'Ball Roll Drag': 'https://www.youtube.com/watch?v=y_tIYN3oW20',
+  'Drag Back Turn': 'https://www.youtube.com/watch?v=BwCFR7cjfVE',
+  'Heel Flick': 'https://www.youtube.com/watch?v=1oRMggMvqa0',
+  'Roulette': 'https://www.youtube.com/watch?v=wtnhqCjBSm0',
+  'Body Feint Left/Right': 'https://www.youtube.com/watch?v=BwgOc7hI9p0',
+  'Heel Chop (While running)': 'https://www.youtube.com/watch?v=iuzdaQ2eCuM',
+  'Stutter Feint': 'https://www.youtube.com/shorts/OR4-6lGdZA4',
+  'Ball Hop (While standing)': 'https://www.youtube.com/watch?v=ZyG7aG78q5w',
+  'Flair Nutmegs': 'https://www.youtube.com/watch?v=ft71IH8kjbc',
+  'Fake Pass (While standing)': 'https://www.youtube.com/shorts/ePDjix_zQ_c',
+  'Heel to Heel': 'https://www.youtube.com/shorts/lQ7dv4qgtnU',
+  'Stepover Left/Right': 'https://www.youtube.com/shorts/du-nWmDkioQ',
+  'Reverse Stepover Left/Right': 'https://www.youtube.com/shorts/_lfUpSQ4f04',
+  'Ball Roll Left/Right': 'https://www.youtube.com/watch?v=n2Zcs5vum0o',
+  'Drag Back': 'https://www.youtube.com/watch?v=8AUmqIOGxSI',
+  'Simple Rainbow': 'https://www.youtube.com/watch?v=z7h16bz4brA',
+  'Stop and Turn': 'https://www.youtube.com/watch?v=N1DkQZdQ5mE',
+  'Ball Roll Cut Left/Right': 'https://www.youtube.com/shorts/HZ9hQiMqo7c',
+  'Quick Ball Rolls': 'https://www.youtube.com/shorts/HqLgGi8xHFM',
+  'Fake Pass Exit Left/Right': 'https://www.youtube.com/shorts/uI4O_PyQS7w',
+  'Lane Change Left/Right': 'https://www.youtube.com/watch?v=dctc9rfm9gk',
+  'Three Touch Roulette': 'https://www.youtube.com/watch?v=ikvqj68huro',
+  'Heel to Ball Roll': 'https://www.youtube.com/watch?v=FmepBtcb6pM',
+  'Drag Back Spin': 'https://www.youtube.com/watch?v=PB2cWzrVq2o',
+  'In-Air Elastico (While juggling)': 'https://www.youtube.com/watch?v=lWi8A4EfO2w',
+  'Chest Flick (While juggling)': 'https://www.youtube.com/watch?v=nRwe7QsOWkk',
+  'Around the World (While juggling)': 'https://www.youtube.com/watch?v=_ATi_d0ENOw',
+  'Elastico': 'https://www.youtube.com/shorts/XHUChflS5Ow',
+  'Reverse Elastico': 'https://www.youtube.com/shorts/686a_ZU1njY',
+  'Advanced Rainbow': 'https://www.youtube.com/watch?v=XA56h_YqQGE',
+  'Heel Flick Turn': 'https://www.youtube.com/watch?v=sKvH3xWIET8',
+  'Sombrero Flick': 'https://www.youtube.com/watch?v=wK1ieRL143E',
+  'Antony Spin': 'https://www.youtube.com/watch?v=cONe7nbR58E',
+  'Ball Roll Fake Turn': 'https://www.youtube.com/watch?v=ZGViwrRXaPk',
+  'Rabona Fake (While jogging)': 'https://www.youtube.com/watch?v=6gljcBNI4SQ',
+  'Elastico Chop': 'https://www.youtube.com/watch?v=I6QG6KpuBSk',
+  'Tornado Spin': 'https://www.youtube.com/watch?v=tI1zzP8Hdzg',
+  'Spin Flick': 'https://www.youtube.com/watch?v=tI1zzP8Hdzg',
+  'Heel Fake': 'https://www.youtube.com/shorts/plzTgR8CVPM',
+  'Flair Rainbow': 'https://www.youtube.com/watch?v=e4IQxMrFBqA'
+};
+
+const VIDEO_ALIAS_MAP = {
+  'first time feint': VIDEO_MAP['First Time Feint Turn'],
+  'ball roll': VIDEO_MAP['Ball Roll Left/Right'],
+  'drag back': VIDEO_MAP['Drag Back']
+};
+
 // Create a single card element from trick data
 function createCard(trick) {
   const a = document.createElement('article');
@@ -1590,11 +1958,6 @@ function createCard(trick) {
   a.dataset.stars = String(trick.stars);
   // CRITICAL: Keep English name in dataset for video tutorial matching
   a.dataset.name = trick.name;
-
-  // Some tricks should never show a tutorial button/link (even if an alias map matches)
-  const tutorialDisabled = new Set([
-    'Ball Roll Fake Left/Right'
-  ]);
 
   const h = document.createElement('h3');
   h.className = 'card-title';
@@ -1608,14 +1971,20 @@ function createCard(trick) {
   favBtn.className = 'favorite-btn';
   favBtn.setAttribute('aria-label', 'Toggle favorite');
   favBtn.innerHTML = isFavorite(trick.name) ? '❤' : '♡';
+  let _favBtnCooldown = false;
   favBtn.addEventListener('click', (e) => {
     e.stopPropagation();
+    // Prevent rapid clicking
+    if (_favBtnCooldown) return;
+    _favBtnCooldown = true;
+    setTimeout(() => { _favBtnCooldown = false; }, 150);
+    
     const isNowFav = toggleFavorite(trick.name);
     favBtn.innerHTML = isNowFav ? '❤' : '♡';
-    // Refresh if viewing favorites
+    // Refresh if viewing favorites (use requestAnimationFrame to prevent lag)
     const activeBtn = document.querySelector('.level-btn.active');
     if (activeBtn && activeBtn.dataset.level === 'favorites') {
-      showFavorites();
+      requestAnimationFrame(() => showFavorites());
     }
   });
   a.appendChild(favBtn);
@@ -1651,94 +2020,25 @@ function createCard(trick) {
   }
 
   // Video tutorials: map trick names to a YouTube link (only these will get buttons)
-  const videoMap = {
-    'Directional Nutmeg': 'https://www.youtube.com/watch?v=1qGlzjvKVU8',
-    'Ball Juggle (While standing)': 'https://www.youtube.com/watch?v=XcfB3OuvBIQ',
-    'Open Up Fake Shot': 'https://www.youtube.com/watch?v=X07lxmn6a9Q',
-    'Flick Up': 'https://www.youtube.com/watch?v=mkHFQW_lvs8',
-    'First Time Feint Turn': 'https://www.youtube.com/watch?v=QQTQOgWwqs0',
-    'Feint Forward and Turn': 'https://www.youtube.com/watch?v=4cd-1cqD0bY',
-    'Ball Roll Drag': 'https://www.youtube.com/watch?v=y_tIYN3oW20',
-    'Drag Back Turn': 'https://www.youtube.com/watch?v=BwCFR7cjfVE',
-    'Heel Flick': 'https://www.youtube.com/watch?v=1oRMggMvqa0',
-    'Roulette': 'https://www.youtube.com/watch?v=wtnhqCjBSm0',
-    'Body Feint Left/Right': 'https://www.youtube.com/watch?v=BwgOc7hI9p0',
-    'Heel Chop (While running)': 'https://www.youtube.com/watch?v=iuzdaQ2eCuM',
-    'Stutter Feint': 'https://www.youtube.com/shorts/OR4-6lGdZA4',
-    'Ball Hop (While standing)': 'https://www.youtube.com/watch?v=ZyG7aG78q5w',
-    'Flair Nutmegs': 'https://www.youtube.com/watch?v=ft71IH8kjbc',
-    'Fake Pass (While standing)': 'https://www.youtube.com/shorts/ePDjix_zQ_c',
-    'Heel to Heel': 'https://www.youtube.com/shorts/lQ7dv4qgtnU',
-    'Stepover Left/Right': 'https://www.youtube.com/shorts/du-nWmDkioQ',
-    'Reverse Stepover Left/Right': 'https://www.youtube.com/shorts/_lfUpSQ4f04',
-    // Add Ball Roll tutorial (applies to ball roll variants)
-    'Ball Roll Left/Right': 'https://www.youtube.com/watch?v=n2Zcs5vum0o',
-    // Add Drag Back tutorial
-    'Drag Back': 'https://www.youtube.com/watch?v=8AUmqIOGxSI',
-    // Simple Rainbow tutorial
-    'Simple Rainbow': 'https://www.youtube.com/watch?v=z7h16bz4brA',
-    // Stop and Turn tutorial
-    'Stop and Turn': 'https://www.youtube.com/watch?v=N1DkQZdQ5mE',
-    // Ball Roll Cut Left/Right tutorial
-    'Ball Roll Cut Left/Right': 'https://www.youtube.com/shorts/HZ9hQiMqo7c',
-    'Fake Pass Exit Left/Right': 'https://www.youtube.com/shorts/uI4O_PyQS7w',
-    'Lane Change Left/Right': 'https://www.youtube.com/watch?v=dctc9rfm9gk',
-    'Three Touch Roulette': 'https://www.youtube.com/watch?v=ikvqj68huro',
-    'Heel to Ball Roll': 'https://www.youtube.com/watch?v=FmepBtcb6pM',
-    'Drag Back Spin': 'https://www.youtube.com/watch?v=PB2cWzrVq2o',
-    'In-Air Elastico (While juggling)': 'https://www.youtube.com/watch?v=lWi8A4EfO2w',
-    'Chest Flick (While juggling)': 'https://www.youtube.com/watch?v=nRwe7QsOWkk',
-    'Around the World (While juggling)': 'https://www.youtube.com/watch?v=_ATi_d0ENOw',
-    'Elastico': 'https://www.youtube.com/shorts/XHUChflS5Ow',
-    'Reverse Elastico': 'https://www.youtube.com/shorts/686a_ZU1njY',
-    'Advanced Rainbow': 'https://www.youtube.com/watch?v=XA56h_YqQGE',
-    'Heel Flick Turn': 'https://www.youtube.com/watch?v=sKvH3xWIET8',
-    'Sombrero Flick': 'https://www.youtube.com/watch?v=wK1ieRL143E',
-    'Antony Spin': 'https://www.youtube.com/watch?v=cONe7nbR58E',
-    'Ball Roll Fake Turn': 'https://www.youtube.com/watch?v=ZGViwrRXaPk',
-    'Rabona Fake (While jogging)': 'https://www.youtube.com/watch?v=6gljcBNI4SQ',
-    'Elastico Chop': 'https://www.youtube.com/watch?v=I6QG6KpuBSk',
-    'Tornado Spin': 'https://www.youtube.com/watch?v=tI1zzP8Hdzg',
-    'Spin Flick': 'https://www.youtube.com/watch?v=tI1zzP8Hdzg',
-    'Heel Fake': 'https://www.youtube.com/shorts/plzTgR8CVPM',
-    'Flair Rainbow': 'https://www.youtube.com/watch?v=e4IQxMrFBqA'
-    
-    
-
-
-
-  };
-
-  // First try exact match by trick name (safe and explicit)
-  let videoUrl = videoMap[trick.name] || null;
+  let videoUrl = VIDEO_MAP[trick.name] || null;
 
   // Alias map for loose matches where the exact name may vary (keep this small and explicit)
   if (!videoUrl) {
     const lower = trick.name ? trick.name.toLowerCase() : '';
-    const aliasMap = {
-      'first time feint': videoMap['First Time Feint Turn'],
-      'ball roll': videoMap['Ball Roll Left/Right'], // covers Ball Roll Drag / Cut / Fake variants
-      'drag back': videoMap['Drag Back'] // alias for Drag Back
-    };
-    for (const akey in aliasMap) {
-      if (aliasMap[akey] && lower.includes(akey)) {
-        videoUrl = aliasMap[akey];
+    for (const akey in VIDEO_ALIAS_MAP) {
+      if (VIDEO_ALIAS_MAP[akey] && lower.includes(akey)) {
+        videoUrl = VIDEO_ALIAS_MAP[akey];
         break;
       }
     }
   }
 
   // Override: remove tutorial for specific tricks requested
-  if (tutorialDisabled.has(trick.name)) {
+  if (TUTORIAL_DISABLED.has(trick.name)) {
     videoUrl = null;
   }
 
-  // Debug: show whether we will add a tutorial button (helps during testing)
-  if (videoUrl) {
-    console.log('FC25: adding tutorial button for', trick.name, videoUrl);
-  } else {
-    console.log('FC25: no tutorial for', trick.name);
-  }
+  debugLog(videoUrl ? 'FC25: adding tutorial button for' : 'FC25: no tutorial for', trick.name, videoUrl);
 
   if (videoUrl) {
     // Create a visible anchor styled as a big button
@@ -1776,6 +2076,14 @@ function createCard(trick) {
 
 // Render all tricks into their star containers
 function renderTricks() {
+  // Performance guard: prevent rapid re-renders
+  const now = Date.now();
+  if (_isRenderingTricks || (now - _lastRenderTimeTricks < MIN_RENDER_INTERVAL)) {
+    return;
+  }
+  _isRenderingTricks = true;
+  _lastRenderTimeTricks = now;
+  
   // Use document fragments for better performance
   const fragments = {};
   for (let s = 1; s <= 5; s++) {
@@ -1806,40 +2114,91 @@ function renderTricks() {
 
   // Debugging: log counts
   const total = $$('.stars-container .card').length;
-  console.log('FC25: rendered', total, 'star cards');
+  debugLog('FC25: rendered', total, 'star cards');
+  
+  // Release rendering lock
+  requestAnimationFrame(() => {
+    _isRenderingTricks = false;
+    _tricksRendered = true;
+  });
 }
 
-// Update visible controller text in all cards and featured area
-function updateControllers() {
-  const allCtrls = $$('.controller');
-  allCtrls.forEach(ctrl => {
-    let text = currentPlatform === 'ps' ? ctrl.dataset.ps : ctrl.dataset.xbox;
-    // Translate instruction words while keeping button names
-    text = translateControlsString(text);
-    if (currentPlatform === 'ps') {
-      // Replace all R3 and L3 (not inside HTML tags) with tooltip spans
-      text = text.replace(/R3/g, `<span class="r3-tooltip" data-platform-only="ps">R3<span class="tooltip-text">${t('rightJoystick')}</span></span>`);
-      text = text.replace(/L3/g, `<span class="l3-tooltip" data-platform-only="ps">L3<span class="tooltip-text">${t('leftJoystick')}</span></span>`);
-      ctrl.innerHTML = text;
-    } else {
-      ctrl.textContent = text;
-    }
+function ensureTricksRendered() {
+  if (_tricksRendered) return;
+  renderTricks();
+}
+
+function rebuildSearchIndex() {
+  if (_searchIndexLanguage === currentLanguage && _searchIndexTricks.length && _searchIndexAdvanced.length) return;
+
+  _searchIndexLanguage = currentLanguage;
+  _searchIndexTricks = (tricks || []).map(trick => {
+    const nameLower = (trick && trick.name ? trick.name : '').toLowerCase();
+    const translatedLower = (getTrickTranslation(trick?.name, 'name') || '').toLowerCase();
+    return { trick, nameLower, translatedLower };
   });
 
-  // If featured shows a card, update it too (Trick of the Day)
-  const featuredCtrl = featuredCardContainer ? featuredCardContainer.querySelector('.controller') : null;
-  if (featuredCtrl) {
-    let text = currentPlatform === 'ps' ? featuredCtrl.dataset.ps : featuredCtrl.dataset.xbox;
-    // Translate instruction words while keeping button names
-    text = translateControlsString(text);
-    if (currentPlatform === 'ps') {
-      text = text.replace(/R3/g, `<span class="r3-tooltip" data-platform-only="ps">R3<span class="tooltip-text">${t('rightJoystick')}</span></span>`);
-      text = text.replace(/L3/g, `<span class="l3-tooltip" data-platform-only="ps">L3<span class="tooltip-text">${t('leftJoystick')}</span></span>`);
-      featuredCtrl.innerHTML = text;
+  _searchIndexAdvanced = (advancedAttacks || []).map(attack => {
+    const actionLower = (attack && attack.action ? attack.action : '').toLowerCase();
+    const translatedLower = (getAdvancedAttackTranslation(attack?.action) || '').toLowerCase();
+    return { attack, actionLower, translatedLower };
+  });
+}
+
+// Update visible controller text in all cards
+const _controlsTranslationCache = new Map();
+const _psTooltipCache = new Map();
+let _updateControllersTimeout = null;
+
+function _translateControlsCached(raw) {
+  const key = `${currentLanguage}|${raw || ''}`;
+  if (_controlsTranslationCache.has(key)) return _controlsTranslationCache.get(key);
+  const translated = translateControlsString(raw || '');
+  _controlsTranslationCache.set(key, translated);
+  return translated;
+}
+
+function _psTooltipHtmlCached(translatedText) {
+  const r3 = t('rightJoystick');
+  const l3 = t('leftJoystick');
+  const key = `${currentLanguage}|${translatedText}|${r3}|${l3}`;
+  if (_psTooltipCache.has(key)) return _psTooltipCache.get(key);
+
+  let html = translatedText;
+  html = html.replace(/R3/g, `<span class="r3-tooltip" data-platform-only="ps">R3<span class="tooltip-text">${r3}</span></span>`);
+  html = html.replace(/L3/g, `<span class="l3-tooltip" data-platform-only="ps">L3<span class="tooltip-text">${l3}</span></span>`);
+  _psTooltipCache.set(key, html);
+  return html;
+}
+
+function _updateControllersImmediate() {
+  const allCtrls = $$('.controller');
+  const lang = currentLanguage;
+  const platform = currentPlatform;
+
+  allCtrls.forEach(ctrl => {
+    const raw = platform === 'ps' ? (ctrl.dataset.ps || '') : (ctrl.dataset.xbox || '');
+    const renderKey = `${lang}|${platform}|${raw}`;
+    if (ctrl.dataset.renderKey === renderKey) return;
+
+    const translated = _translateControlsCached(raw);
+    if (platform === 'ps') {
+      ctrl.innerHTML = _psTooltipHtmlCached(translated);
     } else {
-      featuredCtrl.textContent = text;
+      ctrl.textContent = translated;
     }
-  }
+
+    ctrl.dataset.renderKey = renderKey;
+  });
+}
+
+// Throttled version to prevent excessive calls
+function updateControllers() {
+  if (_updateControllersTimeout) return;
+  _updateControllersTimeout = setTimeout(() => {
+    _updateControllersImmediate();
+    _updateControllersTimeout = null;
+  }, 50); // Throttle to max 20 calls per second
 }
 
 // Show/hide elements that are platform-specific (e.g., images)
@@ -1877,18 +2236,28 @@ function filterByLevel(level) {
 
   // Batch class operations for better performance
   requestAnimationFrame(() => {
+    const visibleCards = [];
+    const visibleCountByStars = {};
+    const totalCountByStars = {};
+
     // Hide/show trick cards
     all.forEach(card => {
       const stars = card.dataset.stars;
       const show = level === 'all' || stars === level;
+
+      totalCountByStars[stars] = (totalCountByStars[stars] || 0) + 1;
       card.classList.toggle('hide', !show);
       card.classList.remove('animate-in');
       card.style.removeProperty('--delay');
+
+      if (show) {
+        visibleCards.push(card);
+        visibleCountByStars[stars] = (visibleCountByStars[stars] || 0) + 1;
+      }
     });
 
     if (!reduceMotion) {
-      const visible = $$('.stars-container .card:not(.hide)');
-      visible.forEach((c, i) => {
+      visibleCards.forEach((c, i) => {
         c.style.setProperty('--delay', `${i * 12}ms`);
         c.classList.add('animate-in');
       });
@@ -1899,8 +2268,8 @@ function filterByLevel(level) {
     sections.forEach(section => {
       const s = section.dataset.stars;
       const isStatic = section.dataset.static === 'true';
-      const visibleInSection = section.querySelectorAll('.card:not(.hide)').length;
-      const totalInSection = section.querySelectorAll('.card').length;
+      const visibleInSection = visibleCountByStars[s] || 0;
+      const totalInSection = totalCountByStars[s] || 0;
 
       if (level === 'all') {
         const shouldHide = !isStatic && totalInSection === 0;
@@ -1945,12 +2314,15 @@ function filterByLevel(level) {
 
 // Pick a random trick from currently visible cards for featured area
 function setTrickOfTheDay() {
+  // Don't show featured section when in Favorites mode or only Advanced mode
+  if (mainFavoritesMode || onlyAdvancedMode) return;
+  
   const visible = $$('.stars-container .card:not(.hide)');
   if (!featuredCardContainer) return;
   if (visible.length === 0) {
     // clear featured area when nothing is visible
     featuredCardContainer.innerHTML = '';
-    console.log('FC25: no visible tricks for featured');
+    debugLog('FC25: no visible tricks for featured');
     return;
   }
   
@@ -1961,8 +2333,12 @@ function setTrickOfTheDay() {
   const index = daysSinceEpoch % visible.length;
   const pick = visible[index];
   
-  console.log('FC25: picked trick for featured (date:', dateString, ') ->', pick.dataset.name);
+  debugLog('FC25: picked trick for featured (date:', dateString, ') ->', pick.dataset.name);
   const clone = pick.cloneNode(true);
+
+  // Remove favorite button from featured card to prevent accidental clicks causing glitches
+  const favBtn = clone.querySelector('.favorite-btn');
+  if (favBtn) favBtn.remove();
 
   // ensure controller text for the clone is correct, with tooltips for R3/L3
   const ctrl = clone.querySelector('.controller');
@@ -2004,23 +2380,17 @@ function performSearch(searchTerm) {
   if (!searchTerm || searchTerm.trim() === '') {
     // No search term: show normal sections, hide search results
     if (tricksSection) tricksSection.style.display = '';
-    if (advancedSection) advancedSection.style.display = '';
     if (featuredSection) featuredSection.style.display = '';
     if (searchResultsSection) searchResultsSection.style.display = 'none';
     if (clearBtn) clearBtn.style.display = 'none';
-    
-    // Re-apply the active level filter when search is cleared
-    const activeBtn = document.querySelector('.level-btn.active');
-    if (activeBtn) {
-      const level = activeBtn.dataset.level;
-      if (level === 'favorites') {
-        showFavorites();
-      } else if (level === 'advanced') {
-        filterByLevel('advanced');
-      } else {
-        filterByLevel(level);
-      }
-    }
+
+    currentSearchTerm = '';
+    currentSearchResults = [];
+    currentSearchFilter = 'all';
+    updateSearchFilterButtonsUI();
+
+    // Restore main view according to current main filter state
+    applyMainFilters();
     return;
   }
 
@@ -2034,28 +2404,27 @@ function performSearch(searchTerm) {
   // Show search filters when searching (hide them in favorites only)
   const searchFilters = document.querySelector('.search-filters');
   if (searchFilters) searchFilters.style.display = '';
-  
-  // Deactivate all level buttons when searching
-  document.querySelectorAll('.level-btn').forEach(btn => {
-    btn.classList.remove('active');
-    btn.setAttribute('aria-pressed', 'false');
-  });
 
   const term = searchTerm.toLowerCase().trim();
+
+  // Build/refresh search index for current language (cheap on repeats)
+  rebuildSearchIndex();
   
-  // Search through tricks
-  const matchingTricks = tricks.filter(trick => {
-    const name = (trick.name || '').toLowerCase();
-    const translatedName = (getTrickTranslation(trick.name, 'name') || '').toLowerCase();
-    return name.includes(term) || translatedName.includes(term);
-  });
+  // Search through tricks (use indexed lowercased strings)
+  const matchingTricks = [];
+  for (const row of _searchIndexTricks) {
+    if (row.nameLower.includes(term) || row.translatedLower.includes(term)) {
+      matchingTricks.push(row.trick);
+    }
+  }
   
-  // Search through advanced attacks
-  const matchingAdvanced = advancedAttacks.filter(attack => {
-    const action = (attack.action || '').toLowerCase();
-    const translatedAction = (getAdvancedAttackTranslation(attack.action) || '').toLowerCase();
-    return action.includes(term) || translatedAction.includes(term);
-  });
+  // Search through advanced attacks (use indexed lowercased strings)
+  const matchingAdvanced = [];
+  for (const row of _searchIndexAdvanced) {
+    if (row.actionLower.includes(term) || row.translatedLower.includes(term)) {
+      matchingAdvanced.push(row.attack);
+    }
+  }
   
   // Store search results globally (combine both with type identifier)
   currentSearchResults = [
@@ -2063,17 +2432,15 @@ function performSearch(searchTerm) {
     ...matchingAdvanced.map(a => ({ ...a, type: 'advanced' }))
   ];
   currentSearchTerm = term;
-  
-  // Reset filter to 'all' when new search
+
+  // Reset filters to 'all' when starting a new search
   currentSearchFilter = 'all';
-  document.querySelectorAll('.search-filter-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.filter === 'all');
-  });
+  updateSearchFilterButtonsUI();
 
   if (!searchResultsGrid) return;
   
-  // Apply current filter
-  applySearchFilter(currentSearchFilter);
+  // Apply current filters
+  applySearchFilters();
 }
 
 // Create an advanced attack card for search results
@@ -2084,21 +2451,27 @@ function createAdvancedCard(attack) {
   
   const translatedAction = getAdvancedAttackTranslation(attack.action);
   let translatedPs = translateControlsString(attack.ps);
-  translatedPs = translatedPs.replace(/D-Pad/gi, `<span class="dpad-tooltip">D-Pad<span class="tooltip-text">${t('arrowKeys')}</span></span>`);
+  translatedPs = translatedPs.replace(/D-Pad(?![^<]*<\/span>)/gi, `<span class="dpad-tooltip">D-Pad<span class="tooltip-text">${t('arrowKeys')}</span></span>`);
   
   // Add favorite button
   const favBtn = document.createElement('button');
   favBtn.className = 'favorite-btn';
   favBtn.setAttribute('aria-label', 'Toggle favorite');
   favBtn.innerHTML = isFavorite('advanced:' + attack.action) ? '❤' : '♡';
+  let _favBtnCooldown = false;
   favBtn.addEventListener('click', (e) => {
     e.stopPropagation();
+    // Prevent rapid clicking
+    if (_favBtnCooldown) return;
+    _favBtnCooldown = true;
+    setTimeout(() => { _favBtnCooldown = false; }, 150);
+    
     const isNowFav = toggleFavorite('advanced:' + attack.action);
     favBtn.innerHTML = isNowFav ? '❤' : '♡';
-    // Refresh if viewing favorites
+    // Refresh if viewing favorites (use requestAnimationFrame to prevent lag)
     const activeBtn = document.querySelector('.level-btn.active');
     if (activeBtn && activeBtn.dataset.level === 'favorites') {
-      showFavorites();
+      requestAnimationFrame(() => showFavorites());
     }
   });
   
@@ -2113,8 +2486,7 @@ function createAdvancedCard(attack) {
 }
 
 // Apply filter to current search results
-function applySearchFilter(filter) {
-  currentSearchFilter = filter;
+function applySearchFilters() {
   const searchResultsGrid = document.getElementById('searchResultsGrid');
   const noResultsMsg = document.getElementById('noResultsMsg');
   const searchResultsCount = document.getElementById('searchResultsCount');
@@ -2122,7 +2494,7 @@ function applySearchFilter(filter) {
   if (!searchResultsGrid) return;
   
   // Filter results based on selected filter
-  const filteredResults = applySearchFilterLogic(currentSearchResults, filter);
+  const filteredResults = applySearchFilterLogic(currentSearchResults, currentSearchFilter);
 
   // Use document fragment for performance
   const fragment = document.createDocumentFragment();
@@ -2159,16 +2531,24 @@ function applySearchFilter(filter) {
 }
 
 // Helper function for filter logic (extracted to avoid duplication)
-function applySearchFilterLogic(results, filter) {
-  if (filter === 'skills') {
-    return results.filter(item => item.type === 'skill');
-  } else if (filter === 'advanced') {
-    return results.filter(item => item.type === 'advanced');
-  } else if (filter !== 'all') {
-    const starLevel = parseInt(filter);
-    return results.filter(item => item.type === 'skill' && item.stars === starLevel);
-  }
-  return results;
+function applySearchFilterLogic(results, selectedFilter) {
+  const filter = selectedFilter || 'all';
+  const isStarFilter = /^[0-5]$/.test(filter);
+
+  const wantsSkills = filter === 'all' || filter === 'skills' || isStarFilter;
+  const wantsAdvanced = filter === 'all' || filter === 'advanced';
+
+  const effectiveStars = isStarFilter
+    ? computeEffectiveStarsSet(new Set([filter]))
+    : null;
+
+  return results.filter(item => {
+    if (item.type === 'advanced') return wantsAdvanced;
+    if (item.type !== 'skill') return false;
+    if (!wantsSkills) return false;
+    if (!effectiveStars) return true;
+    return effectiveStars.has(String(item.stars));
+  });
 }
 
 // Render recently viewed tricks
@@ -2206,10 +2586,19 @@ function renderRecentlyViewed() {
 }
 
 // Show favorites view
+let _lastFavoritesRender = 0;
 function showFavorites() {
+  // Performance guard: prevent rapid re-renders
+  const now = Date.now();
+  if (now - _lastFavoritesRender < MIN_RENDER_INTERVAL) {
+    return;
+  }
+  _lastFavoritesRender = now;
+  
   const tricksSection = document.getElementById('tricks');
   const advancedSection = document.querySelector('.advanced-attacks-section');
   const featuredSection = document.getElementById('featured');
+  const recentlyViewedSection = document.getElementById('recently-viewed');
   const searchResultsSection = document.getElementById('search-results');
   const searchResultsGrid = document.getElementById('searchResultsGrid');
   const searchResultsTitle = document.getElementById('searchResultsTitle');
@@ -2221,6 +2610,13 @@ function showFavorites() {
   if (tricksSection) tricksSection.style.display = 'none';
   if (advancedSection) advancedSection.style.display = 'none';
   if (featuredSection) featuredSection.style.display = 'none';
+  if (recentlyViewedSection) recentlyViewedSection.style.display = 'none';
+  
+  // Clear featured card container to prevent rendering conflicts
+  if (featuredCardContainer) {
+    featuredCardContainer.innerHTML = '';
+  }
+  
   if (searchResultsSection) searchResultsSection.style.display = 'block';
   
   // Hide search filters in favorites view
@@ -2313,17 +2709,29 @@ function init() {
       
       // Update UI text elements
       updateUIText();
+
+      // Rebuild search index with new language
+      rebuildSearchIndex();
       
-      // Re-render all tricks with new language
-      renderTricks();
+      // Re-render all tricks with new language (only if already rendered)
+      if (_tricksRendered) {
+        renderTricks();
+      }
       
       // Re-render advanced attacks with new language
       renderAdvancedAttacks();
       
       // Update Trick of the Day with new language
       setTrickOfTheDay();
+
+      // Re-apply current filters after re-render
+      if (currentSearchTerm) {
+        applySearchFilters();
+      } else {
+        applyMainFilters();
+      }
       
-      console.log('FC25: language changed to', nextLang);
+      debugLog('FC25: language changed to', nextLang);
     });
   }
   
@@ -2341,28 +2749,16 @@ function init() {
     });
   }
 
-  // Star filters (level buttons)
+  // Star filters (level buttons) - throttled to prevent rapid clicking
   if (levelButtons && levelButtons.length) {
+    const throttledToggle = throttle((level) => {
+      toggleMainFilter(level);
+    }, 150); // Max 6-7 clicks per second
+    
     levelButtons.forEach(btn => {
       btn.addEventListener('click', () => {
-        // Clear search when clicking level buttons
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput && searchInput.value) {
-          searchInput.value = '';
-          const clearBtn = document.getElementById('clearSearchBtn');
-          if (clearBtn) clearBtn.style.display = 'none';
-          // Hide search results section
-          const searchResultsSection = document.getElementById('search-results');
-          if (searchResultsSection) searchResultsSection.style.display = 'none';
-        }
-        
-        levelButtons.forEach(b => {
-          b.classList.toggle('active', b === btn);
-          b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
-        });
         const level = btn.dataset.level;
-        filterByLevel(level);
-        setTrickOfTheDay();
+        throttledToggle(level);
       });
     });
   }
@@ -2389,16 +2785,15 @@ function init() {
     });
   }
   
-  // Search filter buttons
+  // Search filter buttons (single-select)
   const searchFilterBtns = document.querySelectorAll('.search-filter-btn');
   if (searchFilterBtns && searchFilterBtns.length) {
     searchFilterBtns.forEach(btn => {
       btn.addEventListener('click', () => {
-        searchFilterBtns.forEach(b => {
-          b.classList.toggle('active', b === btn);
-        });
         const filter = btn.dataset.filter;
-        applySearchFilter(filter);
+        currentSearchFilter = filter || 'all';
+        updateSearchFilterButtonsUI();
+        applySearchFilters();
       });
     });
   }
@@ -2408,13 +2803,24 @@ function init() {
 
   // First render and default UI
   updateUIText();
-  renderTricks();
+
+  // Build initial search index (cheap and avoids per-keystroke translation work)
+  rebuildSearchIndex();
+
+  // IMPORTANT: Avoid initial-load lag by not rendering all skill cards up-front.
+  // We'll render them on demand when the user leaves "only Advanced" view.
   renderAdvancedAttacks();
   setActivePlatformButton();
   updateControllers();
   updatePlatformOnlyElements();
-  filterByLevel('all');
-  setTrickOfTheDay();
+  // Default view: show only Advanced Attacks initially
+  mainSelectedStars.clear();
+  mainShowAdvanced = true;
+  mainFavoritesMode = false;
+  onlyAdvancedMode = true; // Start with only Advanced Attacks visible
+  updateLevelButtonsUI();
+  applyMainFilters();
+  // Don't call setTrickOfTheDay on init since we're starting with only Advanced Attacks
   renderRecentlyViewed();
   initSettings();
 }
@@ -2461,10 +2867,7 @@ function initSettings() {
   themeOptions.forEach(btn => {
     btn.addEventListener('click', () => {
       const theme = btn.dataset.theme;
-      themeOptions.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      applyTheme(theme);
-      localStorage.setItem('fc25_theme', theme);
+      setTheme(theme);
       showNotification(t('themeChanged') || 'Theme changed!');
     });
   });
@@ -2482,7 +2885,7 @@ function initSettings() {
   clearFavoritesBtn?.addEventListener('click', () => {
     if (confirm(t('confirmClearFavorites') || 'Clear all favorite tricks?')) {
       localStorage.removeItem('fc25_favorites');
-      renderTricks();
+      if (_tricksRendered) renderTricks();
       renderAdvancedAttacks();
       const activeBtn = document.querySelector('.level-btn.active');
       if (activeBtn && activeBtn.dataset.level === 'favorites') {
@@ -2522,28 +2925,32 @@ function initSettings() {
     localStorage.setItem('fc25_showController', e.target.checked);
   });
 
-  // Timer widget toggle
-  const showTimerWidget = document.getElementById('showTimerWidget');
-  showTimerWidget?.addEventListener('change', (e) => {
-    const timerWidget = document.getElementById('practiceTimer');
-    if (timerWidget) {
-      timerWidget.style.display = e.target.checked ? 'flex' : 'none';
-    }
-    localStorage.setItem('fc25_showTimer', e.target.checked);
-  });
-
   // Animations toggle
   animationsEnabled?.addEventListener('change', (e) => {
     document.body.classList.toggle('no-animations', !e.target.checked);
     localStorage.setItem('fc25_animations', e.target.checked);
+  });
+
+  // Multi-select toggle
+  const multiSelectEnabled = document.getElementById('multiSelectEnabled');
+  multiSelectEnabled?.addEventListener('change', (e) => {
+    setMultiSelectEnabled(e.target.checked);
+    // If switching to single-select mode and multiple stars are selected, keep only the first one
+    if (!e.target.checked && mainSelectedStars.size > 1) {
+      const firstStar = Array.from(mainSelectedStars)[0];
+      mainSelectedStars.clear();
+      mainSelectedStars.add(firstStar);
+      updateLevelButtonsUI();
+      applyMainFilters();
+      setTrickOfTheDay();
+    }
   });
 }
 
 function loadSettings() {
   // Load theme
   const savedTheme = localStorage.getItem('fc25_theme') || 'dark';
-  applyTheme(savedTheme);
-  document.querySelector(`.theme-option[data-theme="${savedTheme}"]`)?.classList.add('active');
+  setTheme(savedTheme);
 
   // Load controller image setting
   const showController = localStorage.getItem('fc25_showController');
@@ -2559,15 +2966,6 @@ function loadSettings() {
     if (checkbox) checkbox.checked = false;
   }
 
-  // Load timer visibility setting
-  const showTimer = localStorage.getItem('fc25_showTimer');
-  if (showTimer === 'false') {
-    const timerWidget = document.getElementById('practiceTimer');
-    const checkbox = document.getElementById('showTimerWidget');
-    if (timerWidget) timerWidget.style.display = 'none';
-    if (checkbox) checkbox.checked = false;
-  }
-
   // Load animations setting
   const animations = localStorage.getItem('fc25_animations');
   if (animations === 'false') {
@@ -2575,6 +2973,11 @@ function loadSettings() {
     const checkbox = document.getElementById('animationsEnabled');
     if (checkbox) checkbox.checked = false;
   }
+
+  // Load multi-select setting
+  const multiSelect = getMultiSelectEnabled();
+  const multiSelectCheckbox = document.getElementById('multiSelectEnabled');
+  if (multiSelectCheckbox) multiSelectCheckbox.checked = multiSelect;
 }
 
 function applyTheme(theme) {
@@ -2618,7 +3021,6 @@ function updateSettingsTranslations() {
   const clearFavoritesText = document.getElementById('clearFavoritesText');
   const resetAllText = document.getElementById('resetAllText');
   const showControllerText = document.getElementById('showControllerText');
-  const showTimerText = document.getElementById('showTimerText');
   const animationsText = document.getElementById('animationsText');
   const themeDark = document.getElementById('themeDark');
   const themeLight = document.getElementById('themeLight');
@@ -2631,7 +3033,6 @@ function updateSettingsTranslations() {
   if (clearFavoritesText) clearFavoritesText.textContent = t('clearFavoritesText');
   if (resetAllText) resetAllText.textContent = t('resetAllText');
   if (showControllerText) showControllerText.textContent = t('showControllerText');
-  if (showTimerText) showTimerText.textContent = t('showTimerText');
   if (animationsText) animationsText.textContent = t('animationsText');
   if (themeDark) themeDark.textContent = t('themeDark');
   if (themeLight) themeLight.textContent = t('themeLight');
@@ -2639,5 +3040,4 @@ function updateSettingsTranslations() {
 
 // Start
 document.addEventListener('DOMContentLoaded', init);
-
 

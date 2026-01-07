@@ -93,6 +93,7 @@
 .r3-tooltip {
   position: relative;
   cursor: pointer;
+  display: inline-block;
 }
 .r3-tooltip .tooltip-text {
   visibility: hidden;
@@ -120,6 +121,7 @@
 .dpad-tooltip {
   position: relative;
   cursor: pointer;
+  display: inline-block;
 }
 .dpad-tooltip .tooltip-text {
   visibility: hidden;
@@ -150,9 +152,10 @@
 
 /* Color variables */
 :root{
-  --bg:#071018;           /* deep dark */
-  --card:#0f1720;         /* card background */
-  --muted:#a9b1b8;        /* muted text */
+  --bg:#0b1620;           /* deep dark (slightly lighter) */
+  --card:#142231;         /* card background (slightly lighter) */
+  --text:#eaf2f8;         /* default text */
+  --muted:#b4c0c9;        /* muted text */
   --accent:#6bd64b;       /* fresh green */
   --accent2:#e1b95b;      /* gold */
   --accent3:#1e90ff;      /* electric blue */
@@ -160,7 +163,7 @@
   --glow2: rgba(30,144,255,0.16);
   --goldGlow: rgba(225,185,91,0.22);
   --goldGlowSoft: rgba(225,185,91,0.10);
-  --ink:#04070b;
+  --ink:#071018;
   --big: 1.2rem;
   --rounded:14px;
   --gap:16px;
@@ -208,6 +211,21 @@ body.theme-light::after{
   pointer-events: none;
   opacity: 0.4;
   z-index: 0;
+}
+
+/* Performance: remove expensive fixed overlay layers in light theme */
+body.theme-light::before,
+body.theme-light::after{
+  display:none;
+}
+
+/* Performance: disable pop-in + hide/show transitions in light theme */
+body.theme-light .card.animate-in{
+  animation:none;
+}
+
+body.theme-light .card.hide{
+  transition:none;
 }
 
 body.theme-light .card{
@@ -261,9 +279,9 @@ body.theme-light .controller{
 }
 
 body.theme-light .featured{
-  background: #ffffff;
-  border: 2px solid #22d3ee;
-  box-shadow: 0 4px 16px rgba(34, 211, 238, 0.15), 0 2px 8px rgba(249, 115, 22, 0.1);
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 body.theme-light .featured h2{
@@ -312,9 +330,28 @@ body.theme-light .watch-btn:hover{
 }
 
 body.theme-light .header-inner{
-  background: rgba(255, 255, 255, 0.98);
+  background: transparent;
   border-bottom: none;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  box-shadow: none;
+}
+
+body.theme-light .site-header{
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(240,249,255,0.72));
+  border-bottom: 1px solid rgba(148,163,184,0.45);
+  box-shadow: none;
+}
+
+body.theme-light .site-header::after{
+  background: linear-gradient(90deg, transparent, rgba(8,145,178,0.35), rgba(59,130,246,0.25), rgba(249,115,22,0.25), transparent);
+}
+
+body.theme-light .recently-viewed-section,
+body.theme-light .search-results-section{
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 body.theme-light .header-top{
@@ -333,12 +370,6 @@ body.theme-light .site-title{
 body.theme-light .platform-badge{
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
-body.theme-light .controls{
-  background: rgba(248, 250, 252, 0.8);
-  border-color: #e2e8f0;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255,255,255,0.8);
 }
 
 body.theme-light .control-label{
@@ -614,7 +645,7 @@ body{
   background:
     radial-gradient(900px 520px at 22% 10%, var(--goldGlowSoft) 0%, transparent 62%),
     radial-gradient(900px 620px at 55% 88%, var(--goldGlow) 0%, transparent 68%),
-    linear-gradient(180deg, #060b10 0%, var(--ink) 55%, #020304 100%);
+    linear-gradient(180deg, #0a141e 0%, var(--ink) 55%, #05070a 100%);
 }
 body::before{
   content:"";
@@ -625,11 +656,11 @@ body::before{
   opacity:0.15;
   background:
     /* simplified texture */
-    repeating-linear-gradient(135deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 12px);
-  will-change:auto;
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 12px),
     /* dotted metal */
     radial-gradient(circle at 72% 18%, rgba(255,255,255,0.06) 0 1px, transparent 2px);
-  background-size: auto, auto, 12px 12px;
+  will-change:auto;
+  background-size: auto, 12px 12px;
   mix-blend-mode: overlay;
 }
 
@@ -645,7 +676,7 @@ body::after{
     /* simplified gold accent lines */
     linear-gradient(115deg, transparent 0 53%, rgba(225,185,91,0.12) 53% 53.4%, transparent 53.4% 100%),
     /* soft vignette */
-    radial-gradient(1400px 900px at 50% 10%, transparent 0%, rgba(0,0,0,0.5) 70%);
+    radial-gradient(1400px 900px at 50% 10%, transparent 0%, rgba(0,0,0,0.35) 70%);
   will-change:auto;
 }
 
@@ -672,7 +703,7 @@ html[dir="rtl"] .stars{ text-align: right; }
   padding: 48px 32px 40px;
   border-bottom: 2px solid rgba(107,214,75,0.15);
   position: relative;
-  background: linear-gradient(180deg, rgba(15,23,32,0.95), rgba(7,16,24,0.85));
+  background: linear-gradient(180deg, rgba(20,32,44,0.92), rgba(10,20,30,0.82));
   backdrop-filter: blur(16px);
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
@@ -1216,18 +1247,33 @@ html[dir="rtl"] .stars{ text-align: right; }
 .card{
   display:flex;
   flex-direction:column;
-  background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01));
+  background: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.02));
   border-radius:var(--rounded); padding:16px 16px 16px 16px; padding-top: 48px; border:1px solid rgba(255,255,255,0.06);
   min-height: 0;
   height: 100%;
   box-shadow: 0 6px 12px rgba(0,0,0,0.45);
   transition: transform .18s ease, opacity .18s ease, box-shadow .22s ease, border-color .22s ease;
   transform-origin: center; cursor:default;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  transform: translateZ(0);
-  will-change: transform, opacity;
   position: relative;
+}
+
+/* Performance: reduce expensive effects in light theme */
+body.theme-light .card{
+  transition:none;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.10);
+}
+
+body.theme-light .card:hover{
+  transform:none;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.14);
+}
+
+body.theme-light .favorite-btn:hover{
+  transform:none;
+}
+
+body.theme-light .header-logo{
+  filter:none;
 }
 
 .favorite-btn{
@@ -1322,9 +1368,20 @@ html[dir="rtl"] .stars{ text-align: right; }
   margin:0; color:var(--muted); font-size:0.95rem; text-align:right; pointer-events:auto; background:transparent; padding:6px 8px; border-radius:8px;
 }
 
+/* Floating theme toggle (bottom-right) */
+.floating-theme{
+  position: fixed;
+  right: 18px;
+  bottom: 86px; /* above the fixed footer */
+  z-index: 60;
+  pointer-events: auto;
+}
+
 @media (max-width:480px){
   .site-footer{ right:10px; bottom:18px; }
   .site-footer p{ font-size:0.85rem; }
+
+  .floating-theme{ right:10px; bottom:72px; }
 }
 
 /* Tiny accessibility focus styles */
@@ -1693,67 +1750,6 @@ html[dir="rtl"] .stars{ text-align: right; }
   opacity: 0.8;
 }
 
-/* Practice Timer Widget */
-.practice-timer {
-  position: fixed;
-  bottom: 30px;
-  left: 30px;
-  z-index: 998;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.practice-toggle-btn {
-  background: linear-gradient(135deg, #34c759 0%, #28a745 100%);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  color: white;
-  padding: 14px 24px;
-  border-radius: 30px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(52, 199, 89, 0.4);
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.practice-toggle-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(52, 199, 89, 0.5);
-}
-
-.practice-toggle-btn.active {
-  background: linear-gradient(135deg, #ff3b30 0%, #e02020 100%);
-  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.4);
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
-
-.timer-display {
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(10px);
-  color: #34c759;
-  padding: 12px 20px;
-  border-radius: 20px;
-  font-size: 1.5rem;
-  font-weight: bold;
-  font-family: 'Courier New', monospace;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  border: 2px solid rgba(52, 199, 89, 0.3);
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .settings-btn {
@@ -1781,26 +1777,18 @@ html[dir="rtl"] .stars{ text-align: right; }
     font-size: 1.4rem;
   }
 
-  .practice-timer {
-    bottom: 20px;
-    left: 20px;
-  }
-
-  .practice-toggle-btn {
-    padding: 12px 18px;
-    font-size: 0.9rem;
-  }
-
-  .timer-display {
-    font-size: 1.2rem;
-    padding: 10px 16px;
-  }
 }
 
 /* Disable animations */
 body.no-animations * {
   animation: none !important;
   transition: none !important;
+}
+
+/* Performance: backdrop blur can be expensive, disable it in no-animations mode */
+body.no-animations .settings-modal {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 body.no-animations .settings-btn:hover {
