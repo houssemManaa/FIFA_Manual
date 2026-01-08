@@ -534,6 +534,7 @@ const I18N = {
     showControllerText: 'Show Controller Image',
     animationsText: 'Enable Animations',
     multiSelectText: 'Allow Multiple Star Selection',
+    showRecentlyViewedText: 'Show Recently Viewed',
     bgDefault: 'Default',
     bgGradient: 'Gradient',
     bgPitch: 'Pitch',
@@ -592,6 +593,7 @@ const I18N = {
     showControllerText: 'Afficher l\'image du contrôleur',
     animationsText: 'Activer les animations',
     multiSelectText: 'Permettre la sélection multiple d\'étoiles',
+    showRecentlyViewedText: 'Afficher les vus récemment',
     confirmClearRecent: 'Effacer tous les gestes vus récemment?',
     confirmClearFavorites: 'Effacer tous les gestes favoris?',
     confirmResetAll: 'Réinitialiser tous les paramètres et données? Cette action est irréversible.',
@@ -646,6 +648,7 @@ const I18N = {
     showControllerText: 'Mostrar imagen del mando',
     animationsText: 'Activar animaciones',
     multiSelectText: 'Permitir selección múltiple de estrellas',
+    showRecentlyViewedText: 'Mostrar vistos recientemente',
     confirmClearRecent: '¿Borrar todos los trucos vistos recientemente?',
     confirmClearFavorites: '¿Borrar todos los trucos favoritos?',
     confirmResetAll: '¿Restablecer toda la configuración y datos? Esta acción no se puede deshacer.',
@@ -700,6 +703,7 @@ const I18N = {
     showControllerText: 'إظهار صورة وحدة التحكم',
     animationsText: 'تفعيل الرسوم المتحركة',
     multiSelectText: 'السماح باختيار نجوم متعددة',
+    showRecentlyViewedText: 'إظهار المشاهدة الأخيرة',
     confirmClearRecent: 'مسح كل الحركات المشاهدة مؤخراً؟',
     confirmClearFavorites: 'مسح كل الحركات المفضلة؟',
     confirmResetAll: 'إعادة تعيين جميع الإعدادات والبيانات؟ لا يمكن التراجع عن ذلك.',
@@ -3022,6 +3026,7 @@ function updateSettingsTranslations() {
   const resetAllText = document.getElementById('resetAllText');
   const showControllerText = document.getElementById('showControllerText');
   const animationsText = document.getElementById('animationsText');
+  const showRecentlyViewedText = document.getElementById('showRecentlyViewedText');
   const themeDark = document.getElementById('themeDark');
   const themeLight = document.getElementById('themeLight');
 
@@ -3034,6 +3039,7 @@ function updateSettingsTranslations() {
   if (resetAllText) resetAllText.textContent = t('resetAllText');
   if (showControllerText) showControllerText.textContent = t('showControllerText');
   if (animationsText) animationsText.textContent = t('animationsText');
+  if (showRecentlyViewedText) showRecentlyViewedText.textContent = t('showRecentlyViewedText');
   if (themeDark) themeDark.textContent = t('themeDark');
   if (themeLight) themeLight.textContent = t('themeLight');
 }
