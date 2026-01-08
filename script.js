@@ -2321,31 +2321,61 @@ function setTrickOfTheDay() {
   // Don't show featured section when in Favorites mode or only Advanced mode
   if (mainFavoritesMode || onlyAdvancedMode) return;
   
-  const visible = $$('.stars-container .card:not(.hide)');
   if (!featuredCardContainer) return;
-  if (visible.length === 0) {
-    // clear featured area when nothing is visible
-    featuredCardContainer.innerHTML = '';
-    debugLog('FC25: no visible tricks for featured');
-    return;
+
+  // Get today's date as YYYY-MM-DD
+  const today = new Date();
+  const dateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  
+  // Check if we have a stored trick for today
+  const stored = localStorage.getItem('fc25_totd_date');
+  const storedTrick = localStorage.getItem('fc25_totd_name');
+  
+  let trickToShow = null;
+  
+  if (stored === dateString && storedTrick) {
+    // Use stored trick from today
+    trickToShow = tricks.find(t => t.name === storedTrick);
   }
   
-  // Use today's date as seed for consistent daily selection
-  const today = new Date();
-  const dateString = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-  const daysSinceEpoch = Math.floor(today.getTime() / (1000 * 60 * 60 * 24));
-  const index = daysSinceEpoch % visible.length;
-  const pick = visible[index];
+  if (!trickToShow) {
+    // Need to pick a new trick for today
+    const visible = $$('.stars-container .card:not(.hide)');
+    if (visible.length === 0) {
+      // Clear featured area when nothing is visible
+      featuredCardContainer.innerHTML = '';
+      debugLog('FC25: no visible tricks for featured');
+      return;
+    }
+    
+    // Use date as seed for consistent daily selection
+    const daysSinceEpoch = Math.floor(today.getTime() / (1000 * 60 * 60 * 24));
+    const index = daysSinceEpoch % visible.length;
+    const pick = visible[index];
+    const trickName = pick.dataset.name;
+    
+    // Store today's trick in localStorage
+    localStorage.setItem('fc25_totd_date', dateString);
+    localStorage.setItem('fc25_totd_name', trickName);
+    
+    trickToShow = tricks.find(t => t.name === trickName);
+    debugLog('FC25: picked new trick for today (', dateString, ') ->', trickName);
+  }
   
-  debugLog('FC25: picked trick for featured (date:', dateString, ') ->', pick.dataset.name);
-  const clone = pick.cloneNode(true);
+  if (!trickToShow) {
+    featuredCardContainer.innerHTML = '';
+    return;
+  }
 
+  // Create card for the daily trick
+  const card = createCard(trickToShow);
+  
   // Remove favorite button from featured card to prevent accidental clicks causing glitches
-  const favBtn = clone.querySelector('.favorite-btn');
+  const favBtn = card.querySelector('.favorite-btn');
   if (favBtn) favBtn.remove();
 
-  // ensure controller text for the clone is correct, with tooltips for R3/L3
-  const ctrl = clone.querySelector('.controller');
+  // Ensure controller text for the clone is correct, with tooltips for R3/L3
+  const ctrl = card.querySelector('.controller');
   if (ctrl) {
     let text = currentPlatform === 'ps' ? ctrl.dataset.ps : ctrl.dataset.xbox;
     text = translateControlsString(text);
@@ -2358,16 +2388,17 @@ function setTrickOfTheDay() {
     }
   }
 
+  const daysSinceEpoch = Math.floor(today.getTime() / (1000 * 60 * 60 * 24));
   const funPracticeLines = getFunPracticeLines();
   const practiceDayIndex = daysSinceEpoch % funPracticeLines.length;
 
   const practice = document.createElement('p');
   practice.className = 'featured-practice';
   practice.textContent = funPracticeLines[practiceDayIndex];
-  clone.appendChild(practice);
+  card.appendChild(practice);
 
   featuredCardContainer.innerHTML = '';
-  featuredCardContainer.appendChild(clone);
+  featuredCardContainer.appendChild(card);
 }
 
 // Perform search and show dedicated results area
