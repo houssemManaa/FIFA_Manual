@@ -179,6 +179,14 @@ function computeEffectiveStarsSet(selectedStars) {
 }
 
 function updateLevelButtonsUI() {
+  const allStarsSelected = mainSelectedStars.size === 6 &&
+                          mainSelectedStars.has('0') &&
+                          mainSelectedStars.has('1') &&
+                          mainSelectedStars.has('2') &&
+                          mainSelectedStars.has('3') &&
+                          mainSelectedStars.has('4') &&
+                          mainSelectedStars.has('5');
+  
   levelButtons.forEach(btn => {
     const level = btn.dataset.level;
     let isActive = false;
@@ -188,13 +196,14 @@ function updateLevelButtonsUI() {
     } else if (mainFavoritesMode) {
       isActive = false;
     } else if (level === 'all') {
-      // "All" is only active if explicitly showing everything (stars and advanced)
-      isActive = mainSelectedStars.size === 0 && mainShowAdvanced && !onlyAdvancedMode;
+      // "All" is active if explicitly showing everything OR if all individual stars are selected
+      isActive = (mainSelectedStars.size === 0 && mainShowAdvanced && !onlyAdvancedMode) || allStarsSelected;
     } else if (level === 'advanced') {
       // Advanced is active when mainShowAdvanced is true
       isActive = mainShowAdvanced;
     } else {
-      isActive = mainSelectedStars.has(level);
+      // Individual star buttons only active if NOT all selected
+      isActive = !allStarsSelected && mainSelectedStars.has(level);
     }
 
     btn.classList.toggle('active', isActive);
@@ -492,33 +501,33 @@ const I18N = {
     watchTutorial: '▶ Watch Tutorial',
     advancedAttacks: 'Advanced Attacks',
     languageLabel: 'Language',
-    siteSub: 'Learn skill moves. Beat defenders. Have fun.',
+    siteSub: 'Learn cool tricks • Beat defenders • Have fun! ⚽',
     chooseStars: 'Choose Stars',
     all: 'All',
     recentlyViewed: 'Recently Viewed',
     trickOfTheDay: 'Trick of the Day ✨',
-    practiceChallenge: "Practice challenge: Try the trick 5 times in a row with both feet.",
-    skillsTitle: 'Skill Moves by Stars',
-    teamTipPrefix: "Tip: To see a player's skill move stars, go to Team Management and press ",
-    teamTipSuffix: ' on the player.',
-    gkNote: 'Note: Goalkeepers can do these skills too!',
-    footerText: 'Made for young players • Keep practicing!',
+    practiceChallenge: "Practice challenge: Try it 5 times in a row!",
+    skillsTitle: 'Skill Moves',
+    teamTipPrefix: "💡 How to check player stars: Go to Team, then press ",
+    teamTipSuffix: ' on any player',
+    gkNote: '⚽ Goalkeepers can do these too!',
+    footerText: 'Made for young players • Keep practicing! ⚽',
     playstationLabel: 'PlayStation:',
     xboxLabel: 'Xbox:',
-    tipPrefix: 'Tip:',
+    tipPrefix: '💡 Tip:',
     rightJoystick: 'Right Joystick',
     leftJoystick: 'Left Joystick',
     arrowKeys: 'Arrow Keys',
     searchLabel: 'Search Tricks',
     searchPlaceholder: 'Type trick name...',
     searchResultsTitle: 'Search Results',
-    noResultsMsg: 'No results found',
+    noResultsMsg: 'No tricks found',
     resultsCount: '{count} trick(s) found',
     favorites: 'Favorites',
-    favoritesTitle: 'My Favorites',
-    noFavoritesMsg: 'No favorites yet. Click the ❤ on any trick to save it!',
+    favoritesTitle: 'My Favorite Tricks ❤',
+    noFavoritesMsg: 'No favorites yet! Click ❤ on tricks you like.',
     favoritesCount: '{count} favorite(s)',
-    searchFilterLabel: 'Filter by:',
+    searchFilterLabel: 'Show only:',
     filterSkills: 'Skills',
     filterAdvanced: 'Advanced Attacks',
     settings: 'Settings',
@@ -526,25 +535,39 @@ const I18N = {
     themeDark: 'Dark',
     themeLight: 'Light',
     themeChanged: 'Theme changed!',
-    dataManagement: 'Data Management',
-    displayOptions: 'Display Options',
+    dataManagement: 'My Data',
+    displayOptions: 'How it Looks',
     clearRecentText: 'Clear Recently Viewed',
     clearFavoritesText: 'Clear All Favorites',
-    resetAllText: 'Reset All Settings',
-    showControllerText: 'Show Controller Image',
-    animationsText: 'Enable Animations',
-    multiSelectText: 'Allow Multiple Star Selection',
+    resetAllText: 'Reset Everything',
+    showControllerText: 'Show Controller Picture',
+    animationsText: 'Cool Animations',
+    multiSelectText: 'Pick Multiple Stars',
     showRecentlyViewedText: 'Show Recently Viewed',
     bgDefault: 'Default',
     bgGradient: 'Gradient',
     bgPitch: 'Pitch',
     bgMinimal: 'Minimal',
-    confirmClearRecent: 'Clear all recently viewed tricks?',
-    confirmClearFavorites: 'Clear all favorite tricks?',
-    confirmResetAll: 'Reset all settings and data? This cannot be undone.',
+    confirmClearRecent: 'Delete all recently viewed tricks?',
+    confirmClearFavorites: 'Delete all favorite tricks?',
+    confirmResetAll: 'Reset everything? You cannot undo this!',
     recentCleared: 'Recently viewed cleared!',
     favoritesCleared: 'Favorites cleared!',
-    allReset: 'All settings reset!'
+    allReset: 'Everything reset!',
+    pdfBtnLabel: 'PDF',
+    pdfModalTitle: 'Make a PDF',
+    pdfModalDesc: 'Pick which tricks you want to print:',
+    pdfStarsLabel: 'Pick star levels:',
+    pdfAllStarsBtn: 'All',
+    pdfSkillSection: 'Include skill moves',
+    pdfAdvancedSection: 'Include advanced attacks',
+    pdfClearSelection: 'Clear All',
+    pdfGenerate: 'Make PDF',
+    pdfCustomLabel: 'Pick specific tricks',
+    pdfCustomSearchPlaceholder: 'Search tricks...',
+    pdfCustomSkillsLabel: 'Skill moves:',
+    pdfCustomAdvancedLabel: 'Advanced attacks:',
+    pdfSelectSomethingAlert: 'Pick at least one star or some tricks first!'
   },
   fr: {
     siteTitle: 'Manuel de gestes FC25',
@@ -599,7 +622,21 @@ const I18N = {
     confirmResetAll: 'Réinitialiser tous les paramètres et données? Cette action est irréversible.',
     recentCleared: 'Historique effacé!',
     favoritesCleared: 'Favoris effacés!',
-    allReset: 'Tous les paramètres réinitialisés!'
+    allReset: 'Tous les paramètres réinitialisés!',
+    pdfBtnLabel: 'PDF',
+    pdfModalTitle: 'Contenu PDF',
+    pdfModalDesc: 'Choisis les niveaux d\'étoiles et les sections à inclure :',
+    pdfStarsLabel: 'Sélectionne les étoiles :',
+    pdfAllStarsBtn: 'Tous',
+    pdfSkillSection: 'Inclure les gestes',
+    pdfAdvancedSection: 'Inclure les attaques avancées',
+    pdfClearSelection: 'Tout effacer',
+    pdfGenerate: 'Générer PDF',
+    pdfCustomLabel: 'Choix personnalisé',
+    pdfCustomSearchPlaceholder: 'Rechercher dans la liste...',
+    pdfCustomSkillsLabel: 'Gestes :',
+    pdfCustomAdvancedLabel: 'Attaques avancées :',
+    pdfSelectSomethingAlert: 'Choisis au moins une étoile ou sélectionne des gestes personnalisés.'
   },
   es: {
     siteTitle: 'Manual de trucos FC25',
@@ -654,7 +691,21 @@ const I18N = {
     confirmResetAll: '¿Restablecer toda la configuración y datos? Esta acción no se puede deshacer.',
     recentCleared: '¡Historial borrado!',
     favoritesCleared: '¡Favoritos borrados!',
-    allReset: '¡Configuración restablecida!'
+    allReset: '¡Configuración restablecida!',
+    pdfBtnLabel: 'PDF',
+    pdfModalTitle: 'Contenido PDF',
+    pdfModalDesc: 'Selecciona qué niveles de estrellas y secciones incluir:',
+    pdfStarsLabel: 'Selecciona estrellas:',
+    pdfAllStarsBtn: 'Todas',
+    pdfSkillSection: 'Incluir regates',
+    pdfAdvancedSection: 'Incluir ataques avanzados',
+    pdfClearSelection: 'Borrar todo',
+    pdfGenerate: 'Generar PDF',
+    pdfCustomLabel: 'Selección personalizada',
+    pdfCustomSearchPlaceholder: 'Buscar en la lista...',
+    pdfCustomSkillsLabel: 'Regates:',
+    pdfCustomAdvancedLabel: 'Ataques avanzados:',
+    pdfSelectSomethingAlert: 'Selecciona al menos una estrella o elige movimientos personalizados.'
   },
   ar: {
     siteTitle: 'دليل مهارات FC25',
@@ -709,7 +760,21 @@ const I18N = {
     confirmResetAll: 'إعادة تعيين جميع الإعدادات والبيانات؟ لا يمكن التراجع عن ذلك.',
     recentCleared: 'تم مسح السجل!',
     favoritesCleared: 'تم مسح المفضلة!',
-    allReset: 'تمت إعادة تعيين جميع الإعدادات!'
+    allReset: 'تمت إعادة تعيين جميع الإعدادات!',
+    pdfBtnLabel: 'PDF',
+    pdfModalTitle: 'محتوى PDF',
+    pdfModalDesc: 'اختر مستويات النجوم والأقسام المطلوبة:',
+    pdfStarsLabel: 'اختر النجوم:',
+    pdfAllStarsBtn: 'الكل',
+    pdfSkillSection: 'تضمين المهارات',
+    pdfAdvancedSection: 'تضمين الهجمات المتقدمة',
+    pdfClearSelection: 'مسح الكل',
+    pdfGenerate: 'إنشاء PDF',
+    pdfCustomLabel: 'اختيار مخصص',
+    pdfCustomSearchPlaceholder: 'ابحث في القائمة...',
+    pdfCustomSkillsLabel: 'المهارات:',
+    pdfCustomAdvancedLabel: 'الهجمات المتقدمة:',
+    pdfSelectSomethingAlert: 'اختر نجمة واحدة على الأقل أو اختر مهارات مخصصة.'
   }
 };
 
@@ -2858,6 +2923,8 @@ function init() {
   // Don't call setTrickOfTheDay on init since we're starting with only Advanced Attacks
   renderRecentlyViewed();
   initSettings();
+  initPdfExport();
+  updatePdfTranslations();
 }
 
 // Settings functionality
@@ -3073,6 +3140,437 @@ function updateSettingsTranslations() {
   if (showRecentlyViewedText) showRecentlyViewedText.textContent = t('showRecentlyViewedText');
   if (themeDark) themeDark.textContent = t('themeDark');
   if (themeLight) themeLight.textContent = t('themeLight');
+}
+
+function updatePdfTranslations() {
+  const pdfBtnLabel = document.getElementById('pdfBtnLabel');
+  const pdfModalTitle = document.getElementById('pdfModalTitle');
+  const pdfModalDesc = document.getElementById('pdfModalDesc');
+  const pdfStarsLabel = document.getElementById('pdfStarsLabel');
+  const pdfAllStarsBtn = document.getElementById('pdfAllStarsBtn');
+  const pdfSkillSectionLabel = document.getElementById('pdfSkillSectionLabel');
+  const pdfAdvancedSectionLabel = document.getElementById('pdfAdvancedSectionLabel');
+  const pdfClearSelectionBtn = document.getElementById('pdfClearSelectionBtn');
+  const pdfGenerateBtn = document.getElementById('pdfGenerateBtn');
+  const pdfCustomLabel = document.getElementById('pdfCustomLabel');
+  const pdfCustomSearch = document.getElementById('pdfCustomSearch');
+  const pdfCustomSkillsLabel = document.getElementById('pdfCustomSkillsLabel');
+  const pdfCustomAdvancedLabel = document.getElementById('pdfCustomAdvancedLabel');
+
+  if (pdfBtnLabel) pdfBtnLabel.textContent = t('pdfBtnLabel');
+  if (pdfModalTitle) pdfModalTitle.textContent = t('pdfModalTitle');
+  if (pdfModalDesc) pdfModalDesc.textContent = t('pdfModalDesc');
+  if (pdfStarsLabel) pdfStarsLabel.textContent = t('pdfStarsLabel');
+  if (pdfAllStarsBtn) pdfAllStarsBtn.textContent = t('pdfAllStarsBtn');
+  if (pdfSkillSectionLabel) pdfSkillSectionLabel.textContent = t('pdfSkillSection');
+  if (pdfAdvancedSectionLabel) pdfAdvancedSectionLabel.textContent = t('pdfAdvancedSection');
+  if (pdfClearSelectionBtn) pdfClearSelectionBtn.textContent = t('pdfClearSelection');
+  if (pdfGenerateBtn) pdfGenerateBtn.textContent = t('pdfGenerate');
+
+  if (pdfCustomLabel) pdfCustomLabel.textContent = t('pdfCustomLabel');
+  if (pdfCustomSearch) pdfCustomSearch.placeholder = t('pdfCustomSearchPlaceholder');
+  if (pdfCustomSkillsLabel) pdfCustomSkillsLabel.textContent = t('pdfCustomSkillsLabel');
+  if (pdfCustomAdvancedLabel) pdfCustomAdvancedLabel.textContent = t('pdfCustomAdvancedLabel');
+}
+
+// PDF Export functionality
+let pdfSelectedStars = new Set();
+let pdfCustomSkills = new Set(); // stores trick English names
+let pdfCustomAdvanced = new Set(); // stores advanced action strings
+
+function _pdfEffectiveStars() {
+  if (!pdfSelectedStars || pdfSelectedStars.size === 0) return null;
+  const out = new Set();
+  pdfSelectedStars.forEach(s => {
+    const n = parseInt(s, 10);
+    if (Number.isFinite(n) && n >= 1 && n <= 5) out.add(n);
+  });
+  return out.size ? out : null;
+}
+
+function renderPdfCustomLists() {
+  const enabled = document.getElementById('pdfCustomEnabled')?.checked;
+  const includeSkills = document.getElementById('pdfIncludeSkills')?.checked;
+  const includeAdvanced = document.getElementById('pdfIncludeAdvanced')?.checked;
+  const skillsBlock = document.getElementById('pdfCustomSkillsBlock');
+  const advancedBlock = document.getElementById('pdfCustomAdvancedBlock');
+  const skillsList = document.getElementById('pdfCustomSkillsList');
+  const advancedList = document.getElementById('pdfCustomAdvancedList');
+  const search = (document.getElementById('pdfCustomSearch')?.value || '').trim().toLowerCase();
+
+  if (!enabled) return;
+  if (!skillsList || !advancedList) return;
+
+  if (skillsBlock) skillsBlock.style.display = includeSkills ? '' : 'none';
+  if (advancedBlock) advancedBlock.style.display = includeAdvanced ? '' : 'none';
+
+  const effectiveStars = _pdfEffectiveStars();
+
+  // Skills
+  if (includeSkills) {
+    const fragment = document.createDocumentFragment();
+    const rows = (tricks || [])
+      .filter(tr => {
+        if (!tr || typeof tr.stars !== 'number') return false;
+        if (effectiveStars && !effectiveStars.has(tr.stars)) return false;
+        const nameEn = (tr.name || '').toLowerCase();
+        const nameTranslated = (getTrickTranslation(tr.name, 'name') || '').toLowerCase();
+        return !search || nameEn.includes(search) || nameTranslated.includes(search);
+      })
+      .sort((a, b) => (a.stars - b.stars) || (a.name || '').localeCompare(b.name || ''));
+
+    rows.forEach(tr => {
+      const label = document.createElement('label');
+      label.className = 'pdf-custom-item';
+
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = pdfCustomSkills.has(tr.name);
+      cb.addEventListener('change', () => {
+        if (cb.checked) pdfCustomSkills.add(tr.name);
+        else pdfCustomSkills.delete(tr.name);
+      });
+
+      const wrap = document.createElement('div');
+      const title = document.createElement('div');
+      title.textContent = getTrickTranslation(tr.name, 'name') || tr.name;
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent = `${tr.stars} ⭐`;
+
+      wrap.appendChild(title);
+      wrap.appendChild(meta);
+
+      label.appendChild(cb);
+      label.appendChild(wrap);
+      fragment.appendChild(label);
+    });
+
+    skillsList.innerHTML = '';
+    skillsList.appendChild(fragment);
+  } else {
+    skillsList.innerHTML = '';
+  }
+
+  // Advanced
+  if (includeAdvanced) {
+    const fragment = document.createDocumentFragment();
+    const rows = (advancedAttacks || [])
+      .filter(a => {
+        const nameEn = (a.action || '').toLowerCase();
+        const nameTranslated = (getAdvancedAttackTranslation(a.action) || '').toLowerCase();
+        return !search || nameEn.includes(search) || nameTranslated.includes(search);
+      });
+
+    rows.forEach(a => {
+      const label = document.createElement('label');
+      label.className = 'pdf-custom-item';
+
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = pdfCustomAdvanced.has(a.action);
+      cb.addEventListener('change', () => {
+        if (cb.checked) pdfCustomAdvanced.add(a.action);
+        else pdfCustomAdvanced.delete(a.action);
+      });
+
+      const wrap = document.createElement('div');
+      const title = document.createElement('div');
+      title.textContent = getAdvancedAttackTranslation(a.action);
+      wrap.appendChild(title);
+
+      label.appendChild(cb);
+      label.appendChild(wrap);
+      fragment.appendChild(label);
+    });
+
+    advancedList.innerHTML = '';
+    advancedList.appendChild(fragment);
+  } else {
+    advancedList.innerHTML = '';
+  }
+}
+
+function buildPdfPrintRoot({ includeSkills, includeAdvanced, starsSet, customEnabled }) {
+  // Remove any prior print root
+  document.querySelectorAll('.pdf-print-root').forEach(n => n.remove());
+
+  const root = document.createElement('div');
+  root.className = 'pdf-print-root';
+
+  const title = document.createElement('h1');
+  title.textContent = t('siteTitle');
+  title.style.margin = '0 0 12px 0';
+  root.appendChild(title);
+
+  const subtitle = document.createElement('p');
+  subtitle.textContent = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+  subtitle.style.margin = '0 0 18px 0';
+  subtitle.style.color = 'var(--muted)';
+  root.appendChild(subtitle);
+
+  const appendSection = (headingText, nodes) => {
+    if (!nodes || !nodes.length) return;
+    const section = document.createElement('section');
+    section.className = 'pdf-export-section';
+    const h = document.createElement('h3');
+    h.textContent = headingText;
+    section.appendChild(h);
+
+    const grid = document.createElement('div');
+    grid.className = 'pdf-export-grid';
+    nodes.forEach(n => grid.appendChild(n));
+    section.appendChild(grid);
+
+    root.appendChild(section);
+  };
+
+  const createSkillPrintCard = (trick) => {
+    const card = createCard(trick);
+    // Remove interactive elements for print
+    card.querySelectorAll('.favorite-btn, .watch-btn').forEach(el => el.remove());
+    card.classList.remove('has-video');
+    card.removeAttribute('role');
+    card.removeAttribute('aria-label');
+    card.tabIndex = -1;
+    return card;
+  };
+
+  const createAdvancedPrintCard = (attack) => {
+    const card = createAdvancedCard(attack);
+    card.querySelectorAll('.favorite-btn').forEach(el => el.remove());
+    return card;
+  };
+
+  // Skills: group by stars (even in custom mode)
+  if (includeSkills) {
+    const chosen = (tricks || []).filter(tr => {
+      if (!tr) return false;
+      if (customEnabled) return pdfCustomSkills.has(tr.name);
+      if (!starsSet) return true;
+      return starsSet.has(String(tr.stars));
+    });
+
+    const byStars = new Map();
+    chosen.forEach(tr => {
+      const k = String(tr.stars);
+      if (!byStars.has(k)) byStars.set(k, []);
+      byStars.get(k).push(tr);
+    });
+
+    const starKeys = Array.from(byStars.keys()).sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+    starKeys.forEach(k => {
+      const items = byStars.get(k)
+        .slice()
+        .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+        .map(createSkillPrintCard);
+      appendSection(formatStarHeading(k), items);
+    });
+  }
+
+  if (includeAdvanced) {
+    const chosenAdvanced = (advancedAttacks || []).filter(a => {
+      if (!a) return false;
+      if (customEnabled) return pdfCustomAdvanced.has(a.action);
+      return true;
+    });
+    const cards = chosenAdvanced.map(createAdvancedPrintCard);
+    appendSection(t('advancedAttacks'), cards);
+  }
+
+  document.body.appendChild(root);
+  updateControllers();
+}
+
+function initPdfExport() {
+  const pdfExportBtn = document.getElementById('pdfExportBtn');
+  const pdfExportModal = document.getElementById('pdfExportModal');
+  const closePdfModalBtn = document.getElementById('closePdfModalBtn');
+  const pdfStarBtns = document.querySelectorAll('.pdf-star-btn:not(#pdfAdvancedBtn)');
+  const pdfAdvancedBtn = document.getElementById('pdfAdvancedBtn');
+  const pdfIncludeSkills = document.getElementById('pdfIncludeSkills');
+  const pdfIncludeAdvanced = document.getElementById('pdfIncludeAdvanced');
+  const pdfClearSelectionBtn = document.getElementById('pdfClearSelectionBtn');
+  const pdfGenerateBtn = document.getElementById('pdfGenerateBtn');
+  const pdfCustomEnabled = document.getElementById('pdfCustomEnabled');
+  const pdfCustomArea = document.getElementById('pdfCustomArea');
+  const pdfCustomSearch = document.getElementById('pdfCustomSearch');
+
+  // Open PDF modal
+  pdfExportBtn?.addEventListener('click', () => {
+    pdfExportModal.style.display = 'flex';
+    pdfExportModal.setAttribute('aria-hidden', 'false');
+    updatePdfTranslations();
+    updatePdfStarButtonsUI();
+    if (pdfCustomEnabled?.checked) renderPdfCustomLists();
+  });
+
+  // Close PDF modal
+  const closePdfModal = () => {
+    pdfExportModal.style.display = 'none';
+    pdfExportModal.setAttribute('aria-hidden', 'true');
+  };
+
+  closePdfModalBtn?.addEventListener('click', closePdfModal);
+  pdfExportModal?.addEventListener('click', (e) => {
+    if (e.target === pdfExportModal) closePdfModal();
+  });
+
+  // Escape key to close
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && pdfExportModal.style.display === 'flex') {
+      closePdfModal();
+    }
+  });
+
+  // Star selection buttons
+  pdfStarBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const star = btn.dataset.star;
+      if (star === 'all') {
+        // Toggle all stars
+        if (pdfSelectedStars.size === 5) {
+          pdfSelectedStars.clear();
+        } else {
+          pdfSelectedStars = new Set(['1', '2', '3', '4', '5']);
+        }
+      } else {
+        // Toggle individual star
+        if (pdfSelectedStars.has(star)) {
+          pdfSelectedStars.delete(star);
+        } else {
+          pdfSelectedStars.add(star);
+        }
+      }
+      updatePdfStarButtonsUI();
+      if (pdfCustomEnabled?.checked) renderPdfCustomLists();
+    });
+  });
+
+  // Advanced Attacks button
+  pdfAdvancedBtn?.addEventListener('click', () => {
+    if (pdfIncludeAdvanced) {
+      pdfIncludeAdvanced.checked = !pdfIncludeAdvanced.checked;
+      updatePdfStarButtonsUI();
+      if (pdfCustomEnabled?.checked) renderPdfCustomLists();
+    }
+  });
+
+  // Section include toggles affect the custom list
+  pdfIncludeSkills?.addEventListener('change', () => {
+    if (pdfCustomEnabled?.checked) renderPdfCustomLists();
+  });
+  pdfIncludeAdvanced?.addEventListener('change', () => {
+    updatePdfStarButtonsUI();
+    if (pdfCustomEnabled?.checked) renderPdfCustomLists();
+  });
+
+  // Custom enabled toggle
+  pdfCustomEnabled?.addEventListener('change', () => {
+    const on = !!pdfCustomEnabled.checked;
+    if (pdfCustomArea) pdfCustomArea.style.display = on ? '' : 'none';
+    if (on) renderPdfCustomLists();
+  });
+
+  // Custom search
+  if (pdfCustomSearch) {
+    const debounced = debounce(() => {
+      if (pdfCustomEnabled?.checked) renderPdfCustomLists();
+    }, 120);
+    pdfCustomSearch.addEventListener('input', debounced);
+  }
+
+  // Clear all selections
+  pdfClearSelectionBtn?.addEventListener('click', () => {
+    pdfSelectedStars.clear();
+    pdfCustomSkills.clear();
+    pdfCustomAdvanced.clear();
+    if (pdfIncludeSkills) pdfIncludeSkills.checked = false;
+    if (pdfIncludeAdvanced) pdfIncludeAdvanced.checked = false;
+    updatePdfStarButtonsUI();
+    if (pdfCustomEnabled?.checked) renderPdfCustomLists();
+  });
+
+  // Generate PDF
+  pdfGenerateBtn?.addEventListener('click', () => {
+    generatePDF();
+  });
+}
+
+function updatePdfStarButtonsUI() {
+  const pdfStarBtns = document.querySelectorAll('.pdf-star-btn:not(#pdfAdvancedBtn)');
+  const allSelected = pdfSelectedStars.size === 5 &&
+                      pdfSelectedStars.has('1') &&
+                      pdfSelectedStars.has('2') &&
+                      pdfSelectedStars.has('3') &&
+                      pdfSelectedStars.has('4') &&
+                      pdfSelectedStars.has('5');
+  
+  pdfStarBtns.forEach(btn => {
+    const star = btn.dataset.star;
+    if (star === 'all') {
+      btn.classList.toggle('active', allSelected);
+    } else {
+      // Only show individual stars as active if NOT all selected
+      btn.classList.toggle('active', !allSelected && pdfSelectedStars.has(star));
+    }
+  });
+  
+  // Update Advanced button
+  const pdfAdvancedBtn = document.getElementById('pdfAdvancedBtn');
+  const pdfIncludeAdvanced = document.getElementById('pdfIncludeAdvanced');
+  if (pdfAdvancedBtn && pdfIncludeAdvanced) {
+    pdfAdvancedBtn.classList.toggle('active', pdfIncludeAdvanced.checked);
+  }
+}
+
+function generatePDF() {
+  const includeSkills = document.getElementById('pdfIncludeSkills')?.checked;
+  const includeAdvanced = document.getElementById('pdfIncludeAdvanced')?.checked;
+  const customEnabled = document.getElementById('pdfCustomEnabled')?.checked;
+
+  const starsSet = pdfSelectedStars && pdfSelectedStars.size ? new Set(pdfSelectedStars) : null;
+
+  const customHasAny = customEnabled && (pdfCustomSkills.size > 0 || pdfCustomAdvanced.size > 0);
+
+  // Validate selection
+  if (customEnabled) {
+    if (!customHasAny) {
+      alert(t('pdfSelectSomethingAlert'));
+      return;
+    }
+  } else {
+    if ((!starsSet || starsSet.size === 0) && !includeAdvanced) {
+      alert(t('pdfSelectSomethingAlert'));
+      return;
+    }
+  }
+
+  // Close modal and build print DOM
+  const pdfExportModal = document.getElementById('pdfExportModal');
+  if (pdfExportModal) {
+    pdfExportModal.style.display = 'none';
+    pdfExportModal.setAttribute('aria-hidden', 'true');
+  }
+
+  ensureTricksRendered();
+
+  buildPdfPrintRoot({
+    includeSkills: !!includeSkills,
+    includeAdvanced: !!includeAdvanced,
+    starsSet,
+    customEnabled: !!customEnabled
+  });
+
+  document.body.classList.add('printing-pdf');
+
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => {
+      document.body.classList.remove('printing-pdf');
+      document.querySelectorAll('.pdf-print-root').forEach(n => n.remove());
+    }, 500);
+  }, 250);
 }
 
 // Start

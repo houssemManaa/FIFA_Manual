@@ -15,7 +15,7 @@
           <h1 class="site-title">FC25 Tricks Manual</h1>
           <span class="platform-badge">PS5</span>
         </div>
-        <p class="site-sub">Master every skill move • Dominate the pitch • Level up your game</p>
+        <p class="site-sub">Learn cool tricks • Beat defenders • Have fun! ⚽</p>
       </div>
 
       <div class="controls">
@@ -34,6 +34,13 @@
               <input type="text" id="searchInput" placeholder="Type trick name..." aria-label="Search tricks by name" />
               <button id="clearSearchBtn" class="clear-search-btn" aria-label="Clear search" style="display:none;">✕</button>
             </div>
+          </div>
+        </div>
+
+        <div class="control-row">
+          <div class="buy-game-group" aria-label="Buy the game">
+            <a href="https://www.amazon.com/EA-SPORTS-FC-25-PlayStation-5/dp/B0D94PQMTX?th=1" target="_blank" rel="noopener" class="buy-game-btn ps5" aria-label="Buy FC 25 for PS5">Buy FC 25 for PS5</a>
+            <a href="https://www.amazon.com/EA-SPORTS-FC-25-PlayStation-4/dp/B0D94S1NW7?th=1" target="_blank" rel="noopener" class="buy-game-btn ps4" aria-label="Buy FC 25 for PS4">Buy FC 25 for PS4</a>
           </div>
         </div>
 
@@ -56,6 +63,10 @@
 
   <!-- Settings Button -->
   <button id="settingsBtn" class="settings-btn" aria-label="Settings">⚙️</button>
+  <button id="pdfExportBtn" class="settings-btn pdf-btn" aria-label="Choose PDF content">
+    📄
+    <span class="sr-only" id="pdfBtnLabel">PDF</span>
+  </button>
 
   <!-- Settings Modal -->
   <div id="settingsModal" class="settings-modal" style="display:none;">
@@ -126,6 +137,69 @@
     </div>
   </div>
 
+  <!-- PDF Export Modal -->
+  <div id="pdfExportModal" class="pdf-modal" style="display:none;" aria-hidden="true">
+    <div class="pdf-modal-content" role="dialog" aria-modal="true" aria-labelledby="pdfModalTitle">
+      <div class="pdf-modal-header">
+        <h2 id="pdfModalTitle">Choose PDF Content</h2>
+        <button id="closePdfModalBtn" class="close-settings-btn" aria-label="Close PDF options">✕</button>
+      </div>
+      <p id="pdfModalDesc">Pick which tricks you want to print:</p>
+
+      <div class="pdf-star-section">
+        <p class="pdf-section-label" id="pdfStarsLabel">Select star levels:</p>
+        <div class="pdf-star-buttons">
+          <button class="pdf-star-btn" data-star="all" id="pdfAllStarsBtn">All</button>
+          <button class="pdf-star-btn" data-star="1">1 ⭐</button>
+          <button class="pdf-star-btn" data-star="2">2 ⭐⭐</button>
+          <button class="pdf-star-btn" data-star="3">3 ⭐⭐⭐</button>
+          <button class="pdf-star-btn" data-star="4">4 ⭐⭐⭐⭐</button>
+          <button class="pdf-star-btn" data-star="5">5 ⭐⭐⭐⭐⭐</button>
+          <button class="pdf-star-btn pdf-advanced-btn" id="pdfAdvancedBtn">⚡ Advanced Attacks</button>
+        </div>
+      </div>
+
+      <div class="pdf-section-toggles">
+        <label>
+          <input type="checkbox" id="pdfIncludeSkills" checked>
+          <span id="pdfSkillSectionLabel">Include skill moves section</span>
+        </label>
+        <label>
+          <input type="checkbox" id="pdfIncludeAdvanced" checked>
+          <span id="pdfAdvancedSectionLabel">Include advanced attacks</span>
+        </label>
+      </div>
+
+      <div class="pdf-custom">
+        <label class="pdf-custom-toggle">
+          <input type="checkbox" id="pdfCustomEnabled">
+          <span id="pdfCustomLabel">Custom choose moves</span>
+        </label>
+
+        <div id="pdfCustomArea" class="pdf-custom-area" style="display:none;">
+          <input type="text" id="pdfCustomSearch" class="pdf-custom-search" placeholder="Search in list..." aria-label="Search moves to include" />
+
+          <div class="pdf-custom-lists">
+            <div id="pdfCustomSkillsBlock" class="pdf-custom-block">
+              <p class="pdf-section-label" id="pdfCustomSkillsLabel">Skill moves:</p>
+              <div id="pdfCustomSkillsList" class="pdf-custom-list" aria-live="polite"></div>
+            </div>
+
+            <div id="pdfCustomAdvancedBlock" class="pdf-custom-block">
+              <p class="pdf-section-label" id="pdfCustomAdvancedLabel">Advanced attacks:</p>
+              <div id="pdfCustomAdvancedList" class="pdf-custom-list" aria-live="polite"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pdf-modal-actions">
+        <button id="pdfClearSelectionBtn" class="settings-action-btn ghost">Clear All</button>
+        <button id="pdfGenerateBtn" class="settings-action-btn">Generate PDF</button>
+      </div>
+    </div>
+  </div>
+
   <main>
     <section id="featured" class="featured">
       <h2 id="todTitle">Trick of the Day ✨</h2>
@@ -164,9 +238,9 @@
     <section id="tricks" class="tricks-section">
       <h2 id="skillsTitle">Skill Moves by Stars</h2>
       <p class="team-note" aria-hidden="false">
-        <span id="teamTipPrefix">Tip: To see a player's skill move stars, go to Team Management and press </span>
+        <span id="teamTipPrefix">💡 How to check player stars: Go to Team, then press </span>
         <strong><span class="r3-tooltip" data-platform-only="ps">R3<span class="tooltip-text" id="r3Tooltip">Right Joystick</span></span></strong>
-        <span id="teamTipSuffix"> on the player. 🎮</span>
+        <span id="teamTipSuffix"> on any player</span>
       </p>
 
       <div class="stars-container">
