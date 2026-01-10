@@ -39,7 +39,7 @@ An interactive web-based manual for learning FC25 (EA Sports Football Club 25) s
 
 ## License
 
-This project is for educational purposes. EA Sports FC 25 is a trademark of Electronic Arts Inc.
+This project is for educational purposes. EA Sports FC 25 is a trademark of Electronic Arts Inc. 
 
 ---
 
