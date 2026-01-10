@@ -7,7 +7,6 @@ An interactive web-based manual for learning FC25 (EA Sports Football Club 25) s
 - **Multi-language Support**: English, French, Spanish, and Arabic
 - **Filter by Stars**: Browse tricks by skill move star rating (0-5 stars)
 - **Search Functionality**: Quickly find specific tricks
-- **Favorites System**: Save your favorite tricks for quick access
 - **Recently Viewed**: Track the tricks you've recently practiced
 - **Advanced Attacks**: Quick reference for tactical commands
 - **Trick of the Day**: Featured daily trick to practice
@@ -20,8 +19,7 @@ An interactive web-based manual for learning FC25 (EA Sports Football Club 25) s
 2. Choose your preferred language from the dropdown
 3. Filter tricks by star rating or search for specific moves
 4. Click "Watch Tutorial" on any trick to see a video demonstration
-5. Mark your favorites with the ❤ button
-6. Practice and improve your game!
+5. Practice and improve your game!
 
 ## Technologies Used
 

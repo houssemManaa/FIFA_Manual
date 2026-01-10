@@ -104,29 +104,6 @@ function renderAdvancedAttacks() {
       <div class="controls-row"><span class="controls-label">${t('playstationLabel')}</span> ${translatedPs}</div>
     `;
     
-    // Add favorite button AFTER setting innerHTML to prevent event listener loss
-    const favBtn = document.createElement('button');
-    favBtn.className = 'favorite-btn';
-    favBtn.setAttribute('aria-label', 'Toggle favorite');
-    favBtn.innerHTML = isFavorite('advanced:' + item.action) ? '❤' : '♡';
-    let _favBtnCooldown = false;
-    favBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      // Prevent rapid clicking
-      if (_favBtnCooldown) return;
-      _favBtnCooldown = true;
-      setTimeout(() => { _favBtnCooldown = false; }, 150);
-      
-      const isNowFav = toggleFavorite('advanced:' + item.action);
-      favBtn.innerHTML = isNowFav ? '❤' : '♡';
-      // Refresh if viewing favorites (use requestAnimationFrame to prevent lag)
-      const activeBtn = document.querySelector('.level-btn.active');
-      if (activeBtn && activeBtn.dataset.level === 'favorites') {
-        requestAnimationFrame(() => showFavorites());
-      }
-    });
-    
-    card.appendChild(favBtn);
     fragment.appendChild(card);
   });
   
@@ -159,7 +136,6 @@ let currentSearchFilter = 'all';
 // Main page filter state (multi-select)
 let mainSelectedStars = new Set(); // '0'..'5'
 let mainShowAdvanced = true;
-let mainFavoritesMode = false;
 let onlyAdvancedMode = false; // Track if we're in "only advanced" mode
 
 // Remember previous state when toggling Advanced-only view
@@ -191,11 +167,7 @@ function updateLevelButtonsUI() {
     const level = btn.dataset.level;
     let isActive = false;
 
-    if (level === 'favorites') {
-      isActive = mainFavoritesMode;
-    } else if (mainFavoritesMode) {
-      isActive = false;
-    } else if (level === 'all') {
+    if (level === 'all') {
       // "All" is active if explicitly showing everything OR if all individual stars are selected
       isActive = (mainSelectedStars.size === 0 && mainShowAdvanced && !onlyAdvancedMode) || allStarsSelected;
     } else if (level === 'advanced') {
@@ -221,11 +193,6 @@ function updateSearchFilterButtonsUI() {
 }
 
 function applyMainFilters() {
-  if (mainFavoritesMode) {
-    showFavorites();
-    return;
-  }
-
   // Advanced-only view: show only the advanced attacks section
   if (onlyAdvancedMode) {
     const tricksSection = document.getElementById('tricks');
@@ -350,7 +317,6 @@ function toggleMainFilter(level) {
         selectedStars: Array.from(mainSelectedStars),
         showAdvanced: mainShowAdvanced
       };
-      mainFavoritesMode = false;
       mainSelectedStars.clear();
       mainShowAdvanced = true;
       onlyAdvancedMode = true;
@@ -440,37 +406,6 @@ function setMultiSelectEnabled(enabled) {
   localStorage.setItem('fc25_multiSelect', String(enabled));
 }
 
-// Favorites localStorage functions
-function getFavorites() {
-  const stored = localStorage.getItem('fc25_favorites');
-  if (!stored) return [];
-  try {
-    return JSON.parse(stored);
-  } catch (e) {
-    return [];
-  }
-}
-
-function saveFavorites(favs) {
-  localStorage.setItem('fc25_favorites', JSON.stringify(favs));
-}
-
-function toggleFavorite(trickName) {
-  const favs = getFavorites();
-  const index = favs.indexOf(trickName);
-  if (index > -1) {
-    favs.splice(index, 1);
-  } else {
-    favs.push(trickName);
-  }
-  saveFavorites(favs);
-  return favs.includes(trickName);
-}
-
-function isFavorite(trickName) {
-  return getFavorites().includes(trickName);
-}
-
 // Recently Viewed localStorage functions
 function getRecentlyViewed() {
   const stored = localStorage.getItem('fc25_recent');
@@ -523,10 +458,6 @@ const I18N = {
     searchResultsTitle: 'Search Results',
     noResultsMsg: 'No tricks found',
     resultsCount: '{count} trick(s) found',
-    favorites: 'Favorites',
-    favoritesTitle: 'My Favorite Tricks ❤',
-    noFavoritesMsg: 'No favorites yet! Click ❤ on tricks you like.',
-    favoritesCount: '{count} favorite(s)',
     searchFilterLabel: 'Show only:',
     filterSkills: 'Skills',
     filterAdvanced: 'Advanced Attacks',
@@ -596,11 +527,7 @@ const I18N = {
     searchResultsTitle: 'Résultats de recherche',
     noResultsMsg: 'Aucun résultat',
     resultsCount: '{count} geste(s) trouvé(s)',
-    favorites: 'Favoris',
-    favoritesTitle: 'Mes Favoris',
-    noFavoritesMsg: 'Aucun favori. Cliquez sur ❤ pour sauvegarder un geste!',
-    favoritesCount: '{count} favori(s)',
-    searchFilterLabel: 'Filtrer par:',
+    searchFilterLabel: 'Filtrer par:',,
     filterSkills: 'Gestes',
     filterAdvanced: 'Attaques avancées',
     settings: 'Paramètres',
@@ -665,11 +592,7 @@ const I18N = {
     searchResultsTitle: 'Resultados de búsqueda',
     noResultsMsg: 'Sin resultados',
     resultsCount: '{count} truco(s) encontrado(s)',
-    favorites: 'Favoritos',
-    favoritesTitle: 'Mis Favoritos',
-    noFavoritesMsg: '¡Sin favoritos aún. Haz clic en ❤ para guardar!',
-    favoritesCount: '{count} favorito(s)',
-    searchFilterLabel: 'Filtrar por:',
+    searchFilterLabel: 'Filtrar por:',,
     filterSkills: 'Regates',
     filterAdvanced: 'Ataques avanzados',
     settings: 'Configuración',
@@ -680,7 +603,6 @@ const I18N = {
     dataManagement: 'Gestión de datos',
     displayOptions: 'Opciones de visualización',
     clearRecentText: 'Borrar vistos recientemente',
-    clearFavoritesText: 'Borrar todos los favoritos',
     resetAllText: 'Restablecer todo',
     showControllerText: 'Mostrar imagen del mando',
     animationsText: 'Activar animaciones',
@@ -734,11 +656,7 @@ const I18N = {
     searchResultsTitle: 'نتائج البحث',
     noResultsMsg: 'لا توجد نتائج',
     resultsCount: '{count} مهارة',
-    favorites: 'المفضلة',
-    favoritesTitle: 'مهاراتي المفضلة',
-    noFavoritesMsg: 'لا توجد مفضلة. اضغط على ❤ لحفظ مهارة!',
-    favoritesCount: '{count} مفضلة',
-    searchFilterLabel: 'تصفية حسب:',
+    searchFilterLabel: 'تصفية حسب:',,
     filterSkills: 'المهارات',
     filterAdvanced: 'الهجمات المتقدمة',
     settings: 'الإعدادات',
@@ -2035,29 +1953,6 @@ function createCard(trick) {
   h.textContent = translatedName || trick.name;
   a.appendChild(h);
 
-  // Add favorite button
-  const favBtn = document.createElement('button');
-  favBtn.className = 'favorite-btn';
-  favBtn.setAttribute('aria-label', 'Toggle favorite');
-  favBtn.innerHTML = isFavorite(trick.name) ? '❤' : '♡';
-  let _favBtnCooldown = false;
-  favBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    // Prevent rapid clicking
-    if (_favBtnCooldown) return;
-    _favBtnCooldown = true;
-    setTimeout(() => { _favBtnCooldown = false; }, 150);
-    
-    const isNowFav = toggleFavorite(trick.name);
-    favBtn.innerHTML = isNowFav ? '❤' : '♡';
-    // Refresh if viewing favorites (use requestAnimationFrame to prevent lag)
-    const activeBtn = document.querySelector('.level-btn.active');
-    if (activeBtn && activeBtn.dataset.level === 'favorites') {
-      requestAnimationFrame(() => showFavorites());
-    }
-  });
-  a.appendChild(favBtn);
-
   const stars = document.createElement('p');
   stars.className = 'stars';
   stars.textContent = '⭐'.repeat(trick.stars);
@@ -2553,34 +2448,10 @@ function createAdvancedCard(attack) {
   let translatedPs = translateControlsString(attack.ps);
   translatedPs = translatedPs.replace(/D-Pad(?![^<]*<\/span>)/gi, `<span class="dpad-tooltip">D-Pad<span class="tooltip-text">${t('arrowKeys')}</span></span>`);
   
-  // Add favorite button
-  const favBtn = document.createElement('button');
-  favBtn.className = 'favorite-btn';
-  favBtn.setAttribute('aria-label', 'Toggle favorite');
-  favBtn.innerHTML = isFavorite('advanced:' + attack.action) ? '❤' : '♡';
-  let _favBtnCooldown = false;
-  favBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    // Prevent rapid clicking
-    if (_favBtnCooldown) return;
-    _favBtnCooldown = true;
-    setTimeout(() => { _favBtnCooldown = false; }, 150);
-    
-    const isNowFav = toggleFavorite('advanced:' + attack.action);
-    favBtn.innerHTML = isNowFav ? '❤' : '♡';
-    // Refresh if viewing favorites (use requestAnimationFrame to prevent lag)
-    const activeBtn = document.querySelector('.level-btn.active');
-    if (activeBtn && activeBtn.dataset.level === 'favorites') {
-      requestAnimationFrame(() => showFavorites());
-    }
-  });
-  
   card.innerHTML = `
     <div class="action-title">${translatedAction}</div>
     <div class="controls-row"><span class="controls-label">${t('playstationLabel')}</span> ${translatedPs}</div>
   `;
-  
-  card.appendChild(favBtn);
   
   return card;
 }
@@ -2682,99 +2553,6 @@ function renderRecentlyViewed() {
   
   recentGrid.innerHTML = '';
   recentGrid.appendChild(fragment);
-  updateControllers();
-}
-
-// Show favorites view
-let _lastFavoritesRender = 0;
-function showFavorites() {
-  // Performance guard: prevent rapid re-renders
-  const now = Date.now();
-  if (now - _lastFavoritesRender < MIN_RENDER_INTERVAL) {
-    return;
-  }
-  _lastFavoritesRender = now;
-  
-  const tricksSection = document.getElementById('tricks');
-  const advancedSection = document.querySelector('.advanced-attacks-section');
-  const featuredSection = document.getElementById('featured');
-  const recentlyViewedSection = document.getElementById('recently-viewed');
-  const searchResultsSection = document.getElementById('search-results');
-  const searchResultsGrid = document.getElementById('searchResultsGrid');
-  const searchResultsTitle = document.getElementById('searchResultsTitle');
-  const noResultsMsg = document.getElementById('noResultsMsg');
-  const searchResultsCount = document.getElementById('searchResultsCount');
-  const searchFilters = document.querySelector('.search-filters');
-
-  // Hide normal sections, show search results (reuse for favorites)
-  if (tricksSection) tricksSection.style.display = 'none';
-  if (advancedSection) advancedSection.style.display = 'none';
-  if (featuredSection) featuredSection.style.display = 'none';
-  if (recentlyViewedSection) recentlyViewedSection.style.display = 'none';
-  
-  // Clear featured card container to prevent rendering conflicts
-  if (featuredCardContainer) {
-    featuredCardContainer.innerHTML = '';
-  }
-  
-  if (searchResultsSection) searchResultsSection.style.display = 'block';
-  
-  // Hide search filters in favorites view
-  if (searchFilters) searchFilters.style.display = 'none';
-
-  // Change title to Favorites
-  if (searchResultsTitle) searchResultsTitle.textContent = t('favoritesTitle');
-
-  const favNames = getFavorites();
-  
-  // Separate skill tricks and advanced attacks
-  const favTricks = tricks.filter(trick => favNames.includes(trick.name));
-  const favAdvanced = advancedAttacks.filter(attack => favNames.includes('advanced:' + attack.action));
-  
-  const totalFavorites = favTricks.length + favAdvanced.length;
-
-  if (!searchResultsGrid) return;
-  searchResultsGrid.innerHTML = '';
-
-  if (totalFavorites === 0) {
-    if (noResultsMsg) {
-      noResultsMsg.style.display = 'block';
-      noResultsMsg.textContent = t('noFavoritesMsg');
-    }
-    if (searchResultsCount) searchResultsCount.textContent = '';
-    return;
-  }
-
-  if (noResultsMsg) noResultsMsg.style.display = 'none';
-  if (searchResultsCount) {
-    const countText = t('favoritesCount').replace('{count}', totalFavorites);
-    searchResultsCount.textContent = countText;
-  }
-
-  // Use document fragment for performance
-  const fragment = document.createDocumentFragment();
-  let index = 0;
-  
-  // Add skill tricks
-  favTricks.forEach((trick) => {
-    const card = createCard(trick);
-    card.style.setProperty('--delay', `${(index % 8) * 15}ms`);
-    card.classList.add('animate-in');
-    fragment.appendChild(card);
-    index++;
-  });
-  
-  // Add advanced attacks
-  favAdvanced.forEach((attack) => {
-    const card = createAdvancedCard(attack);
-    card.style.setProperty('--delay', `${(index % 8) * 15}ms`);
-    card.classList.add('animate-in');
-    fragment.appendChild(card);
-    index++;
-  });
-
-  searchResultsGrid.innerHTML = '';
-  searchResultsGrid.appendChild(fragment);
   updateControllers();
 }
 
@@ -2933,7 +2711,6 @@ function initSettings() {
   const settingsModal = document.getElementById('settingsModal');
   const closeSettingsBtn = document.getElementById('closeSettingsBtn');
   const clearRecentBtn = document.getElementById('clearRecentBtn');
-  const clearFavoritesBtn = document.getElementById('clearFavoritesBtn');
   const resetAllBtn = document.getElementById('resetAllBtn');
   const showControllerImg = document.getElementById('showControllerImg');
   const animationsEnabled = document.getElementById('animationsEnabled');
@@ -2980,20 +2757,6 @@ function initSettings() {
       localStorage.removeItem('fc25_recent');
       renderRecentlyViewed();
       showNotification(t('recentCleared') || 'Recently viewed cleared!');
-    }
-  });
-
-  // Clear favorites
-  clearFavoritesBtn?.addEventListener('click', () => {
-    if (confirm(t('confirmClearFavorites') || 'Clear all favorite tricks?')) {
-      localStorage.removeItem('fc25_favorites');
-      if (_tricksRendered) renderTricks();
-      renderAdvancedAttacks();
-      const activeBtn = document.querySelector('.level-btn.active');
-      if (activeBtn && activeBtn.dataset.level === 'favorites') {
-        showFavorites();
-      }
-      showNotification(t('favoritesCleared') || 'Favorites cleared!');
     }
   });
 

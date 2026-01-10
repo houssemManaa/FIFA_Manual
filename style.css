@@ -490,19 +490,6 @@ body.theme-light .theme-btn.active{
   border-color: #0d7377;
 }
 
-body.theme-light .favorite-btn{
-  background: rgba(255, 255, 255, 0.98);
-  border: 2px solid rgba(255, 107, 157, 0.4);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  color: #ff1744;
-}
-
-body.theme-light .favorite-btn:hover{
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0 4px 12px rgba(255, 23, 68, 0.3);
-  border-color: #ff1744;
-}
-
 body.theme-light .advanced-card{
   background: #ffffff;
   border: 1px solid #cbd5e1;
@@ -703,7 +690,6 @@ html[dir="rtl"] .controls{ justify-content: flex-start; }
 html[dir="rtl"] .header-logo{ right:auto; left:90px; }
 html[dir="rtl"] .site-footer{ right:auto; left:18px; }
 html[dir="rtl"] .site-footer p{ text-align:left; }
-html[dir="rtl"] .favorite-btn{ right:auto; left:12px; }
 html[dir="rtl"] .card{ text-align: right; }
 html[dir="rtl"] .card-title{ text-align: right; }
 html[dir="rtl"] .stars{ text-align: right; }
@@ -1289,36 +1275,6 @@ body.theme-light .header-logo{
   filter:none;
 }
 
-.favorite-btn{
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: rgba(0,0,0,0.3);
-  border: none;
-  color: #ff6b9d;
-  font-size: 1.4rem;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease, background 0.2s ease;
-  z-index: 2;
-  padding: 0;
-  line-height: 1;
-}
-
-.favorite-btn:hover{
-  transform: scale(1.15);
-  background: rgba(0,0,0,0.5);
-}
-
-.favorite-btn:focus{
-  outline: 2px solid rgba(255,107,157,0.5);
-  outline-offset: 2px;
-}
 .card:hover{ transform: translateY(-4px); box-shadow: 0 16px 30px rgba(0,0,0,0.55), 0 0 0 1px rgba(107,214,75,0.10); }
 
 .card-title{ margin:0 0 6px 0; font-size:1.05rem; color:var(--accent); }
@@ -1355,8 +1311,6 @@ body.theme-light .header-logo{
 /* Featured card style smaller version of card */
 .featured-card .card{ width:100%; position:relative; }
 .featured-card .card:hover{ transform: none; box-shadow: 0 6px 12px rgba(0,0,0,0.45); }
-.featured-card .favorite-btn:hover{ transform: none; }
-
 /* ========== RESPONSIVE DESIGN ========== */
 /* Extra small phones (320px - 480px) */
 @media (max-width:480px){
@@ -1403,7 +1357,6 @@ body.theme-light .header-logo{
   .featured-card { flex-direction: column; }
   
   .watch-btn { padding: 8px 12px; font-size: 0.8rem; }
-  .favorite-btn { width: 28px; height: 28px; font-size: 0.9rem; }
   
   .settings-btn { top: 12px; left: 12px; width: 44px; height: 44px; font-size: 20px; }
   .floating-theme { right: 10px; bottom: 72px; }
