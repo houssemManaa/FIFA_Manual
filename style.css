@@ -683,11 +683,6 @@ body::after{
 /* Keep content above background overlays */
 .site-header, main{ position:relative; z-index:1; }
 
-@media (max-width: 768px) {
-  .site-header { z-index: 0; }
-  main { z-index: 1; }
-}
-
 /* RTL support (Arabic): mirror layout */
 html[dir="rtl"] body{ direction: rtl; }
 html[dir="rtl"] .header-inner{ flex-direction: row-reverse; }
@@ -710,13 +705,6 @@ html[dir="rtl"] .stars{ text-align: right; }
   background: linear-gradient(180deg, rgba(20,32,44,0.92), rgba(10,20,30,0.82));
   backdrop-filter: blur(16px);
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  z-index: 1;
-}
-
-@media (max-width: 768px) {
-  .site-header {
-    z-index: 0;
-  }
 }
 
 .site-header::after{
@@ -744,12 +732,6 @@ html[dir="rtl"] .stars{ text-align: right; }
 .header-logo:hover{
   opacity: 1;
   transform: scale(1.05);
-}
-
-@media (max-width: 768px) {
-  .header-logo {
-    display: none !important;
-  }
 }
 
 .header-inner{
@@ -1338,71 +1320,48 @@ body.theme-light .header-logo{
     --gap: 12px;
   }
   
-  .site-header {
-    padding: 16px 12px 20px;
-  }
-  
-  .header-logo {
-    display: none;
-  }
-  
   .buy-game-group {
-    gap: 8px;
-    flex-direction: column;
-    width: 100%;
+    gap: 6px;
   }
   
   .buy-game-btn {
-    padding: 10px 16px;
-    font-size: 13px;
-    border-radius: 22px;
-    width: 100%;
-    text-align: center;
+    padding: 7px 12px;
+    font-size: 12px;
+    border-radius: 18px;
   }
   
-  .site-title { font-size: 1.8rem; }
-  .site-sub { font-size: 0.9rem; }
+  .site-title { font-size: 1.6rem; }
+  .site-sub { font-size: 0.95rem; }
   .platform-badge { font-size: 0.75rem; padding: 4px 10px; }
   .header-top { padding-bottom: 12px; }
-  .title-section { gap: 8px; justify-content: center; }
+  .title-section { gap: 8px; }
   
   .control-row { flex-direction: column; align-items: stretch; gap: 12px; }
-  .lang-select, .search-box { min-width: 100%; flex: 1; width: 100%; }
-  .lang-select { min-width: 100%; width: 100%; }
-  .search-box { min-width: 100%; width: 100%; }
+  .lang-select, .search-box { min-width: 100%; flex: 1; }
+  .lang-select { min-width: 100%; }
+  .search-box { min-width: 100%; }
   
-  #searchInput, #languageSelect {
-    width: 100%;
-    font-size: 16px !important;
-  }
+  .controls { padding: 16px 12px; gap: 16px; }
+  .level-buttons { gap: 6px; flex-wrap: wrap; }
+  .level-btn { padding: 8px 12px; font-size: 0.85rem; }
+  .level-btn-special { padding: 8px 12px; font-size: 0.85rem; }
   
-  .controls { padding: 12px; gap: 14px; }
-  .level-buttons { gap: 8px; flex-wrap: wrap; justify-content: center; }
-  .level-btn { padding: 10px 14px; font-size: 0.85rem; min-width: 70px; }
-  .level-btn-special { padding: 10px 14px; font-size: 0.85rem; min-width: 100px; }
-  
-  .card { padding: 14px; }
+  .card { padding: 10px; }
   .card-title { font-size: 1rem; }
   .stars { font-size: 0.9rem; }
-  .controller { font-size: 0.85rem; padding: 6px 8px; }
-  .desc { font-size: 0.85rem; line-height: 1.4; }
-  .tip { font-size: 0.8rem; line-height: 1.4; }
+  .controller { font-size: 0.85rem; }
+  .desc { font-size: 0.85rem; }
+  .tip { font-size: 0.8rem; }
   
-  .cards-grid { grid-template-columns: 1fr; gap: 12px; max-width: 100%; padding: 0 4px; }
+  .cards-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
   .featured-card { flex-direction: column; }
   
-  .featured, .recently-viewed-section, .search-results-section, .tricks-section {
-    padding-left: 8px;
-    padding-right: 8px;
-    margin-left: 0;
-    margin-right: 0;
-  }
+  .watch-btn { padding: 8px 12px; font-size: 0.8rem; }
   
-  .watch-btn { padding: 10px 16px; font-size: 0.85rem; width: 100%; text-align: center; }
-  
-  .floating-theme { right: 10px; bottom: 160px; }
+  .settings-btn { top: 12px; left: 12px; width: 44px; height: 44px; font-size: 20px; }
+  .floating-theme { right: 10px; bottom: 72px; }
   .site-footer { right: 10px; bottom: 16px; }
-  .site-footer p { font-size: 0.75rem; }
+  .site-footer p { font-size: 0.8rem; }
 }
 
 /* Small-medium phones (480px - 768px) */
@@ -1411,43 +1370,23 @@ body.theme-light .header-logo{
     --big: 1.1rem;
   }
   
-  .site-header {
-    padding: 20px 16px;
-  }
-  
-  .header-logo {
-    height: 100px;
-    top: 25px;
-    right: 20px;
-  }
-  
   .site-title { font-size: 2rem; }
   .site-sub { font-size: 1rem; }
   .platform-badge { font-size: 0.85rem; padding: 5px 12px; }
   
   .control-row { flex-wrap: wrap; gap: 16px; }
-  .lang-select { min-width: auto; flex: 0 0 auto; width: 100%; }
-  .search-box { flex: 1 1 100%; min-width: 200px; width: 100%; }
+  .lang-select { min-width: auto; flex: 0 0 auto; }
+  .search-box { flex: 1 1 100%; min-width: 200px; }
   
-  .level-buttons { gap: 8px; justify-content: center; flex-wrap: wrap; }
-  .level-btn { padding: 10px 14px; font-size: 0.9rem; }
-  .level-btn-special { padding: 10px 14px; font-size: 0.9rem; }
+  .level-buttons { gap: 8px; }
+  .level-btn { padding: 9px 13px; font-size: 0.9rem; }
+  .level-btn-special { padding: 9px 13px; font-size: 0.9rem; }
   
-  .buy-game-group {
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-  }
+  .card { padding: 12px; }
+  .cards-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
   
-  .buy-game-btn {
-    width: 100%;
-    text-align: center;
-  }
-  
-  .card { padding: 14px; }
-  .cards-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
-  
-  .floating-theme { right: 12px; bottom: 120px; }
+  .settings-btn { top: 15px; left: 15px; width: 45px; height: 45px; font-size: 20px; }
+  .floating-theme { right: 12px; bottom: 78px; }
   .site-footer { right: 12px; bottom: 24px; }
 }
 
@@ -1456,27 +1395,8 @@ body.theme-light .header-logo{
   .site-title { font-size: 2.2rem; }
   .cards-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
   
+  .settings-btn { top: 18px; left: 18px; width: 48px; height: 48px; }
   .floating-theme { right: 16px; bottom: 82px; }
-}
-
-@media (max-width:480px){
-  .advanced-cards-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  
-  .advanced-attacks-section {
-    padding: 0 8px 24px;
-    margin-top: 32px;
-  }
-  
-  .advanced-attacks-section h2 {
-    font-size: 1.5rem;
-  }
-  
-  .advanced-card {
-    padding: 16px;
-  }
 }
 
 /* Footer: place small note bottom-right and slightly higher than bottom edge */
@@ -1496,7 +1416,7 @@ body.theme-light .header-logo{
   position: fixed;
   right: 18px;
   bottom: 86px; /* above the fixed footer */
-  z-index: 100;
+  z-index: 60;
   pointer-events: auto;
 }
 
@@ -1504,8 +1424,7 @@ body.theme-light .header-logo{
   .site-footer{ right:10px; bottom:18px; }
   .site-footer p{ font-size:0.85rem; }
 
-  .floating-theme{ right:10px; bottom:160px; z-index: 100; }
-}
+  .floating-theme{ right:10px; bottom:72px; }
 }
 
 /* Improved touch targets and spacing */
@@ -1526,6 +1445,11 @@ body.theme-light .header-logo{
     min-height: 44px;
     padding: 10px;
     font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  /* Better spacing on mobile */
+  .site-header {
+    padding: 12px 16px;
   }
 
   .header-inner {
@@ -1594,7 +1518,6 @@ body.theme-light .header-logo{
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  width: 100%;
 }
 
 /* Buy Game Button */
@@ -1614,7 +1537,6 @@ body.theme-light .header-logo{
   text-decoration: none;
   gap: 6px;
   animation: pulse 2s infinite;
-  white-space: nowrap;
 }
 
 .buy-game-btn.ps5 {
@@ -1670,37 +1592,6 @@ body.theme-light .header-logo{
 .pdf-btn:hover {
   transform: rotate(5deg) scale(1.05);
   box-shadow: 0 6px 20px rgba(253, 199, 80, 0.4);
-}
-
-@media (max-width: 480px) {
-  .settings-btn {
-    top: auto;
-    bottom: 90px;
-    left: 10px;
-    width: 50px;
-    height: 50px;
-    font-size: 22px;
-  }
-  
-  .pdf-btn {
-    left: 70px;
-    top: auto;
-    bottom: 90px;
-  }
-}
-
-@media (min-width: 481px) and (max-width: 768px) {
-  .settings-btn {
-    top: auto;
-    bottom: 100px;
-    left: 12px;
-  }
-  
-  .pdf-btn {
-    left: 80px;
-    top: auto;
-    bottom: 100px;
-  }
 }
 
 /* Settings Modal */
