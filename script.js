@@ -1,3 +1,80 @@
+// Special player info for search bar queries
+const PLAYER_SEARCH_INFO = {
+  "kylian mbappe": { club: "PSG", pos: "ST", rating: 91 },
+  "alexia putellas": { club: "Barcelona", pos: "CAM", rating: 91 },
+  "caroline graham hansen": { club: "Barcelona", pos: "RW", rating: 90 },
+  "vinicius jr.": { club: "Real Madrid", pos: "LW", rating: 90 },
+  "martin odegaard": { club: "Arsenal", pos: "CM", rating: 89 },
+  "debinha": { club: "Kansas City Current", pos: "CF", rating: 88 },
+  "beth mead": { club: "Arsenal", pos: "RW", rating: 88 },
+  "paulo dybala": { club: "AS Roma", pos: "CAM", rating: 87 },
+  "neymar jr": { club: "Al Hilal", pos: "LW", rating: 87 },
+  "jamal musiala": { club: "Bayern Munich", pos: "CAM", rating: 87 },
+  "sakina karchaoui": { club: "PSG", pos: "LB", rating: 87 },
+  "lina magull": { club: "Inter Milan", pos: "CAM", rating: 87 },
+  "cristiano ronaldo": { club: "Al Nassr", pos: "ST", rating: 86 },
+  "rafael leao": { club: "AC Milan", pos: "LW", rating: 86 },
+  "ousmane dembele": { club: "PSG", pos: "RW", rating: 86 },
+  "lauren james": { club: "Chelsea", pos: "RW", rating: 86 },
+  "khvicha kvaratskhelia": { club: "Napoli", pos: "LW", rating: 85 },
+  "riyad mahrez": { club: "Al Ahli", pos: "RM", rating: 85 },
+  "christopher nkunku": { club: "Chelsea", pos: "CAM", rating: 84 },
+  "kingsley coman": { club: "Bayern Munich", pos: "LM", rating: 84 },
+  "amel majri": { club: "Lyon", pos: "LW", rating: 84 },
+  "marta": { club: "Orlando Pride", pos: "CAM", rating: 84 },
+  "ella toone": { club: "Manchester United", pos: "CAM", rating: 84 },
+  "lieke martens": { club: "PSG", pos: "LW", rating: 83 },
+  "angel di maria": { club: "Benfica", pos: "RM", rating: 83 },
+  "lucas paqueta": { club: "West Ham", pos: "LM", rating: 82 },
+  "marcus rashford": { club: "Manchester United", pos: "LM", rating: 81 },
+  "dzsenifer marozsan": { club: "Lyon", pos: "CM", rating: 81 },
+  "wilfred zaha": { club: "Lyon", pos: "LM", rating: 81 },
+  "luciano acosta": { club: "FC Cincinnati", pos: "CAM", rating: 81 },
+  "roberto firmino": { club: "Al Ahli", pos: "CAM", rating: 80 },
+  "allan saint-maximin": { club: "Fenerbache", pos: "LM", rating: 80 },
+  "deyna castellanos": { club: "Bay FC", pos: "CM", rating: 80 },
+  "nuno santos": { club: "Sporting CP", pos: "LM", rating: 80 },
+  "joao felix": { club: "Chelsea", pos: "LW", rating: 80 },
+  "david neres": { club: "Napoli", pos: "LM", rating: 80 },
+  "hakim ziyech": { club: "Galatasaray", pos: "RM", rating: 80 },
+  "noa lang": { club: "PSV", pos: "LW", rating: 79 },
+  "juan cuadrado": { club: "Atalanta", pos: "RB", rating: 78 },
+  "jessica silva": { club: "Benfica", pos: "ST", rating: 78 },
+  "antony": { club: "Manchester United", pos: "RM", rating: 77 },
+  "amine harit": { club: "Marseille", pos: "CM", rating: 76 },
+  "chidera ejuke": { club: "Sevilla", pos: "LM", rating: 76 },
+  "eduardo salvio": { club: "Lanus", pos: "RW", rating: 75 },
+  "jota": { club: "Stade Rennais", pos: "LM", rating: 75 },
+  "georginio rutter": { club: "Brighton", pos: "CAM", rating: 75 },
+  "rayan cherki": { club: "Lyon", pos: "CAM", rating: 75 },
+  "lopez munoz": { club: "San Jose Earthquakes", pos: "CAM", rating: 74 },
+  "xherdan shaqiri": { club: "Basel", pos: "CAM", rating: 73 },
+  "osame sahraoui": { club: "Heerenveen", pos: "LM", rating: 72 },
+  "elias saad": { club: "St. Pauli", pos: "LW", rating: 71 },
+  "taha abdi ali": { club: "Malmo", pos: "LM", rating: 68 },
+};
+
+function createPlayerInfoCard(name, info) {
+  const card = document.createElement('article');
+  card.className = 'card';
+  const h = document.createElement('h3');
+  h.className = 'card-title';
+  h.textContent = name;
+  card.appendChild(h);
+  const meta = document.createElement('p');
+  meta.className = 'desc';
+  meta.textContent = `${info.club} • ${info.pos} • Rating: ${info.rating}`;
+  card.appendChild(meta);
+  const stars = document.createElement('p');
+  stars.className = 'stars';
+  stars.textContent = '⭐️⭐️⭐️⭐️⭐️ (5 Star)';
+  card.appendChild(stars);
+  const note = document.createElement('p');
+  note.className = 'tip';
+  note.textContent = 'This player is considered 5 star for skill moves.';
+  card.appendChild(note);
+  return card;
+}
 // Synonym dictionary for search (expand as needed)
 const TRICK_SYNONYMS = {
   // 1-Star
@@ -2426,6 +2503,25 @@ function setTrickOfTheDay() {
 
 // Perform search and show dedicated results area
 function performSearch(searchTerm) {
+    // Special player info search
+    const playerKey = searchTerm.trim().toLowerCase();
+    if (PLAYER_SEARCH_INFO[playerKey]) {
+      if (tricksSection) tricksSection.style.display = 'none';
+      if (advancedSection) advancedSection.style.display = 'none';
+      if (featuredSection) featuredSection.style.display = 'none';
+      if (searchResultsSection) searchResultsSection.style.display = 'block';
+      if (clearBtn) clearBtn.style.display = 'flex';
+      if (searchResultsGrid) {
+        searchResultsGrid.innerHTML = '';
+        searchResultsGrid.appendChild(createPlayerInfoCard(
+          searchTerm.trim(),
+          PLAYER_SEARCH_INFO[playerKey]
+        ));
+      }
+      if (searchResultsCount) searchResultsCount.textContent = '';
+      if (noResultsMsg) noResultsMsg.style.display = 'none';
+      return;
+    }
   const tricksSection = document.getElementById('tricks');
   const advancedSection = document.querySelector('.advanced-attacks-section');
   const featuredSection = document.getElementById('featured');
