@@ -1,3 +1,13 @@
+body {
+  font-family: 'Montserrat', Arial, sans-serif;
+  background: linear-gradient(135deg, #181f24 0%, #23272e 60%, #FFD700 100%);
+  background-size: 100% 100%;
+  /* Let background show through cards */
+  color: #e6f1fa;
+  margin: 0;
+  min-height: 100vh;
+  transition: background 0.3s;
+}
 .level-btn[data-level="advanced"] {
   font-weight: 900;
   font-family: 'Courier New', Courier, monospace;
@@ -35,7 +45,7 @@
 .advanced-card {
   background: #181f24;
   border-radius: 18px;
-  box-shadow: 0 2px 12px #0002;
+  box-shadow: 0 1px 4px #0002;
   padding: 20px 18px 16px 18px;
   color: #e6f1fa;
   display: flex;
@@ -43,7 +53,20 @@
   align-items: flex-start;
   min-height: 120px;
   transition: box-shadow 0.2s;
+  border: none;
 }
+  background: #181f24;
+  border-radius: 18px;
+  box-shadow: 0 1px 4px #0002;
+  padding: 20px 18px 16px 18px;
+  color: #e6f1fa;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 120px;
+  transition: box-shadow 0.2s;
+  border: none;
+  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.18);
 .advanced-card:hover {
   box-shadow: 0 4px 24px #0004;
 }
@@ -294,6 +317,7 @@ body.theme-light .controller{
 body.theme-light .featured{
   background: transparent;
   border: none;
+  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.18);
   box-shadow: none;
 }
 
@@ -1680,7 +1704,18 @@ body.theme-light .header-logo{
 }
 
 .pdf-modal-header {
+}
+  background: rgba(24, 31, 36, 0.65);
+  border-radius: 18px;
+  box-shadow: 0 2px 12px #FFD70022;
+  padding: 20px 18px 16px 18px;
+  color: #e6f1fa;
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 120px;
+  transition: box-shadow 0.2s;
+  border: none;
   justify-content: space-between;
   align-items: center;
 }
@@ -1904,15 +1939,16 @@ body.theme-light .header-logo{
   from {
     opacity: 0;
   }
-  to {
-    opacity: 1;
+  html, body {
+    font-family: 'Montserrat', Arial, sans-serif;
+    background: linear-gradient(135deg, #181f24 0%, #23272e 40%, #23272e 70%, #FFD700 100%);
+    background-attachment: fixed;
+    background-size: cover;
+    color: #e6f1fa;
+    margin: 0;
+    min-height: 100vh;
+    transition: background 0.3s;
   }
-}
-
-.settings-content {
-  background: var(--color-bg);
-  border-radius: 20px;
-  max-width: 600px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;

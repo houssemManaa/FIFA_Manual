@@ -1,3 +1,66 @@
+// Synonym dictionary for search (expand as needed)
+const TRICK_SYNONYMS = {
+  // 1-Star
+  'directional nutmeg': ['l1+r1+rs', 'lb+rb+rs'],
+  'ball juggle': ['standing juggle'],
+  'open up fake shot': ['drag fake'],
+  'flick up': ['r3 press', 'knee flick'],
+  // 2-Star
+  'ball roll': ['drag'],
+  'body feint': ['shoulder feint'],
+  'stepover': ['step over'],
+  'reverse stepover': ['fake stepover'],
+  'drag back': ['pivot', 'turn'],
+  'big feint': ['l2/lt + flick rs'],
+  // 3-Star
+  'heel flick': ['heel-to-heel'],
+  'roulette': ['360 spin'],
+  'fake left and go right': ['drag back spin', 'roulette variant'],
+  'heel chop': ['l2/lt + square/circle + x'],
+  'stutter feint': ['fake turn'],
+  // 4-Star
+  'ball hop': ['l1+r3', 'hop'],
+  'ball roll drag': ['ball roll + drag'],
+  'drag back turn': ['pivot turn'],
+  'flair nutmegs': ['flair nutmeg', '180 flair nutmeg'],
+  'heel to heel': ['heel-to-heel flick'],
+  'simple rainbow': ['flick up'],
+  'spin right': ['mcgeady spin', 'bolasie spin'],
+  'spin left': ['mcgeady spin', 'bolasie spin'],
+  'stop and turn': ['180° turn'],
+  'lane change': ['l1+hold rs', 'lateral heel-to-heel'],
+  'three touch roulette': ['roulette variant'],
+  'drag to heel': ['heel to ball roll'],
+  'stop and go': ['l2/lt + rs back/forward'],
+  'step over ball': ['l1/lb + flick rs'],
+  // 5-Star
+  'elastico': ['flip flap'],
+  'reverse elastico': ['reverse flip flap'],
+  'advanced rainbow': ['complex rainbow'],
+  'hocus pocus': ['behind the back'],
+  'triple elastico': ['three-way flip flap'],
+  'sombrero flick': ['flick up', 'juggle'],
+  'tornado spin': ['360 spin', '4-star spin'],
+  'toe drag stepover': ['5-star fancy move'],
+  'flair rainbow': ['advanced rainbow variant'],
+};
+
+// Helper: get all synonyms for a search term (including reverse lookup)
+function getSynonymMatches(term) {
+  const matches = new Set();
+  const lowerTerm = term.toLowerCase();
+  // Direct match
+  if (TRICK_SYNONYMS[lowerTerm]) {
+    TRICK_SYNONYMS[lowerTerm].forEach(s => matches.add(s));
+  }
+  // Reverse: if term is a synonym, add the main trick
+  for (const [main, syns] of Object.entries(TRICK_SYNONYMS)) {
+    if (syns.map(s => s.toLowerCase()).includes(lowerTerm)) {
+      matches.add(main);
+    }
+  }
+  return Array.from(matches);
+}
 // Advanced Attacks data
 const advancedAttacks = [
   { action: 'Quick Tactics', ps: 'D-Pad: UP', xbox: 'D-Pad UP' },
@@ -2400,27 +2463,30 @@ function performSearch(searchTerm) {
   const searchFilters = document.querySelector('.search-filters');
   if (searchFilters) searchFilters.style.display = '';
 
-  const term = searchTerm.toLowerCase().trim();
 
-  // Build/refresh search index for current language (cheap on repeats)
+  const term = searchTerm.toLowerCase().trim();
   rebuildSearchIndex();
-  
-  // Search through tricks (use indexed lowercased strings)
+
+  // Gather synonyms for the search term
+  const synonyms = getSynonymMatches(term);
+  const allTerms = [term, ...synonyms.map(s => s.toLowerCase())];
+
+  // Search through tricks (use indexed lowercased strings and synonyms)
   const matchingTricks = [];
   for (const row of _searchIndexTricks) {
-    if (row.nameLower.includes(term) || row.translatedLower.includes(term)) {
+    if (allTerms.some(t => row.nameLower.includes(t) || row.translatedLower.includes(t))) {
       matchingTricks.push(row.trick);
     }
   }
-  
-  // Search through advanced attacks (use indexed lowercased strings)
+
+  // Search through advanced attacks (use indexed lowercased strings and synonyms)
   const matchingAdvanced = [];
   for (const row of _searchIndexAdvanced) {
-    if (row.actionLower.includes(term) || row.translatedLower.includes(term)) {
+    if (allTerms.some(t => row.actionLower.includes(t) || row.translatedLower.includes(t))) {
       matchingAdvanced.push(row.attack);
     }
   }
-  
+
   // Store search results globally (combine both with type identifier)
   currentSearchResults = [
     ...matchingTricks.map(t => ({ ...t, type: 'skill' })),
