@@ -1747,7 +1747,7 @@ function translateControlsString(input) {
 // Update all UI text elements with current language
 function updateUIText() {
   const siteTitle = document.querySelector('.site-title');
-  if (siteTitle) siteTitle.textContent = t('siteTitle');
+  if (siteTitle) siteTitle.textContent = 'FC25 & FC26 Tricks Manual';
   
   const langLabel = document.getElementById('langLabel');
   if (langLabel) langLabel.textContent = t('languageLabel');
@@ -3222,6 +3222,11 @@ function buildPdfPrintRoot({ includeSkills, includeAdvanced, starsSet, customEna
 
   const root = document.createElement('div');
   root.className = 'pdf-print-root';
+  // Enable color mode if selected
+  const colorMode = document.getElementById('pdfColorMode');
+  if (colorMode && colorMode.checked) {
+    root.classList.add('color-mode');
+  }
 
   const title = document.createElement('h1');
   title.textContent = t('siteTitle');

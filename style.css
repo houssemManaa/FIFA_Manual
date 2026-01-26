@@ -1,3 +1,31 @@
+/* Prevent cards from being split across pages in PDF/print */
+@media print {
+  .pdf-print-root .card,
+  .pdf-print-root .advanced-card {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    background: #181f24 !important;
+    color: #e6f1fa !important;
+    box-shadow: 0 2px 12px #FFD70033 !important;
+  }
+  .pdf-print-root.color-mode .card,
+  .pdf-print-root.color-mode .advanced-card {
+    background: #181f24 !important;
+    color: #e6f1fa !important;
+    border-radius: 18px !important;
+    box-shadow: 0 2px 16px 0 rgba(0,0,0,0.18) !important;
+    border: none !important;
+  }
+  .pdf-print-root.color-mode h1,
+  .pdf-print-root.color-mode h3 {
+    color: #FFD700 !important;
+    text-shadow: 0 2px 12px #0006;
+    letter-spacing: 0.5px;
+  }
+  .pdf-print-root.color-mode .meta {
+    color: #FFD700 !important;
+  }
+}
 body {
   font-family: 'Montserrat', Arial, sans-serif;
   background: linear-gradient(135deg, #181f24 0%, #23272e 60%, #FFD700 100%);
